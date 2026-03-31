@@ -1,0 +1,1257 @@
+<!DOCTYPE html>
+<html lang="tr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Routecar Hasar Yönetimi – Sigorta Acenteleri İçin</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,500;0,700;1,500&family=Plus+Jakarta+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --ink:#0A0F1E;
+  --ink2:#1E2B45;
+  --ink3:#2E4068;
+  --steel:#4A6080;
+  --mist:#8FA3B8;
+  --silver:#C2D0DC;
+  --cloud:#EBF0F5;
+  --fog:#F5F7FA;
+  --white:#FFFFFF;
+  --gold:#C4922A;
+  --gold2:#E8B84B;
+  --gold-pale:#FDF3DE;
+  --radius:8px;
+}
+html{scroll-behavior:smooth}
+body{font-family:'Plus Jakarta Sans',sans-serif;color:var(--ink);background:var(--white);font-size:16px;line-height:1.7;overflow-x:hidden}
+h1,h2,h3,h4{font-family:'Playfair Display',serif;font-weight:500;line-height:1.18;letter-spacing:-0.01em}
+a{text-decoration:none;color:inherit}
+
+/* ─── NAV ─── */
+nav{
+  position:fixed;top:0;left:0;right:0;z-index:200;
+  display:flex;align-items:center;justify-content:space-between;
+  padding:0 6vw;height:72px;
+  background:rgba(10,15,30,0.96);
+  backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,0.06);
+  transition:background .3s;
+}
+.nav-brand{display:flex;align-items:center;gap:10px}
+.nav-logomark{
+  width:38px;height:38px;border-radius:6px;
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  display:flex;align-items:center;justify-content:center;
+}
+.nav-logomark svg{width:20px;height:20px}
+.nav-name{display:flex;flex-direction:column;line-height:1}
+.nav-top{font-family:'Playfair Display',serif;font-size:17px;color:#fff;letter-spacing:0.01em}
+.nav-sub{font-size:10px;font-weight:600;letter-spacing:0.14em;text-transform:uppercase;color:var(--gold2);margin-top:1px}
+.nav-links{display:flex;align-items:center;gap:32px;list-style:none}
+.nav-links a{font-size:13px;font-weight:500;color:rgba(255,255,255,0.6);letter-spacing:0.03em;transition:color .2s}
+.nav-links a:hover{color:#fff}
+.nav-btn{
+  background:var(--gold);color:var(--ink) !important;
+  padding:9px 22px;border-radius:var(--radius);
+  font-weight:600 !important;font-size:13px !important;
+  transition:opacity .2s !important;
+}
+.nav-btn:hover{opacity:.85}
+
+/* ─── HERO ─── */
+.hero{
+  min-height:100vh;
+  background:var(--ink);
+  display:grid;grid-template-columns:1fr 1fr;
+  align-items:center;
+  padding:120px 6vw 80px;
+  gap:60px;
+  position:relative;overflow:hidden;
+}
+.hero-bg-lines{
+  position:absolute;inset:0;pointer-events:none;
+}
+.hero-left{position:relative;z-index:2}
+.hero-tag{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(196,146,42,0.12);
+  border:1px solid rgba(196,146,42,0.25);
+  border-radius:40px;padding:6px 16px;
+  margin-bottom:30px;
+}
+.hero-tag span{
+  font-size:11px;font-weight:700;letter-spacing:0.12em;
+  text-transform:uppercase;color:var(--gold2);
+}
+.hero h1{
+  font-size:clamp(36px,4.2vw,58px);
+  color:#fff;margin-bottom:26px;
+  max-width:560px;
+}
+.hero h1 em{font-style:italic;color:var(--gold2)}
+.hero-desc{
+  font-size:17px;color:rgba(255,255,255,0.55);
+  max-width:480px;line-height:1.8;
+  font-weight:300;margin-bottom:44px;
+}
+.hero-actions{display:flex;gap:12px;flex-wrap:wrap}
+.btn-gold{
+  background:var(--gold);color:var(--ink);
+  padding:15px 34px;border-radius:var(--radius);
+  font-weight:600;font-size:15px;
+  transition:opacity .2s;display:inline-block;
+}
+.btn-gold:hover{opacity:.88}
+.btn-ghost{
+  border:1.5px solid rgba(255,255,255,0.2);
+  color:#fff;padding:15px 34px;border-radius:var(--radius);
+  font-weight:400;font-size:15px;
+  transition:border-color .2s;display:inline-block;
+}
+.btn-ghost:hover{border-color:rgba(255,255,255,0.5)}
+.hero-right{position:relative;z-index:2}
+.hero-card-stack{display:flex;flex-direction:column;gap:14px}
+.hcard{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:24px 28px;
+  display:flex;align-items:center;gap:18px;
+  transition:background .3s;
+}
+.hcard:hover{background:rgba(255,255,255,0.07)}
+.hcard-icon{
+  width:46px;height:46px;border-radius:10px;
+  background:rgba(196,146,42,0.15);
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.hcard-icon svg{width:22px;height:22px}
+.hcard-text h4{font-family:'Plus Jakarta Sans',sans-serif;font-size:15px;font-weight:600;color:#fff;margin-bottom:3px}
+.hcard-text p{font-size:13px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.5}
+.hcard.active{
+  background:rgba(196,146,42,0.08);
+  border-color:rgba(196,146,42,0.3);
+}
+.hcard.active .hcard-text h4{color:var(--gold2)}
+.hero-bottom-strip{
+  position:absolute;bottom:0;left:0;right:0;
+  border-top:1px solid rgba(255,255,255,0.06);
+  display:flex;
+}
+.hbs-item{
+  flex:1;padding:24px 6vw;
+  border-right:1px solid rgba(255,255,255,0.06);
+  display:flex;align-items:center;gap:16px;
+}
+.hbs-item:last-child{border-right:none}
+.hbs-num{
+  font-family:'Playfair Display',serif;
+  font-size:30px;color:var(--gold2);
+}
+.hbs-lbl{font-size:13px;color:rgba(255,255,255,0.4);font-weight:300;line-height:1.4}
+
+/* ─── SECTION SHARED ─── */
+section{padding:100px 6vw}
+.s-eyebrow{
+  font-size:11px;font-weight:700;letter-spacing:0.16em;
+  text-transform:uppercase;color:var(--gold);
+  display:block;margin-bottom:14px;
+}
+.s-title{font-size:clamp(28px,3.2vw,44px);color:var(--ink);margin-bottom:16px}
+.s-sub{font-size:17px;color:var(--steel);font-weight:300;max-width:500px;line-height:1.8}
+
+/* ─── HOW ─── */
+.how{background:var(--fog)}
+.how-layout{display:grid;grid-template-columns:5fr 4fr;gap:80px;margin-top:70px;align-items:start}
+.process-track{display:flex;flex-direction:column}
+.pt-item{
+  display:grid;grid-template-columns:56px 1fr;
+  gap:24px;padding-bottom:0;
+}
+.pt-left{display:flex;flex-direction:column;align-items:center}
+.pt-num{
+  width:52px;height:52px;border-radius:50%;
+  background:var(--ink);color:#fff;
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;font-size:20px;
+  flex-shrink:0;
+}
+.pt-line{width:1px;flex:1;background:var(--silver);margin:8px 0;min-height:48px}
+.pt-item:last-child .pt-line{display:none}
+.pt-body{padding-top:12px;padding-bottom:40px}
+.pt-body h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:17px;font-weight:600;color:var(--ink);margin-bottom:6px}
+.pt-body p{font-size:14px;color:var(--steel);line-height:1.7;font-weight:300}
+.pt-body .pt-tag{
+  display:inline-block;margin-top:10px;
+  font-size:11px;font-weight:700;letter-spacing:0.08em;
+  text-transform:uppercase;color:var(--gold);
+  background:var(--gold-pale);padding:4px 12px;border-radius:40px;
+}
+
+.how-panel{
+  background:var(--ink2);border-radius:16px;
+  padding:40px 36px;position:sticky;top:100px;
+}
+.how-panel-title{
+  font-size:13px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:var(--mist);
+  margin-bottom:28px;
+}
+.flow-nodes{display:flex;flex-direction:column;gap:10px}
+.fn{
+  background:rgba(255,255,255,0.05);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:8px;padding:14px 18px;
+  display:flex;align-items:center;gap:12px;
+}
+.fn-dot{width:8px;height:8px;border-radius:50%;background:var(--mist);flex-shrink:0}
+.fn.fn-hero{
+  background:rgba(196,146,42,0.12);
+  border-color:rgba(196,146,42,0.35);
+}
+.fn.fn-hero .fn-dot{background:var(--gold2)}
+.fn-label{font-size:13px;color:rgba(255,255,255,0.6);font-weight:400;line-height:1.4}
+.fn.fn-hero .fn-label{color:var(--gold2);font-weight:500}
+.fn-arrow{
+  text-align:center;color:rgba(255,255,255,0.15);
+  font-size:18px;line-height:1;padding:2px 0;
+}
+.how-note{
+  margin-top:28px;padding-top:20px;
+  border-top:1px solid rgba(255,255,255,0.08);
+  font-size:12px;color:rgba(255,255,255,0.3);
+  line-height:1.65;font-weight:300;
+}
+
+/* ─── WHY ─── */
+.why{background:var(--white)}
+.why-top{display:grid;grid-template-columns:1fr 1fr;gap:60px;margin-bottom:64px;align-items:end}
+.why-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:20px}
+.wcard{
+  border:1px solid var(--cloud);
+  border-radius:12px;padding:32px 28px;
+  transition:all .25s;position:relative;overflow:hidden;
+}
+.wcard::before{
+  content:'';position:absolute;
+  top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+  transform:scaleX(0);transform-origin:left;
+  transition:transform .3s;
+}
+.wcard:hover{border-color:var(--silver);box-shadow:0 8px 32px rgba(0,0,0,0.06)}
+.wcard:hover::before{transform:scaleX(1)}
+.wcard-num{
+  font-family:'Playfair Display',serif;
+  font-size:42px;color:var(--cloud);
+  position:absolute;top:20px;right:24px;
+  line-height:1;pointer-events:none;
+}
+.wcard-icon{
+  width:44px;height:44px;background:var(--ink);
+  border-radius:10px;margin-bottom:20px;
+  display:flex;align-items:center;justify-content:center;
+}
+.wcard-icon svg{width:20px;height:20px}
+.wcard h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:16px;font-weight:600;color:var(--ink);margin-bottom:10px}
+.wcard p{font-size:14px;color:var(--steel);line-height:1.7;font-weight:300}
+
+/* ─── COMPARE ─── */
+.compare{background:var(--fog)}
+.compare-inner{max-width:860px}
+.compare-table{
+  margin-top:56px;
+  border:1px solid var(--silver);
+  border-radius:14px;overflow:hidden;
+}
+.ct-header{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  background:var(--ink);
+}
+.ct-col{padding:18px 24px;font-size:13px;font-weight:600;color:rgba(255,255,255,0.5);letter-spacing:0.06em;text-transform:uppercase}
+.ct-col.ct-us{color:var(--gold2)}
+.ct-row{
+  display:grid;grid-template-columns:1fr 1fr 1fr;
+  border-bottom:1px solid var(--cloud);
+}
+.ct-row:last-child{border-bottom:none}
+.ct-row:nth-child(odd){background:var(--white)}
+.ct-cell{padding:18px 24px;font-size:14px;color:var(--steel);font-weight:300;display:flex;align-items:center;gap:8px}
+.ct-cell.ct-feature{color:var(--ink);font-weight:500}
+.ct-cell.ct-yes{color:#1a6b3c;font-weight:500}
+.ct-cell.ct-no{color:#b0b8c5}
+.ct-check{width:18px;height:18px;border-radius:50%;background:#dcf5e8;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ct-check svg{width:10px;height:10px}
+.ct-cross{width:18px;height:18px;border-radius:50%;background:var(--cloud);display:inline-flex;align-items:center;justify-content:center;flex-shrink:0}
+
+/* ─── TESTIMONIAL / SOCIAL PROOF ─── */
+.proof{background:var(--ink)}
+.proof-inner{
+  display:grid;grid-template-columns:1fr 1fr;
+  gap:80px;align-items:center;
+}
+.proof-left h2{
+  font-size:clamp(26px,3vw,40px);
+  color:#fff;margin-bottom:20px;
+}
+.proof-left p{font-size:16px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.8;margin-bottom:36px}
+.proof-stat-row{display:flex;gap:40px;margin-top:48px;padding-top:40px;border-top:1px solid rgba(255,255,255,0.08)}
+.ps-item .ps-num{
+  font-family:'Playfair Display',serif;
+  font-size:38px;color:var(--gold2);display:block;
+}
+.ps-item .ps-lbl{font-size:13px;color:rgba(255,255,255,0.35);font-weight:300}
+.proof-cards{display:flex;flex-direction:column;gap:16px}
+.pcard{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:12px;padding:28px;
+}
+.pcard-quote{
+  font-size:15px;color:rgba(255,255,255,0.65);
+  font-weight:300;line-height:1.75;margin-bottom:20px;
+  font-style:italic;
+}
+.pcard-author{display:flex;align-items:center;gap:12px}
+.pcard-avatar{
+  width:38px;height:38px;border-radius:50%;
+  background:rgba(196,146,42,0.2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Playfair Display',serif;
+  font-size:15px;color:var(--gold2);flex-shrink:0;
+}
+.pcard-info span{display:block;font-size:13px;font-weight:600;color:#fff}
+.pcard-info small{font-size:12px;color:rgba(255,255,255,0.3);font-weight:300}
+
+/* ─── CTA ─── */
+.cta-section{
+  background:linear-gradient(135deg,var(--gold) 0%,var(--gold2) 100%);
+  padding:80px 6vw;
+}
+.cta-inner{
+  display:grid;grid-template-columns:1fr auto;
+  gap:40px;align-items:center;
+  max-width:1100px;margin:0 auto;
+}
+.cta-section h2{
+  font-size:clamp(24px,3vw,38px);color:var(--ink);margin-bottom:10px;
+}
+.cta-section p{font-size:16px;color:rgba(10,15,30,0.6);font-weight:300}
+.btn-dark{
+  background:var(--ink);color:#fff;
+  padding:16px 40px;border-radius:var(--radius);
+  font-weight:600;font-size:15px;
+  white-space:nowrap;display:inline-block;
+  transition:opacity .2s;
+}
+.btn-dark:hover{opacity:.85}
+
+/* ─── CONTACT ─── */
+.contact{background:var(--fog)}
+.contact-layout{display:grid;grid-template-columns:1fr 1fr;gap:80px;margin-top:64px;align-items:start}
+.contact-left h3{font-family:'Plus Jakarta Sans',sans-serif;font-size:20px;font-weight:600;color:var(--ink);margin-bottom:12px}
+.contact-left p{font-size:15px;color:var(--steel);font-weight:300;line-height:1.8;margin-bottom:36px}
+.c-detail{display:flex;align-items:flex-start;gap:14px;margin-bottom:20px}
+.c-icon{
+  width:40px;height:40px;background:var(--ink);border-radius:8px;
+  display:flex;align-items:center;justify-content:center;flex-shrink:0;
+}
+.c-icon svg{width:18px;height:18px}
+.c-txt span{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--mist);display:block;margin-bottom:2px}
+.c-txt strong{font-size:15px;color:var(--ink);font-weight:500}
+.routecar-link{
+  display:inline-flex;align-items:center;gap:8px;
+  margin-top:32px;
+  background:var(--ink);color:#fff;
+  padding:14px 24px;border-radius:var(--radius);
+  font-size:14px;font-weight:500;
+  transition:opacity .2s;
+}
+.routecar-link:hover{opacity:.85}
+.routecar-link svg{width:14px;height:14px}
+.contact-form{
+  background:var(--white);
+  border:1px solid var(--silver);
+  border-radius:16px;padding:44px;
+}
+.form-title{
+  font-family:'Playfair Display',serif;
+  font-size:22px;color:var(--ink);margin-bottom:8px;
+}
+.form-sub{font-size:14px;color:var(--steel);font-weight:300;margin-bottom:32px}
+label{
+  display:block;font-size:11px;font-weight:700;
+  letter-spacing:0.08em;text-transform:uppercase;
+  color:var(--steel);margin-bottom:7px;
+}
+input,select,textarea{
+  width:100%;border:1.5px solid var(--cloud);
+  border-radius:var(--radius);padding:12px 16px;
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;color:var(--ink);background:var(--white);
+  outline:none;transition:border-color .2s;
+}
+input:focus,select:focus,textarea:focus{border-color:var(--ink2)}
+textarea{resize:vertical;min-height:100px}
+.f-row{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-bottom:14px}
+.f-field{margin-bottom:14px}
+.f-submit{
+  width:100%;background:var(--ink);color:#fff;
+  border:none;border-radius:var(--radius);
+  padding:15px;font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:15px;font-weight:600;cursor:pointer;
+  margin-top:6px;transition:opacity .2s;
+}
+.f-submit:hover{opacity:.85}
+.f-note{font-size:11px;color:var(--mist);text-align:center;margin-top:10px;font-weight:300}
+
+/* ─── FOOTER ─── */
+footer{background:var(--ink2);padding:56px 6vw 32px}
+.ft-top{
+  display:grid;grid-template-columns:2fr 1fr 1fr;
+  gap:60px;padding-bottom:36px;
+  border-bottom:1px solid rgba(255,255,255,0.07);
+  margin-bottom:28px;
+}
+.ft-brand-text{
+  font-size:14px;color:rgba(255,255,255,0.35);
+  font-weight:300;margin-top:14px;line-height:1.7;
+  max-width:280px;
+}
+.ft-col h5{
+  font-family:'Plus Jakarta Sans',sans-serif;
+  font-size:11px;font-weight:700;letter-spacing:0.1em;
+  text-transform:uppercase;color:rgba(255,255,255,0.4);
+  margin-bottom:16px;
+}
+.ft-col ul{list-style:none}
+.ft-col li{margin-bottom:10px}
+.ft-col a{font-size:14px;color:rgba(255,255,255,0.35);font-weight:300;transition:color .2s}
+.ft-col a:hover{color:#fff}
+.ft-bottom{display:flex;justify-content:space-between;align-items:center}
+.ft-copy{font-size:13px;color:rgba(255,255,255,0.2);font-weight:300}
+.ft-legal{display:flex;gap:24px}
+.ft-legal a{font-size:13px;color:rgba(255,255,255,0.2);transition:color .2s}
+.ft-legal a:hover{color:rgba(255,255,255,0.5)}
+
+/* ─── PARENT BADGE ─── */
+.parent-badge{
+  display:inline-flex;align-items:center;gap:8px;
+  background:rgba(255,255,255,0.06);
+  border:1px solid rgba(255,255,255,0.1);
+  border-radius:6px;padding:8px 16px;
+  margin-top:24px;
+}
+.parent-badge span{font-size:12px;color:rgba(255,255,255,0.35);font-weight:300}
+.parent-badge strong{font-size:13px;color:rgba(255,255,255,0.65);font-weight:500}
+
+/* ─── TEKNOLOJİ ─── */
+.tech{background:var(--ink)}
+.tech-header{text-align:center;margin-bottom:64px}
+.tech-header .s-eyebrow{color:var(--gold2)}
+.tech-header .s-title{color:#fff;margin:0 auto;max-width:600px}
+.tech-header .s-sub{color:rgba(255,255,255,0.45);margin:14px auto 0;text-align:center}
+.tech-products{display:grid;grid-template-columns:1fr 1fr;gap:24px;margin-bottom:56px}
+.tpcard{
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;padding:44px 40px;
+  position:relative;overflow:hidden;
+  transition:border-color .25s;
+}
+.tpcard:hover{border-color:rgba(196,146,42,0.4)}
+.tpcard::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;
+  background:linear-gradient(90deg,var(--gold),var(--gold2));
+}
+.tpcard-badge{
+  display:inline-flex;align-items:center;gap:7px;
+  background:rgba(196,146,42,0.12);
+  border:1px solid rgba(196,146,42,0.25);
+  border-radius:40px;padding:5px 14px;
+  margin-bottom:24px;
+}
+.tpcard-badge span{font-size:11px;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--gold2)}
+.tpcard h3{font-size:clamp(20px,2.2vw,26px);color:#fff;margin-bottom:14px}
+.tpcard-desc{font-size:15px;color:rgba(255,255,255,0.5);font-weight:300;line-height:1.8;margin-bottom:28px}
+.tpcard-features{display:flex;flex-direction:column;gap:10px;margin-bottom:32px}
+.tpf{display:flex;align-items:flex-start;gap:10px}
+.tpf-dot{width:18px;height:18px;border-radius:50%;background:rgba(196,146,42,0.15);border:1px solid rgba(196,146,42,0.3);display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:3px}
+.tpf-dot svg{width:9px;height:9px}
+.tpf-text{font-size:14px;color:rgba(255,255,255,0.65);line-height:1.55;font-weight:300}
+.tpcard-screens{
+  background:rgba(255,255,255,0.04);
+  border:1px solid rgba(255,255,255,0.07);
+  border-radius:10px;padding:16px 20px;
+  display:flex;gap:8px;flex-wrap:wrap;
+}
+.tpcard-screen-pill{
+  background:rgba(255,255,255,0.07);
+  border-radius:20px;padding:5px 14px;
+  font-size:12px;font-weight:500;color:rgba(255,255,255,0.5);
+}
+.tpcard-screen-pill.active{background:rgba(196,146,42,0.15);color:var(--gold2);border:1px solid rgba(196,146,42,0.25)}
+.tech-demo{
+  background:rgba(255,255,255,0.03);
+  border:1px solid rgba(255,255,255,0.08);
+  border-radius:16px;
+  padding:48px 56px;
+  display:grid;grid-template-columns:1fr auto;
+  gap:40px;align-items:center;
+}
+.tech-demo h3{font-size:clamp(20px,2.2vw,28px);color:#fff;margin-bottom:10px}
+.tech-demo p{font-size:15px;color:rgba(255,255,255,0.45);font-weight:300;line-height:1.7}
+.demo-btns{display:flex;gap:12px;flex-shrink:0;flex-wrap:wrap}
+.btn-demo-gold{
+  background:var(--gold);color:var(--ink);
+  padding:14px 28px;border-radius:var(--radius);
+  font-weight:600;font-size:14px;white-space:nowrap;
+  transition:opacity .2s;display:inline-block;
+}
+.btn-demo-gold:hover{opacity:.85}
+.btn-demo-outline{
+  border:1.5px solid rgba(255,255,255,0.2);color:#fff;
+  padding:14px 28px;border-radius:var(--radius);
+  font-size:14px;font-weight:400;white-space:nowrap;
+  transition:border-color .2s;display:inline-block;
+}
+.btn-demo-outline:hover{border-color:rgba(255,255,255,0.5)}
+
+/* ─── HAMBURGERs ─── */
+.nav-hamburger{
+  display:none;flex-direction:column;gap:5px;
+  cursor:pointer;padding:8px;background:none;border:none;
+}
+.nav-hamburger span{
+  display:block;width:22px;height:2px;
+  background:#fff;border-radius:2px;
+  transition:all .25s;
+}
+.nav-hamburger.open span:nth-child(1){transform:translateY(7px) rotate(45deg)}
+.nav-hamburger.open span:nth-child(2){opacity:0}
+.nav-hamburger.open span:nth-child(3){transform:translateY(-7px) rotate(-45deg)}
+
+.mobile-menu{
+  display:none;
+  position:fixed;top:72px;left:0;right:0;z-index:199;
+  background:rgba(10,15,30,0.98);
+  backdrop-filter:blur(16px);
+  border-bottom:1px solid rgba(255,255,255,0.08);
+  padding:24px 6vw 32px;
+  flex-direction:column;gap:4px;
+}
+.mobile-menu.open{display:flex}
+.mobile-menu a{
+  font-size:16px;font-weight:500;color:rgba(255,255,255,0.7);
+  padding:12px 0;border-bottom:1px solid rgba(255,255,255,0.06);
+  transition:color .2s;
+}
+.mobile-menu a:last-child{border-bottom:none}
+.mobile-menu a:hover{color:#fff}
+.mobile-menu .mob-cta{
+  margin-top:16px;background:var(--gold);color:var(--ink) !important;
+  padding:14px 24px;border-radius:var(--radius);text-align:center;
+  font-weight:600 !important;border-bottom:none !important;
+}
+
+/* ─── RESPONSIVE ─── */
+@media(max-width:900px){
+  .hero{grid-template-columns:1fr;padding:120px 6vw 60px;min-height:auto}
+  .hero-right{display:none}
+  .hero-bottom-strip{position:static;margin-top:48px;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,0.1)}
+  .hbs-item{flex:1 1 33%}
+  .how-layout{grid-template-columns:1fr}
+  .how-panel{position:static}
+  .why-top{grid-template-columns:1fr}
+  .why-grid{grid-template-columns:1fr 1fr}
+  .proof-inner{grid-template-columns:1fr}
+  .proof-cards{margin-top:40px}
+  .contact-layout{grid-template-columns:1fr}
+  .cta-inner{grid-template-columns:1fr;text-align:center}
+  .cta-inner .btn-dark{display:block;text-align:center}
+  .ft-top{grid-template-columns:1fr}
+  .tech-products{grid-template-columns:1fr}
+  .tech-demo{grid-template-columns:1fr;text-align:center}
+  .demo-btns{justify-content:center}
+  .compare-table{overflow-x:auto}
+  .ct-header,.ct-row{min-width:560px}
+  .compare-inner{overflow-x:hidden}
+}
+@media(max-width:620px){
+  .nav-links{display:none}
+  .nav-hamburger{display:flex}
+  .why-grid{grid-template-columns:1fr}
+  .f-row{grid-template-columns:1fr}
+  section{padding:64px 5vw}
+  .hero{padding:100px 5vw 48px}
+  .hero-desc{font-size:15px}
+  .hero-actions{flex-direction:column}
+  .btn-gold,.btn-ghost{text-align:center}
+  .hbs-item{flex:1 1 100%;border-right:none !important;border-bottom:1px solid rgba(255,255,255,0.06);padding:18px 5vw}
+  .hbs-item:last-child{border-bottom:none}
+  .contact-form{padding:28px 20px}
+  .tech-demo{padding:32px 24px}
+  .demo-btns{flex-direction:column}
+  .btn-demo-gold,.btn-demo-outline{text-align:center}
+  .pcard{padding:22px 18px}
+  .proof-stat-row{flex-wrap:wrap;gap:24px}
+  .ft-legal{flex-direction:column;gap:8px;align-items:flex-end}
+  .ft-bottom{flex-direction:column;gap:12px;align-items:flex-start}
+}
+</style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-brand">
+    <div class="nav-logomark">
+      <svg viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg">
+        <path d="M4 10a6 6 0 0112 0 6 6 0 01-12 0z" stroke="#0A0F1E" stroke-width="1.5"/>
+        <path d="M10 7.5V10l2 2" stroke="#0A0F1E" stroke-width="1.5" stroke-linecap="round"/>
+        <path d="M10 4V3M10 17v-1M3 10H2M18 10h-1" stroke="#0A0F1E" stroke-width="1.2" stroke-linecap="round"/>
+      </svg>
+    </div>
+    <div class="nav-name">
+      <span class="nav-top">Routecar</span>
+      <span class="nav-sub">Hasar Yönetimi</span>
+    </div>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#nasil-calisir">Nasıl Çalışırız</a></li>
+    <li><a href="#neden-routecar">Neden Biz</a></li>
+    <li><a href="#karsilastirma">Karşılaştırma</a></li>
+    <li><a href="#teknoloji">Teknoloji</a></li>
+    <li><a href="#iletisim" class="nav-btn">Ağa Katılın</a></li>
+  </ul>
+  <button class="nav-hamburger" id="hamburger" aria-label="Menü">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#nasil-calisir">Nasıl Çalışırız</a>
+  <a href="#neden-routecar">Neden Biz</a>
+  <a href="#karsilastirma">Karşılaştırma</a>
+  <a href="#teknoloji">Teknoloji</a>
+  <a href="#iletisim" class="mob-cta">Ağa Katılın</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="anasayfa">
+  <svg class="hero-bg-lines" viewBox="0 0 1200 800" preserveAspectRatio="xMidYMid slice" xmlns="http://www.w3.org/2000/svg">
+    <circle cx="900" cy="400" r="350" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    <circle cx="900" cy="400" r="250" fill="none" stroke="rgba(255,255,255,0.03)" stroke-width="1"/>
+    <circle cx="900" cy="400" r="150" fill="none" stroke="rgba(196,146,42,0.07)" stroke-width="1"/>
+    <line x1="600" y1="0" x2="1200" y2="800" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+    <line x1="0" y1="400" x2="1200" y2="400" stroke="rgba(255,255,255,0.02)" stroke-width="1"/>
+  </svg>
+
+  <div class="hero-left">
+    <div class="hero-tag"><span>Sigorta Acenteleri İçin · Ücretsiz</span></div>
+    <h1>Hasar dosyası açıldığında <em>sizi değil, bizi</em> düşünsün.</h1>
+    <p class="hero-desc">Routecar Hasar Yönetimi, sigorta acentelerinin tüm hasar süreçlerini uçtan uca üstlenir. Tek bildirimle başlar; eksper, sigorta şirketi, belgeler — hepsini biz yönetiriz.</p>
+    <div class="hero-actions">
+      <a href="#iletisim" class="btn-gold">Ağımıza Katılın</a>
+      <a href="#nasil-calisir" class="btn-ghost">Nasıl Çalışır?</a>
+    </div>
+    <div class="parent-badge">
+      <span>Bir</span>
+      <strong>Routecar Otomotiv</strong>
+      <span>hizmetidir</span>
+    </div>
+  </div>
+
+  <div class="hero-right">
+    <div class="hero-card-stack">
+      <div class="hcard active">
+        <div class="hcard-icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E8B84B" stroke-width="1.4" stroke-linecap="round"><path d="M11 3l2.5 5L19 9l-4 4 1 5.5L11 16 6 18.5l1-5.5-4-4 5.5-1L11 3z"/></svg>
+        </div>
+        <div class="hcard-text">
+          <h4>Sıfır ücret, tam hizmet</h4>
+          <p>Acentenizden herhangi bir bedel talep etmiyoruz.</p>
+        </div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E8B84B" stroke-width="1.4" stroke-linecap="round"><rect x="3" y="4" width="16" height="14" rx="2"/><path d="M7 9h8M7 13h5"/></svg>
+        </div>
+        <div class="hcard-text">
+          <h4>Tek bildirim yeterli</h4>
+          <p>Hasarı bize iletin; geri kalan her şeyi üstleniyoruz.</p>
+        </div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E8B84B" stroke-width="1.4" stroke-linecap="round"><circle cx="11" cy="11" r="7"/><path d="M11 8v3l2 2"/></svg>
+        </div>
+        <div class="hcard-text">
+          <h4>Gerçek zamanlı takip</h4>
+          <p>Her dosyanın durumunu anlık olarak biliyorsunuz.</p>
+        </div>
+      </div>
+      <div class="hcard">
+        <div class="hcard-icon">
+          <svg viewBox="0 0 22 22" fill="none" stroke="#E8B84B" stroke-width="1.4" stroke-linecap="round"><path d="M4 17s1-4 7-4 7 4 7 4"/><circle cx="11" cy="9" r="4"/></svg>
+        </div>
+        <div class="hcard-text">
+          <h4>Müşteri size ait kalır</h4>
+          <p>Müşteri gözünde her zaman acentesi sahip çıktı.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="hero-bottom-strip">
+    <div class="hbs-item">
+      <span class="hbs-num">%100</span>
+      <span class="hbs-lbl">Ücretsiz<br>hizmet</span>
+    </div>
+    <div class="hbs-item">
+      <span class="hbs-num">360°</span>
+      <span class="hbs-lbl">Hasar<br>takibi</span>
+    </div>
+    <div class="hbs-item">
+      <span class="hbs-num">1</span>
+      <span class="hbs-lbl">Bildirimle<br>başlar</span>
+    </div>
+  </div>
+</section>
+
+<!-- HOW IT WORKS -->
+<section class="how" id="nasil-calisir">
+  <span class="s-eyebrow">Süreç</span>
+  <h2 class="s-title">Nasıl çalışırız?</h2>
+  <p class="s-sub">Dört adımda eksiksiz hasar yönetimi. Acentenizin yapması gereken tek şey hasarı bize bildirmek.</p>
+
+  <div class="how-layout">
+    <div class="process-track">
+      <div class="pt-item">
+        <div class="pt-left">
+          <div class="pt-num">1</div>
+          <div class="pt-line"></div>
+        </div>
+        <div class="pt-body">
+          <h3>Hasarı bize bildirin</h3>
+          <p>Müşterinizin hasarı olduğunda — telefon, WhatsApp veya e-posta ile bize iletmeniz yeterli. Araç bilgisi, sigorta poliçesi ve hasar niteliği bilgisini alıyoruz.</p>
+          <span class="pt-tag">Sadece 1 adım acenteden</span>
+        </div>
+      </div>
+      <div class="pt-item">
+        <div class="pt-left">
+          <div class="pt-num">2</div>
+          <div class="pt-line"></div>
+        </div>
+        <div class="pt-body">
+          <h3>Dosyayı açıyoruz</h3>
+          <p>Sigorta şirketiyle tüm koordinasyonu başlatıyoruz. Gerekli belgeleri talep ediyoruz, eksper randevusunu organize ediyoruz. Acente adına.</p>
+        </div>
+      </div>
+      <div class="pt-item">
+        <div class="pt-left">
+          <div class="pt-num">3</div>
+          <div class="pt-line"></div>
+        </div>
+        <div class="pt-body">
+          <h3>Üçgeni biz yönetiyoruz</h3>
+          <p>Sigortalı – sigorta şirketi – eksper arasındaki tüm iletişim ve belge akışını üstleniyoruz. Anlaşmazlık varsa müzakere ediyoruz. Siz bilgilendiriliyorsunuz, müşteriniz güvende.</p>
+          <span class="pt-tag">Sigorta uzmanı ekibimiz devrede</span>
+        </div>
+      </div>
+      <div class="pt-item">
+        <div class="pt-left">
+          <div class="pt-num">4</div>
+        </div>
+        <div class="pt-body">
+          <h3>Hasar kapanır, müşteri memnun</h3>
+          <p>Tazminat sigortalıya ödenir. Müşteriniz hasarında yanında olan acentesini unutmaz. Yenileme döneminde sizi tercih eder.</p>
+          <span class="pt-tag">Müşteri memnuniyeti → portföy büyümesi</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="how-panel">
+      <p class="how-panel-title">Aktörler ve Sorumluluklar</p>
+      <div class="flow-nodes">
+        <div class="fn">
+          <div class="fn-dot" style="background:#8FA3B8"></div>
+          <div class="fn-label"><strong style="color:rgba(255,255,255,0.7)">Sigortalı</strong><br>Hasarını acentesine bildirir</div>
+        </div>
+        <div class="fn-arrow">↓</div>
+        <div class="fn">
+          <div class="fn-dot" style="background:#8FA3B8"></div>
+          <div class="fn-label"><strong style="color:rgba(255,255,255,0.7)">Sigorta Acentesi</strong><br>Tek bildirimle bizi devreye alır</div>
+        </div>
+        <div class="fn-arrow">↓</div>
+        <div class="fn fn-hero">
+          <div class="fn-dot"></div>
+          <div class="fn-label"><strong>Routecar Hasar Yönetimi</strong><br>Tüm süreci acente adına yönetir</div>
+        </div>
+        <div class="fn-arrow">↕</div>
+        <div class="fn">
+          <div class="fn-dot"></div>
+          <div class="fn-label"><strong style="color:rgba(255,255,255,0.7)">Sigorta Şirketi + Eksper</strong><br>Routecar ile koordinasyon sağlar</div>
+        </div>
+        <div class="fn-arrow">↓</div>
+        <div class="fn" style="border-color:rgba(196,146,42,0.2)">
+          <div class="fn-dot" style="background:var(--gold)"></div>
+          <div class="fn-label" style="color:rgba(255,255,255,0.55)"><strong style="color:rgba(255,255,255,0.8)">Sonuç</strong><br>Tazminat ödenir. Dosya kapanır. ✓</div>
+        </div>
+      </div>
+      <p class="how-note">Acenteniz her aşamada bilgilendirilir. Routecar hiçbir zaman acentenin önüne geçmez — arka planda çalışır.</p>
+    </div>
+  </div>
+</section>
+
+<!-- WHY -->
+<section class="why" id="neden-routecar">
+  <div class="why-top">
+    <div>
+      <span class="s-eyebrow">Neden Routecar</span>
+      <h2 class="s-title">Acentenizin en kârlı<br>kararı.</h2>
+    </div>
+    <p class="s-sub">Hasar süreci acentelerin en çok enerji yediği, en az değer yarattığı noktadır. Bu yükü tamamen üstleniyoruz — ücretsiz.</p>
+  </div>
+  <div class="why-grid">
+    <div class="wcard">
+      <span class="wcard-num">01</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><circle cx="10" cy="10" r="7"/><path d="M10 7v3l2 2"/></svg>
+      </div>
+      <h3>Zamandan tasarruf</h3>
+      <p>Hasar dosyalarıyla harcadığınız saatleri geri kazanın. Asıl işinize — portföy büyütmeye — odaklanın.</p>
+    </div>
+    <div class="wcard">
+      <span class="wcard-num">02</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><path d="M10 3l2 4.5 5 .7-3.5 3.5.8 5L10 14.5 5.7 16.7l.8-5L3 8.2l5-.7L10 3z"/></svg>
+      </div>
+      <h3>Müşteri sadakati</h3>
+      <p>Hasar anında yanında olan acente, yenileme döneminde tercih edilir. Memnun müşteri portföyden ayrılmaz.</p>
+    </div>
+    <div class="wcard">
+      <span class="wcard-num">03</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><rect x="3" y="4" width="14" height="12" rx="2"/><path d="M7 8h6M7 12h4"/></svg>
+      </div>
+      <h3>Uzman dosya yönetimi</h3>
+      <p>Sigorta mevzuatı, ekspertiz süreci ve şirket prosedürlerini bilen kadromuz her dosyayı en iyi sonuçla kapatır.</p>
+    </div>
+    <div class="wcard">
+      <span class="wcard-num">04</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><path d="M3 10c0-3.87 3.13-7 7-7s7 3.13 7 7"/><path d="M13 17l4-4-4-4"/><path d="M17 13H10"/></svg>
+      </div>
+      <h3>Sıfır mali yük</h3>
+      <p>Acenteden hiçbir ücret talep etmiyoruz. İş modelimiz acenteyi değil, süreci yönetmek üzerine kuruludur.</p>
+    </div>
+    <div class="wcard">
+      <span class="wcard-num">05</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><path d="M4 12l4 4 8-9"/></svg>
+      </div>
+      <h3>Şeffaf raporlama</h3>
+      <p>Her dosyanın anlık durumunu biliyorsunuz. Müşterinize her an doğru bilgi verebilirsiniz.</p>
+    </div>
+    <div class="wcard">
+      <span class="wcard-num">06</span>
+      <div class="wcard-icon">
+        <svg viewBox="0 0 20 20" fill="none" stroke="#C4922A" stroke-width="1.4" stroke-linecap="round"><circle cx="8" cy="7" r="3"/><circle cx="14" cy="11" r="3"/><path d="M5 17c0-2 1.3-3.5 3-3.5"/></svg>
+      </div>
+      <h3>Rekabet avantajı</h3>
+      <p>"Hasarınızda yanınızdayız" diyebilen acente olun. Bu tek cümle sizi rakiplerinizden ayırır.</p>
+    </div>
+  </div>
+</section>
+
+<!-- COMPARE -->
+<section class="compare" id="karsilastirma">
+  <div class="compare-inner">
+    <span class="s-eyebrow">Karşılaştırma</span>
+    <h2 class="s-title">Routecar ile fark nedir?</h2>
+    <p class="s-sub">Hasar sürecini kendi başınıza yönetmekle, bize devretmek arasındaki fark.</p>
+    <div class="compare-table" style="overflow-x:auto;-webkit-overflow-scrolling:touch;">
+      <div style="min-width:560px">
+      <div class="ct-header">
+        <div class="ct-col">Konu</div>
+        <div class="ct-col ct-us">Routecar ile</div>
+        <div class="ct-col">Kendi başınıza</div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Acente iş yükü</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Yalnızca bildirim
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Tüm süreç sizde
+        </div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Maliyet</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Ücretsiz
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Zaman = maliyet
+        </div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Uzman takibi</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Sigorta uzmanı ekip
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Acente bilgisiyle sınırlı
+        </div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Müşteri deneyimi</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Profesyonel, hızlı
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Değişken, yorucu
+        </div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Müşteri sahipliği</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Acente adına, size ait
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Size ait ama yorucu
+        </div>
+      </div>
+      <div class="ct-row">
+        <div class="ct-cell ct-feature">Portföy elde tutma</div>
+        <div class="ct-cell ct-yes">
+          <div class="ct-check"><svg viewBox="0 0 10 10" fill="none" stroke="#1a6b3c" stroke-width="1.5"><path d="M2 5l2.5 2.5L8 3"/></svg></div>
+          Artar
+        </div>
+        <div class="ct-cell ct-no">
+          <div class="ct-cross" style="color:#8FA3B8;font-size:14px">—</div>
+          Risk altında
+        </div>
+      </div>
+      </div><!-- /min-width wrapper -->
+    </div>
+  </div>
+</section>
+
+<!-- PROOF -->
+<section class="proof">
+  <div class="proof-inner">
+    <div class="proof-left">
+      <span class="s-eyebrow" style="color:var(--gold2)">Güven</span>
+      <h2 style="font-size:clamp(26px,3vw,38px);color:#fff;margin-bottom:16px">Acenteler ne söylüyor?</h2>
+      <p style="color:rgba(255,255,255,0.4);font-size:16px;font-weight:300;line-height:1.8">Ağımızdaki acentelerin hasar yönetimini devrettikten sonra yaşadığı değişim.</p>
+      <div class="proof-stat-row">
+        <div class="ps-item">
+          <span class="ps-num">+40%</span>
+          <span class="ps-lbl">Portföy yenileme<br>oranı artışı</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-num">-80%</span>
+          <span class="ps-lbl">Hasar sürecine<br>harcanan zaman</span>
+        </div>
+        <div class="ps-item">
+          <span class="ps-num">4.8</span>
+          <span class="ps-lbl">Acente memnuniyet<br>puanı (5 üzerinden)</span>
+        </div>
+      </div>
+    </div>
+    <div class="proof-cards">
+      <div class="pcard">
+        <p class="pcard-quote">"Ayda 15-20 hasar dosyasıyla uğraşıyordum. Şimdi yalnızca Routecar'ı bilgilendiriyorum. Bu zamanı yeni müşteri bulmak için kullanıyorum."</p>
+        <div class="pcard-author">
+          <div class="pcard-avatar">AY</div>
+          <div class="pcard-info">
+            <span>Ahmet Yılmaz</span>
+            <small>Sigorta Acentesi, İstanbul</small>
+          </div>
+        </div>
+      </div>
+      <div class="pcard">
+        <p class="pcard-quote">"Hasar sürecinde müşterim memnun kaldı ve yenileme döneminde ayrılmadı. Benim için en önemli kriter buydu — bunu başardık."</p>
+        <div class="pcard-author">
+          <div class="pcard-avatar">SK</div>
+          <div class="pcard-info">
+            <span>Selin Kaya</span>
+            <small>Sigorta Acentesi, Ankara</small>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TEKNOLOJİ -->
+<section class="tech" id="teknoloji">
+  <div class="tech-header">
+    <span class="s-eyebrow">Teknoloji</span>
+    <h2 class="s-title">Güçlü yazılım altyapısı</h2>
+    <p class="s-sub">Hasar ve sigorta süreçlerinizi dijitalleştiren iki otomasyon ürünümüzü keşfedin.</p>
+  </div>
+
+  <div class="tech-products">
+
+    <!-- Hasar Otomasyonu -->
+    <div class="tpcard">
+      <div class="tpcard-badge"><span>Hasar Otomasyonu</span></div>
+      <h3>Tüm hasarlar tek panelde</h3>
+      <p class="tpcard-desc">Farklı sigorta şirketlerindeki tüm mevcut hasarları tek bir ekrandan anlık olarak takip edin. Eksper, belge, durum — her şey tek yerde.</p>
+      <div class="tpcard-features">
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Tüm sigorta şirketleri tek panelde — şirketten şirkete geçiş yok</span>
+        </div>
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Hasar durumu, eksper raporu ve belge takibi anlık güncellenir</span>
+        </div>
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Bildirim sistemi ile kritik adımlarda otomatik uyarı alırsınız</span>
+        </div>
+      </div>
+      <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">Erişim Panelleri</p>
+      <div class="tpcard-screens">
+        <span class="tpcard-screen-pill active">Routecar Ekibi</span>
+        <span class="tpcard-screen-pill active">Sigorta Acentesi</span>
+        <span class="tpcard-screen-pill active">Sigortalı</span>
+      </div>
+    </div>
+
+    <!-- Sigorta Otomasyonu -->
+    <div class="tpcard">
+      <div class="tpcard-badge"><span>Sigorta Otomasyonu</span></div>
+      <h3>Acentenizi dijitalleştirin</h3>
+      <p class="tpcard-desc">Sigorta acentelerinin günlük operasyonel süreçlerini — poliçe takibi, yenileme hatırlatmaları, müşteri iletişimi — daha hızlı ve basit hale getirin.</p>
+      <div class="tpcard-features">
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Poliçe yenileme takibi ve otomatik hatırlatma sistemi</span>
+        </div>
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Müşteri portföyü yönetimi tek platformdan</span>
+        </div>
+        <div class="tpf">
+          <div class="tpf-dot"><svg viewBox="0 0 9 9" fill="none" stroke="#E8B84B" stroke-width="1.5" stroke-linecap="round"><path d="M1.5 4.5l2 2L7.5 2"/></svg></div>
+          <span class="tpf-text">Rutin işlemleri otomatize edin, zamanınızı satışa ayırın</span>
+        </div>
+      </div>
+      <p style="font-size:12px;font-weight:700;letter-spacing:0.08em;text-transform:uppercase;color:var(--mist);margin-bottom:10px">Kullanıcı Tipi</p>
+      <div class="tpcard-screens">
+        <span class="tpcard-screen-pill active">Sigorta Acentesi</span>
+        <span class="tpcard-screen-pill">Çok Şubeli Acenteler</span>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- Demo CTA -->
+  <div class="tech-demo">
+    <div>
+      <h3>Yazılımlarımızı canlı görün</h3>
+      <p>Hasar Otomasyonu veya Sigorta Otomasyonu için ücretsiz demo talep edin.<br>Size özel bir sunum ayarlayalım.</p>
+    </div>
+    <div class="demo-btns">
+      <a href="#iletisim" class="btn-demo-gold">Hasar Otomasyonu Demo</a>
+      <a href="#iletisim" class="btn-demo-outline">Sigorta Otomasyonu Demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="cta-inner">
+    <div>
+      <h2>Ağımıza katılmak <em style="font-style:italic">ücretsiz</em> ve iki dakika sürüyor.</h2>
+      <p>Hiçbir taahhüt gerektirmez. Tek bir form, bir telefon görüşmesi ve başlıyorsunuz.</p>
+    </div>
+    <a href="#iletisim" class="btn-dark">Hemen Başvurun →</a>
+  </div>
+</section>
+
+<!-- CONTACT -->
+<section class="contact" id="iletisim">
+  <span class="s-eyebrow">İletişim</span>
+  <h2 class="s-title">Ağımıza katılın</h2>
+  <p class="s-sub">Formu doldurun, en kısa sürede arayarak size özel süreci anlatalım.</p>
+
+  <div class="contact-layout">
+    <div class="contact-left">
+      <h3>Büyüklüğünüz fark etmez</h3>
+      <p>İster 50 ister 500 poliçeli olun — hasar yönetimi hizmetimiz tüm ağımızdaki acentelere eşit kalitede sunulur. Siz işinize odaklanın, hasar sürecini bize bırakın.</p>
+      <div class="c-detail">
+        <div class="c-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.3" stroke-linecap="round"><path d="M2 4l7 6 7-6"/><rect x="1" y="3" width="16" height="12" rx="2"/></svg>
+        </div>
+        <div class="c-txt"><span>E-posta</span><strong>hasar@routecar.com.tr</strong></div>
+      </div>
+      <div class="c-detail">
+        <div class="c-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.3" stroke-linecap="round"><path d="M3 2h3l2 4-2.5 1.5A10 10 0 009.5 12L11 9.5l4 2v3a1 1 0 01-1 1C5.5 15.5 2.5 9 2 5a1 1 0 011-3z"/></svg>
+        </div>
+        <div class="c-txt"><span>Telefon / WhatsApp</span><strong>0850 XXX XX XX</strong></div>
+      </div>
+      <div class="c-detail">
+        <div class="c-icon">
+          <svg viewBox="0 0 18 18" fill="none" stroke="white" stroke-width="1.3" stroke-linecap="round"><path d="M9 2C6.24 2 4 4.24 4 7c0 4.5 5 9 5 9s5-4.5 5-9c0-2.76-2.24-5-5-5z"/><circle cx="9" cy="7" r="1.5"/></svg>
+        </div>
+        <div class="c-txt"><span>Merkez</span><strong>İstanbul, Türkiye</strong></div>
+      </div>
+      <a href="https://routecar.com.tr" class="routecar-link">
+        <svg viewBox="0 0 14 14" fill="none" stroke="white" stroke-width="1.3" stroke-linecap="round"><path d="M2 7h10M7 2l5 5-5 5"/></svg>
+        Ana şirket: Routecar Otomotiv
+      </a>
+    </div>
+
+    <div class="contact-form">
+      <h3 class="form-title">Başvuru Formu</h3>
+      <p class="form-sub">Bilgilerinizi bırakın, sizi arayalım.</p>
+      <div class="f-row">
+        <div>
+          <label for="ad">Ad Soyad</label>
+          <input type="text" id="ad" placeholder="Ahmet Yılmaz">
+        </div>
+        <div>
+          <label for="tel">Telefon</label>
+          <input type="tel" id="tel" placeholder="0532 000 00 00">
+        </div>
+      </div>
+      <div class="f-field">
+        <label for="acente">Acente Adı</label>
+        <input type="text" id="acente" placeholder="Yılmaz Sigorta Acenteliği">
+      </div>
+      <div class="f-field">
+        <label for="email">E-posta</label>
+        <input type="email" id="email" placeholder="ahmet@acenteniz.com">
+      </div>
+      <div class="f-row">
+        <div>
+          <label for="il">İl</label>
+          <select id="il">
+            <option value="">Seçiniz…</option>
+            <option>İstanbul</option><option>Ankara</option><option>İzmir</option>
+            <option>Bursa</option><option>Antalya</option><option>Adana</option>
+            <option>Gaziantep</option><option>Konya</option><option>Diğer</option>
+          </select>
+        </div>
+        <div>
+          <label for="dosya">Aylık ort. hasar dosyası</label>
+          <select id="dosya">
+            <option value="">Seçiniz…</option>
+            <option>1–5</option><option>6–15</option>
+            <option>16–30</option><option>30+</option>
+          </select>
+        </div>
+      </div>
+      <div class="f-field">
+        <label for="ilgi">İlgilendiğiniz hizmet</label>
+        <select id="ilgi">
+          <option value="">Seçiniz…</option>
+          <option>Hasar Yönetimi Hizmeti</option>
+          <option>Hasar Otomasyonu – Demo Talebi</option>
+          <option>Sigorta Otomasyonu – Demo Talebi</option>
+          <option>Tüm Hizmetler</option>
+        </select>
+      </div>
+      <div class="f-field">
+        <label for="not">Notunuz (opsiyonel)</label>
+        <textarea id="not" placeholder="Soru veya eklemek istedikleriniz…"></textarea>
+      </div>
+      <button class="f-submit" id="submitBtn">Başvuru Gönder →</button>
+      <p class="f-note">Bilgileriniz yalnızca sizinle iletişim için kullanılır. Üçüncü taraflarla paylaşılmaz.</p>
+    </div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="ft-top">
+    <div>
+      <a href="#" class="nav-brand">
+        <div class="nav-logomark">
+          <svg viewBox="0 0 20 20" fill="none"><path d="M4 10a6 6 0 0112 0 6 6 0 01-12 0z" stroke="#0A0F1E" stroke-width="1.5"/><path d="M10 7.5V10l2 2" stroke="#0A0F1E" stroke-width="1.5" stroke-linecap="round"/></svg>
+        </div>
+        <div class="nav-name">
+          <span class="nav-top">Routecar</span>
+          <span class="nav-sub">Hasar Yönetimi</span>
+        </div>
+      </a>
+      <p class="ft-brand-text">Sigorta acentelerinin hasar süreçlerini uçtan uca, ücretsiz olarak yöneten profesyonel hizmet kolu. Routecar Otomotiv çatısı altında faaliyet gösterir.</p>
+    </div>
+    <div class="ft-col">
+      <h5>Sayfalar</h5>
+      <ul>
+        <li><a href="#nasil-calisir">Nasıl Çalışırız</a></li>
+        <li><a href="#neden-routecar">Neden Routecar</a></li>
+        <li><a href="#karsilastirma">Karşılaştırma</a></li>
+        <li><a href="#teknoloji">Teknoloji</a></li>
+        <li><a href="#iletisim">İletişim</a></li>
+      </ul>
+    </div>
+    <div class="ft-col">
+      <h5>Yasal</h5>
+      <ul>
+        <li><a href="#">Gizlilik Politikası</a></li>
+        <li><a href="#">KVKK Aydınlatma</a></li>
+        <li><a href="https://routecar.com.tr">Routecar Otomotiv</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="ft-bottom">
+    <p class="ft-copy">© 2025 Routecar Otomotiv Ticaret ve Sanayi Ltd. Şti. — Hasar Yönetimi Hizmetleri</p>
+    <div class="ft-legal">
+      <a href="#">Gizlilik</a>
+      <a href="#">KVKK</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// Hamburger
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', function(){
+  this.classList.toggle('open');
+  mobileMenu.classList.toggle('open');
+});
+// Close mobile menu on link click
+mobileMenu.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    hamburger.classList.remove('open');
+    mobileMenu.classList.remove('open');
+  });
+});
+
+// Form submit
+document.getElementById('submitBtn').addEventListener('click',function(){
+  const btn=this;
+  btn.textContent='Başvurunuz alındı ✓';
+  btn.style.background='#0f5c35';
+  btn.disabled=true;
+});
+
+// Smooth scroll
+document.querySelectorAll('a[href^="#"]').forEach(a=>{
+  a.addEventListener('click',function(e){
+    const t=document.querySelector(this.getAttribute('href'));
+    if(t){e.preventDefault();t.scrollIntoView({behavior:'smooth'})}
+  });
+});
+</script>
+</body>
+</html>
