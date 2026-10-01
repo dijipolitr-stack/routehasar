@@ -131,10 +131,15 @@ input:checked+.slider:before{transform:translateX(20px)}
 <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-standalone/7.23.2/babel.min.js"></script>
 <script type="text/babel">
 // ─── API BAĞLANTISI ──────────────────────────────────────────────────────
-const API_URL = "https://hasartrack-api-production.up.railway.app/api";
+// Canlı API adresi (sonunda /api ile). Canlıya alırken burayı doldurun.
+const API_URL_CANLI = "https://hasartrack-api.vercel.app/api";
+const API_URL = ["localhost","127.0.0.1"].includes(location.hostname)
+  ? "http://localhost:3001/api"
+  : API_URL_CANLI;
 
 // API yardımcı fonksiyonu
 async function apiCall(endpoint, method="GET", body=null) {
+  if (!API_URL) throw new Error("API adresi yapılandırılmamış");
   const token = localStorage.getItem("ht_token");
   const opts = {
     method,
@@ -1844,16 +1849,19 @@ function GirisKabuk({ikon,baslik,renk,aciklama,onGeri,demo,children}){
 
 function AdminGiris({onGiris,onGeri}){
   const [loading,setLoading]=useState(false);
+  const [email,setEmail]=useState("");
+  const [sifre,setSifre]=useState("");
+  const [hata,setHata]=useState("");
   const giris=async()=>{
-    setLoading(true);
+    if(!email||!sifre){setHata("E-posta ve şifre girin.");return;}
+    setLoading(true);setHata("");
     try {
-      const data = await apiCall("/auth/login","POST",{email:"admin@hasartrack.com",sifre:"admin123"});
+      const data = await apiCall("/auth/login","POST",{email,sifre});
       localStorage.setItem("ht_token", data.token);
       onGiris({rol:"admin", ...data.kullanici});
     } catch(e) {
-      console.error("Giriş hatası:", e);
-      // Demo mod — API bağlantısı olmasa bile çalış
-      onGiris({rol:"admin"});
+      setHata(e.message||"Giriş yapılamadı.");
+      setSifre("");
     } finally { setLoading(false); }
   };
   return(
@@ -1865,6 +1873,13 @@ function AdminGiris({onGiris,onGeri}){
             {y}
           </div>
         ))}
+      </div>
+      <div style={{marginBottom:14}}>
+        <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>E-POSTA</div>
+        <input type="email" value={email} onChange={e=>setEmail(e.target.value)} onKeyDown={e=>e.key==="Enter"&&giris()} placeholder="Admin e-postası" className={`inp${hata?" error":""}`} style={{marginBottom:10}}/>
+        <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>ŞİFRE</div>
+        <input type="password" value={sifre} onChange={e=>setSifre(e.target.value)} onKeyDown={e=>e.key==="Enter"&&giris()} placeholder="Şifrenizi girin" className={`inp${hata?" error":""}`}/>
+        {hata&&<div style={{fontSize:11,color:"var(--red)",marginTop:5}}>⚠ {hata}</div>}
       </div>
       <button onClick={giris} disabled={loading} className="btn-primary" style={{width:"100%",padding:13,fontSize:14,borderRadius:10}}>
         {loading?<span style={{animation:"pulse .8s infinite"}}>Yükleniyor...</span>:"Panele Giriş →"}
