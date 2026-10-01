@@ -2641,6 +2641,46 @@ function ServisPanel({servisBilgi,onCikis}){
 }
 
 
+// ─── SERVİS GİRİŞ HESABI (Admin) ─────────────────────────────────────────
+// Hesap yoksa e-posta + şifreyle açar, varsa şifreyi yeniler
+function GirisHesabiKarti({servis,onKaydedildi}){
+  const hesapVar=!!servis.kullanici_email;
+  const [email,setEmail]=useState("");
+  const [sifre,setSifre]=useState("");
+  const [kaydediliyor,setKaydediliyor]=useState(false);
+  const [mesaj,setMesaj]=useState(null); // {tip:"ok"|"hata",metin}
+  const inp={width:"100%",background:"var(--surface-1)",border:"1px solid var(--border-md)",borderRadius:8,padding:"8px 10px",fontSize:12,color:"var(--text-1)",boxSizing:"border-box"};
+  const kaydet=async()=>{
+    setMesaj(null);
+    if(sifre.length<8){setMesaj({tip:"hata",metin:"Şifre en az 8 karakter olmalı."});return;}
+    if(!hesapVar&&!email.trim()){setMesaj({tip:"hata",metin:"Giriş e-postası gerekli."});return;}
+    setKaydediliyor(true);
+    try{
+      await apiCall(`/servisler/${servis.id}`,"PATCH",hesapVar?{sifre}:{sifre,kullanici_email:email.trim()});
+      setSifre("");setEmail("");
+      setMesaj({tip:"ok",metin:hesapVar?"Şifre güncellendi.":"Giriş hesabı açıldı."});
+      onKaydedildi&&onKaydedildi();
+    }catch(e){setMesaj({tip:"hata",metin:e.message||"Kaydedilemedi."});}
+    finally{setKaydediliyor(false);}
+  };
+  return(
+    <div style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:12,padding:"14px 16px",marginBottom:24}}>
+      <ST>Giriş Hesabı</ST>
+      <div style={{fontSize:12,color:"var(--text-2)",marginBottom:10}}>
+        {hesapVar?<>Giriş e-postası: <b style={{color:"var(--text-1)"}}>{servis.kullanici_email}</b></>:"Bu servisin giriş hesabı yok. E-posta ve şifre girerek açabilirsin."}
+      </div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap",alignItems:"center"}}>
+        {!hesapVar&&<input type="email" placeholder="Giriş e-postası" value={email} onChange={e=>setEmail(e.target.value)} style={{...inp,flex:"1 1 200px",width:"auto"}}/>}
+        <input type="password" placeholder={hesapVar?"Yeni şifre (en az 8)":"Şifre (en az 8)"} value={sifre} onChange={e=>setSifre(e.target.value)} style={{...inp,flex:"1 1 160px",width:"auto"}}/>
+        <button onClick={kaydet} disabled={kaydediliyor} style={{background:"#4F46E5",color:"#fff",border:"none",borderRadius:8,padding:"8px 14px",fontSize:12,fontWeight:700,opacity:kaydediliyor?.6:1}}>
+          {kaydediliyor?"Kaydediliyor...":hesapVar?"Şifreyi Güncelle":"Hesap Aç"}
+        </button>
+      </div>
+      {mesaj&&<div style={{fontSize:12,marginTop:8,color:mesaj.tip==="ok"?"#10B981":"#EF4444"}}>{mesaj.metin}</div>}
+    </div>
+  );
+}
+
 // ─── SERVİS DETAY (Admin Görünümü) ────────────────────────────────────────
 function ServisDetayAdmin({servisId, onGeri}){
   const [acikDosya,setAcikDosya]=useState(null);
@@ -2729,6 +2769,8 @@ function ServisDetayAdmin({servisId, onGeri}){
             </div>
           ))}
         </div>
+
+        <GirisHesabiKarti servis={servis} onKaydedildi={yukle}/>
 
         {/* Her dosya için kart */}
         {dosyalar.length===0?(
