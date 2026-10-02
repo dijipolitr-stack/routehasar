@@ -3,6 +3,7 @@
 <head>
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
+<meta name="referrer" content="no-referrer"/>
 <title>HasarTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -2268,117 +2269,174 @@ function AcenteGiris({onGiris,onGeri}){
   );
 }
 
-function MusteriGiris({onGiris,onGeri}){
-  const [adim,setAdim]=useState("tc"); const [tc,setTc]=useState(""); const [kod,setKod]=useState(""); const [hata,setHata]=useState(""); const [loading,setLoading]=useState(false); const [sayac,setSayac]=useState(0);
-  useEffect(()=>{if(sayac>0){const t=setTimeout(()=>setSayac(s=>s-1),1000);return()=>clearTimeout(t);}},[sayac]);
-  const tcGonder=()=>{if(tc.replace(/\s/g,"").length<11){setHata("TC 11 haneli olmalıdır.");return;}if(tc!=="12345678901"){setHata("Bu TC numarasına kayıt bulunamadı.");return;}setLoading(true);setHata("");setTimeout(()=>{setLoading(false);setAdim("sms");setSayac(60);},1000);};
-  const smsDogrula=()=>{if(kod.length<4){setHata("4 haneli kodu girin.");return;}setLoading(true);setHata("");setTimeout(()=>{setLoading(false);if(kod==="1234")onGiris({rol:"musteri"});else{setHata("Kod hatalı. Demo: 1234");setKod("");}},800);};
+// ─── MÜŞTERİ TAKİP LİNKİ ──────────────────────────────────────────────────
+// Admin/servis süreli link üretir; müşteri ?takip=<token> adresinden giriş yapmadan durumu görür.
+// Token yalnız oluşturulduğu an döner (API özetini saklar), sonra tekrar gösterilemez.
+const takipAdresi=(token)=>`${location.origin}${location.pathname}?takip=${token}`;
+// "0532 111 22 33" -> "905321112233"; geçersizse ""
+function waNumara(tel){
+  const r=bos(tel).replace(/\D/g,"");
+  if(/^905\d{9}$/.test(r))return r;
+  if(/^05\d{9}$/.test(r))return "9"+r;
+  if(/^5\d{9}$/.test(r))return "90"+r;
+  return "";
+}
+function TakipLinkiPaneli({dosyaId,sahipTel,sahipAd,plaka}){
+  const [linkler,setLinkler]=useState([]);const [yeni,setYeni]=useState(null);
+  const [hata,setHata]=useState("");const [isleniyor,setIsleniyor]=useState(false);const [kopyalandi,setKopyalandi]=useState(false);
+  const yukle=()=>apiCall(`/takip/dosya/${dosyaId}`).then(r=>setLinkler(r.linkler||[])).catch(e=>setHata(e.message));
+  useEffect(()=>{setYeni(null);setHata("");yukle();},[dosyaId]);
+  const olustur=async()=>{
+    setIsleniyor(true);setHata("");setKopyalandi(false);
+    try{const r=await apiCall(`/takip/dosya/${dosyaId}`,"POST",{gun:30});setYeni({...r,url:takipAdresi(r.token)});await yukle();}
+    catch(e){setHata(e.message);}finally{setIsleniyor(false);}
+  };
+  const iptal=async(id)=>{
+    if(!confirm("Bu link iptal edilsin mi? Müşteri bu linkle artık durumu göremez."))return;
+    try{await apiCall(`/takip/dosya/${dosyaId}/${id}`,"DELETE");if(yeni?.id===id)setYeni(null);await yukle();}catch(e){setHata(e.message);}
+  };
+  const kopyala=async()=>{try{await navigator.clipboard.writeText(yeni.url);setKopyalandi(true);}catch(e){setHata("Kopyalanamadı, linki elle seçip kopyalayın.");}};
+  const wa=waNumara(sahipTel);
+  const waMetin=yeni?`Merhaba${sahipAd?" "+sahipAd.split(" ")[0]:""}, ${plaka||"aracınızın"} onarım durumunu bu linkten takip edebilirsiniz: ${yeni.url}`:"";
+  const aktifler=linkler.filter(l=>l.aktif);
   return(
-    <GirisKabuk ikon="👤" baslik="Sigortalı Girişi" renk="#F59E0B" onGeri={onGeri} demo="TC: 12345678901 · SMS: 1234">
-      <div style={{display:"flex",gap:8,marginBottom:24}}>
-        {["TC Kimlik","SMS Doğrulama"].map((s,i)=>(
-          <div key={i} style={{flex:1,textAlign:"center"}}>
-            <div style={{height:2,borderRadius:2,background:(adim==="tc"&&i===0)||(adim==="sms"&&i<=1)?"#F59E0B":"var(--border)",marginBottom:5}}/>
-            <div style={{fontSize:9,color:(adim==="tc"&&i===0)||(adim==="sms"&&i<=1)?"#F59E0B":"var(--text-3)",fontWeight:700,letterSpacing:".5px"}}>{s.toUpperCase()}</div>
+    <Card>
+      <ST>🔗 Müşteri Takip Linki</ST>
+      <div style={{fontSize:12,color:"var(--text-2)",lineHeight:1.6,marginBottom:12}}>Müşteri bu linkle giriş yapmadan onarım adımlarını, tahmini teslim tarihini ve servis iletişim bilgisini görür. Tutarlar ve iç notlar gösterilmez. Link 30 gün geçerlidir.</div>
+      {hata&&<div style={{marginBottom:10}}><HataKutusu hata={hata}/></div>}
+      {yeni?(
+        <div style={{padding:12,background:"rgba(16,185,129,0.06)",border:"1px solid rgba(16,185,129,0.25)",borderRadius:10,marginBottom:12}}>
+          <div style={{fontSize:11,color:"#10B981",fontWeight:700,marginBottom:6}}>Link hazır. Bu adres yalnız şimdi gösterilir.</div>
+          <input readOnly value={yeni.url} onFocus={e=>e.target.select()} className="inp mono" style={{fontSize:11,marginBottom:8}}/>
+          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
+            <button onClick={kopyala} className="btn-primary" style={{padding:"7px 14px",fontSize:12}}>{kopyalandi?"✓ Kopyalandı":"Kopyala"}</button>
+            {wa
+              ?<a href={`https://wa.me/${wa}?text=${encodeURIComponent(waMetin)}`} target="_blank" rel="noopener noreferrer" style={{padding:"7px 14px",fontSize:12,fontWeight:700,borderRadius:8,background:"#16A34A",color:"#fff",textDecoration:"none"}}>WhatsApp ile gönder</a>
+              :<span style={{fontSize:11,color:"var(--text-2)",alignSelf:"center"}}>Müşteri telefonu geçerli değil, linki elle iletin.</span>}
           </div>
-        ))}
+        </div>
+      ):(
+        <button onClick={olustur} disabled={isleniyor} className="btn-primary" style={{padding:"9px 16px",fontSize:12,marginBottom:12}}>{isleniyor?"Oluşturuluyor...":"+ Yeni takip linki oluştur"}</button>
+      )}
+      {aktifler.length>0&&(
+        <div>
+          <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>AKTİF LİNKLER ({aktifler.length})</div>
+          {aktifler.map(l=>(
+            <div key={l.id} style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,padding:"7px 0",borderTop:"1px solid var(--border)",fontSize:11}}>
+              <span style={{color:"var(--text-2)"}}>{trTarihZaman(l.created_at)} · {l.olusturan_ad||(l.olusturan_rol==="servis"?"Servis":"Admin")} · son gün {trTarihZaman(l.son_gecerlilik)} · {l.erisim_sayisi} açılış</span>
+              <button onClick={()=>iptal(l.id)} style={{background:"none",border:"1px solid rgba(239,68,68,0.35)",color:"#EF4444",borderRadius:6,padding:"2px 8px",fontSize:10,fontWeight:700}}>İptal et</button>
+            </div>
+          ))}
+        </div>
+      )}
+    </Card>
+  );
+}
+
+// Linkten token çıkarır: tam adres ya da yalnız kod yapıştırılabilir
+function takipTokenAyikla(metin){
+  const t=bos(metin).trim();
+  const m=/[?&]takip=([A-Za-z0-9_-]{43})/.exec(t);
+  if(m)return m[1];
+  return /^[A-Za-z0-9_-]{43}$/.test(t)?t:"";
+}
+function MusteriGiris({onGeri}){
+  const [metin,setMetin]=useState("");const [hata,setHata]=useState("");
+  const ac=()=>{const t=takipTokenAyikla(metin);if(!t){setHata("Geçerli bir takip linki yapıştırın.");return;}location.href=takipAdresi(t);};
+  return(
+    <GirisKabuk ikon="👤" baslik="Araç Takibi" renk="#F59E0B" onGeri={onGeri} aciklama="Aracınızın onarım durumunu görün">
+      <div style={{display:"flex",flexDirection:"column",gap:12}}>
+        <div style={{padding:13,background:"rgba(245,158,11,0.07)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:10,fontSize:12,color:"var(--text-2)",lineHeight:1.6}}>
+          Servisiniz size WhatsApp veya mesajla bir takip linki gönderir. Linke dokunmanız yeterli, şifre gerekmez. Linki bulamıyorsanız servisinizden yenisini isteyin.
+        </div>
+        <div>
+          <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>TAKİP LİNKİ</div>
+          <input value={metin} onChange={e=>{setMetin(e.target.value);setHata("");}} onKeyDown={e=>e.key==="Enter"&&ac()} placeholder="Linki buraya yapıştırın" className={`inp${hata?" error":""}`}/>
+          {hata&&<div style={{fontSize:11,color:"var(--red)",marginTop:5}}>⚠ {hata}</div>}
+        </div>
+        <button onClick={ac} style={{width:"100%",background:"linear-gradient(135deg,#D97706,#B45309)",border:"none",color:"#fff",borderRadius:10,padding:13,fontSize:13,fontWeight:700}}>Durumu Göster →</button>
       </div>
-      {adim==="tc"&&(
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          <div>
-            <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>TC KİMLİK NUMARASI</div>
-            <input type="tel" value={tc} onChange={e=>setTc(e.target.value.replace(/\D/g,"").slice(0,11))} onKeyDown={e=>e.key==="Enter"&&tcGonder()} placeholder="12345678901" className={`inp mono${hata?" error":""}`} style={{fontSize:16,letterSpacing:4}}/>
-            {hata&&<div style={{fontSize:11,color:"var(--red)",marginTop:5}}>⚠ {hata}</div>}
-          </div>
-          <button onClick={tcGonder} disabled={loading} style={{width:"100%",background:"linear-gradient(135deg,#D97706,#B45309)",border:"none",color:"#fff",borderRadius:10,padding:13,fontSize:13,fontWeight:700}}>
-            {loading?<span style={{animation:"pulse .8s infinite"}}>Gönderiliyor...</span>:"SMS Kodu Gönder →"}
-          </button>
-        </div>
-      )}
-      {adim==="sms"&&(
-        <div style={{display:"flex",flexDirection:"column",gap:12}}>
-          <div style={{padding:13,background:"rgba(245,158,11,0.07)",border:"1px solid rgba(245,158,11,0.2)",borderRadius:10,fontSize:12,color:"var(--text-2)",textAlign:"center"}}>
-            📱 <strong style={{color:"#F59E0B"}}>0532 *** ** 67</strong> numarasına SMS gönderildi
-          </div>
-          <div>
-            <div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",marginBottom:6}}>DOĞRULAMA KODU</div>
-            <input type="tel" value={kod} onChange={e=>setKod(e.target.value.replace(/\D/g,"").slice(0,4))} onKeyDown={e=>e.key==="Enter"&&smsDogrula()} placeholder="· · · ·" className={`inp mono${hata?" error":""}`} style={{fontSize:28,letterSpacing:16,textAlign:"center"}}/>
-            {hata&&<div style={{fontSize:11,color:"var(--red)",marginTop:5,textAlign:"center"}}>⚠ {hata}</div>}
-          </div>
-          <button onClick={smsDogrula} disabled={loading||kod.length<4} style={{width:"100%",background:kod.length===4?"linear-gradient(135deg,#D97706,#B45309)":"rgba(245,158,11,0.2)",border:"none",color:kod.length===4?"#fff":"var(--text-3)",borderRadius:10,padding:13,fontSize:13,fontWeight:700}}>
-            {loading?<span style={{animation:"pulse .8s infinite"}}>Doğrulanıyor...</span>:"Giriş Yap →"}
-          </button>
-          <div style={{textAlign:"center",fontSize:12,color:"var(--text-2)"}}>
-            {sayac>0?<span>Yeniden gönder: <strong style={{color:"#F59E0B"}}>{sayac}s</strong></span>:<button onClick={()=>setSayac(60)} style={{background:"none",border:"none",color:"#F59E0B",fontSize:12,textDecoration:"underline",cursor:"pointer"}}>Tekrar gönder</button>}
-          </div>
-        </div>
-      )}
     </GirisKabuk>
   );
 }
 
-// ─── MÜŞTERİ PANELİ ───────────────────────────────────────────────────────
-function MusteriPanel({onCikis}){
-  const adimlar=ONARIM_ADIMLARI;const aktif=adimlar.find(a=>a.durum==="aktif");const tamam=adimlar.filter(a=>a.durum==="tamamlandi").length;const pct=Math.round((tamam/adimlar.length)*100);
-  const [isMobile,setIsMobile]=useState(false);useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
-  const P=isMobile?12:24;
-  return(
+// ─── MÜŞTERİ TAKİP SAYFASI (herkese açık, token ile) ─────────────────────
+function TakipSayfasi({token,onCikis}){
+  const [veri,setVeri]=useState(null);const [hata,setHata]=useState("");const [yukleniyor,setYukleniyor]=useState(true);
+  const yukle=async()=>{
+    setYukleniyor(true);setHata("");
+    try{
+      // Oturum tokenı gönderilmez; uç herkese açık
+      const res=await fetch(`${API_URL}/takip/${encodeURIComponent(token)}`);
+      const j=await res.json().catch(()=>({}));
+      if(!res.ok)throw new Error(j.error||`HTTP ${res.status}`);
+      setVeri(j);
+    }catch(e){setHata(e instanceof TypeError?"Sunucuya ulaşılamadı":e.message);}
+    finally{setYukleniyor(false);}
+  };
+  useEffect(()=>{yukle();},[token]);
+  if(yukleniyor&&!veri)return <YuklemeEkrani metin="Aracınızın durumu yükleniyor..."/>;
+  const kabuk=(icerik)=>(
     <div style={{fontFamily:"var(--font-body)",background:"var(--bg)",minHeight:"100vh",color:"var(--text-1)"}}>
-      <div className="glass-header" style={{padding:`0 ${P}px`,height:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
+      <div className="glass-header" style={{padding:"0 16px",height:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
         <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:32,height:32,borderRadius:9,background:"linear-gradient(135deg,#92400E,#D97706)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>👤</div>
-          <div><div style={{fontWeight:700,fontSize:14}}>HasarTrack</div><div style={{fontSize:10,color:"var(--text-2)"}}>Sigortalı Portalı</div></div>
+          <div style={{width:32,height:32,borderRadius:9,background:"linear-gradient(135deg,#92400E,#D97706)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16}}>🚗</div>
+          <div><div style={{fontWeight:700,fontSize:14}}>HasarTrack</div><div style={{fontSize:10,color:"var(--text-2)"}}>Araç Takibi</div></div>
         </div>
-        <button onClick={onCikis} className="btn-danger" style={{padding:"5px 12px"}}>Çıkış</button>
+        {veri&&<button onClick={yukle} disabled={yukleniyor} className="btn-primary" style={{padding:"5px 12px",fontSize:12}}>{yukleniyor?"...":"Yenile"}</button>}
       </div>
-      <div style={{padding:`${isMobile?12:24}px`,maxWidth:600,margin:"0 auto",display:"flex",flexDirection:"column",gap:14}}>
-        <Card glow="#F59E0B" style={{background:"linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02))"}}>
-          <div style={{fontSize:10,color:"#F59E0B",fontWeight:700,letterSpacing:".8px",marginBottom:6}}>HOŞ GELDİNİZ</div>
-          <div style={{fontWeight:800,fontSize:isMobile?18:22,marginBottom:4}}>Merhaba, Mehmet Bey 👋</div>
-          <div style={{fontSize:13,color:"var(--text-2)",marginBottom:14}}>Aracınızın hasar dosyası aktif olarak takip edilmektedir.</div>
-          <div style={{display:"flex",gap:8,flexWrap:"wrap"}}><Chip renk="#F59E0B">{DEMO_DOSYA.arac.plaka}</Chip><Chip renk="var(--text-3)">{DEMO_DOSYA.id}</Chip><Chip renk="#10B981">● Aktif</Chip></div>
-        </Card>
-        <Card style={{background:"rgba(59,130,246,0.06)",borderColor:"rgba(59,130,246,0.18)"}}>
-          <div style={{fontSize:10,color:"#60A5FA",fontWeight:700,letterSpacing:".8px",marginBottom:8}}>⬤ MEVCUT DURUM</div>
-          <div style={{fontWeight:800,fontSize:isMobile?18:22,marginBottom:6}}>{aktif?.ad}</div>
-          <div style={{fontSize:13,color:"var(--text-2)",lineHeight:1.6,marginBottom:16}}>{aktif?.not}</div>
-          <div>
-            <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:12,color:"var(--text-2)"}}>İlerleme</span><span style={{fontSize:12,fontFamily:"var(--font-mono)",color:"#60A5FA"}}>%{pct}</span></div>
-            <div style={{height:8,background:"rgba(15,23,42,0.05)",borderRadius:4,overflow:"hidden"}}><div style={{height:"100%",width:`${pct}%`,borderRadius:4,background:"linear-gradient(90deg,#3B82F6,#2563EB)",transition:"width .6s ease"}}/></div>
-            <div style={{fontSize:11,color:"var(--text-2)",marginTop:6}}>{tamam} / {adimlar.length} adım tamamlandı</div>
-          </div>
-        </Card>
-        <Card>
-          <ST>📋 Süreç Adımları</ST>
-          {adimlar.map((a,i)=>(
-            <div key={a.id} style={{display:"flex",alignItems:"center",gap:12,padding:"10px 0",borderBottom:i<adimlar.length-1?"1px solid var(--border)":"none",opacity:a.durum==="bekliyor"?0.4:1}}>
-              <div style={{width:28,height:28,borderRadius:"50%",flexShrink:0,background:a.durum==="tamamlandi"?"#10B981":a.durum==="aktif"?"rgba(59,130,246,0.2)":"var(--border)",border:a.durum==="aktif"?"2px solid #3B82F6":"none",display:"flex",alignItems:"center",justifyContent:"center",fontSize:12,fontWeight:800,color:"#fff",transition:"all .3s"}}>
-                {a.durum==="tamamlandi"?"✓":a.durum==="aktif"?"●":i+1}
-              </div>
-              <span style={{flex:1,fontSize:13,fontWeight:a.durum==="aktif"?700:400,color:a.durum==="bekliyor"?"var(--text-3)":a.durum==="aktif"?"#60A5FA":"var(--text-1)"}}>{a.ad}</span>
-              {a.durum==="aktif"&&<Chip renk="#3B82F6" sm>Şu an burada</Chip>}
-              {a.durum==="tamamlandi"&&<Chip renk="#10B981" sm>✓</Chip>}
-            </div>
-          ))}
-        </Card>
-        <Card style={{background:"rgba(245,158,11,0.04)",borderColor:"rgba(245,158,11,0.15)"}}>
-          <div style={{fontWeight:700,fontSize:13,marginBottom:12}}>💰 Ödeme Durumu</div>
-          {[
-            {l:"Muallak Hasar",v:DEMO_DOSYA.muallakHasar,c:"#F59E0B"},
-            {l:"Sigorta Onayı",v:DEMO_DOSYA.muhasebe.onaylananTutar||"Bekleniyor",c:"#3B82F6"},
-            {l:"Sigorta Ödemesi",v:DEMO_DOSYA.muhasebe.sigortaOdeme||"Bekleniyor",c:DEMO_DOSYA.muhasebe.sigortaOdeme?"#10B981":"var(--text-3)"},
-            {l:"Müşteri Muafiyeti",v:DEMO_DOSYA.sigortaSirketi.muafiyet,c:"#F59E0B"},
-          ].map(r=>(
-            <div key={r.l} style={{display:"flex",justifyContent:"space-between",padding:"7px 0",borderBottom:"1px solid var(--border)"}}>
-              <span style={{fontSize:12,color:"var(--text-2)"}}>{r.l}</span>
-              <span style={{fontSize:12,fontWeight:700,color:r.c}}>{r.v}</span>
-            </div>
-          ))}
-          <div style={{marginTop:8,fontSize:10,color:"var(--text-2)",lineHeight:1.6}}>Detaylı bilgi için sigorta şirketiniz veya danışmanınızla iletişime geçin.</div>
-        </Card>
-      </div>
+      <div style={{padding:16,maxWidth:600,margin:"0 auto",display:"flex",flexDirection:"column",gap:14}}>{icerik}</div>
     </div>
   );
+  if(!veri)return kabuk(<>
+    <HataKutusu hata={hata} onTekrar={hata==="Sunucuya ulaşılamadı"?yukle:null}/>
+    <div style={{fontSize:12,color:"var(--text-2)",lineHeight:1.6}}>Link süresi dolmuş veya iptal edilmiş olabilir. Servisinizden yeni bir takip linki isteyin.</div>
+    <button onClick={onCikis} style={{background:"none",border:"none",color:"#F59E0B",fontSize:12,textDecoration:"underline",cursor:"pointer",alignSelf:"flex-start",padding:0}}>Ana sayfaya dön</button>
+  </>);
+  const adimlar=veri.adimlar||[];const tamam=adimlar.filter(a=>a.durum==="tamamlandi").length;
+  const pct=adimlar.length?Math.round(tamam/adimlar.length*100):0;
+  const aktif=adimlar.find(a=>a.durum==="aktif");
+  const baslik=veri.durum==="Tamamlandı"?"Onarım tamamlandı":veri.durum==="İptal"?"Dosya kapatıldı":aktif?aktif.ad:tamam===adimlar.length&&adimlar.length?"Tüm adımlar tamamlandı":"Dosyanız açıldı";
+  const a=veri.arac||{};
+  return kabuk(<>
+    {hata&&<HataKutusu hata={hata}/>}
+    <Card style={{background:"linear-gradient(135deg,rgba(245,158,11,0.08),rgba(245,158,11,0.02))"}}>
+      <div style={{fontSize:10,color:"#F59E0B",fontWeight:700,letterSpacing:".8px",marginBottom:6}}>HOŞ GELDİNİZ</div>
+      <div style={{fontWeight:800,fontSize:20,marginBottom:4}}>Merhaba{veri.sahip_ad?`, ${veri.sahip_ad}`:""}</div>
+      <div style={{fontSize:13,color:"var(--text-2)",marginBottom:12}}>{[a.marka,a.model].filter(Boolean).join(" ")}{a.yil?` (${a.yil})`:""}</div>
+      <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>{a.plaka&&<Chip renk="#F59E0B">{a.plaka}</Chip>}<Chip renk="var(--text-3)">{veri.dosya_no}</Chip></div>
+    </Card>
+    <Card style={{background:"rgba(59,130,246,0.06)",borderColor:"rgba(59,130,246,0.18)"}}>
+      <div style={{fontSize:10,color:"#60A5FA",fontWeight:700,letterSpacing:".8px",marginBottom:8}}>⬤ MEVCUT DURUM</div>
+      <div style={{fontWeight:800,fontSize:20,marginBottom:12}}>{baslik}</div>
+      {adimlar.length>0&&<>
+        <div style={{display:"flex",justifyContent:"space-between",marginBottom:6}}><span style={{fontSize:12,color:"var(--text-2)"}}>İlerleme</span><span style={{fontSize:12,fontFamily:"var(--font-mono)",color:"#60A5FA"}}>%{pct}</span></div>
+        <div style={{height:8,background:"rgba(15,23,42,0.05)",borderRadius:4,overflow:"hidden"}}><div style={{height:"100%",width:`${pct}%`,borderRadius:4,background:"linear-gradient(90deg,#3B82F6,#2563EB)",transition:"width .6s ease"}}/></div>
+        <div style={{fontSize:11,color:"var(--text-2)",marginTop:6}}>{tamam} / {adimlar.length} adım tamamlandı</div>
+      </>}
+      {(veri.arac_giris_trh||veri.tahmini_teslimat)&&(
+        <div style={{display:"flex",gap:16,flexWrap:"wrap",marginTop:12,fontSize:12}}>
+          {veri.arac_giris_trh&&<span><span style={{color:"var(--text-2)"}}>Servise giriş: </span><strong>{trTarih(veri.arac_giris_trh)}</strong></span>}
+          {veri.tahmini_teslimat&&<span><span style={{color:"var(--text-2)"}}>Tahmini teslim: </span><strong>{trTarih(veri.tahmini_teslimat)}</strong></span>}
+        </div>
+      )}
+    </Card>
+    {adimlar.length>0&&(
+      <Card>
+        <ST>📋 Süreç Adımları</ST>
+        <OnarimTimeline readonly adimlar={adimlar.map(x=>({id:x.sira,ad:x.ad,durum:x.durum,tarih:trTarihZaman(x.tamamlanma_trh)}))}/>
+      </Card>
+    )}
+    {veri.servis&&(
+      <Card>
+        <ST>🔧 Servis</ST>
+        <div style={{fontWeight:700,fontSize:14,marginBottom:4}}>{veri.servis.ad}</div>
+        {veri.servis.adres&&<div style={{fontSize:12,color:"var(--text-2)",marginBottom:8}}>{veri.servis.adres}</div>}
+        {veri.servis.telefon&&<a href={`tel:${veri.servis.telefon}`} style={{fontSize:13,fontWeight:700,color:"#F59E0B"}}>📞 {veri.servis.telefon}</a>}
+      </Card>
+    )}
+    <div style={{fontSize:10,color:"var(--text-2)",textAlign:"center",lineHeight:1.6}}>Son güncelleme {trTarihZaman(veri.son_guncelleme)} · Link {trTarihZaman(veri.link_son_gecerlilik)} tarihine kadar geçerli. Bu linki başkalarıyla paylaşmayın.</div>
+  </>);
 }
 
 // ─── SİGORTA ACENTESİ PANELİ ──────────────────────────────────────────────
@@ -2589,6 +2647,7 @@ function ServisPanel({servisBilgi,onCikis}){
                 </Card>
                 <IsEmriPaneli dosyaId={seciliId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>{detayYukle(seciliId,true);listeYukle(true);}}/>
                 <DosyaParcalari dosyaId={seciliId}/>
+                <TakipLinkiPaneli dosyaId={seciliId} sahipTel={detay?.sahip?.telefon} sahipAd={detay?.sahip?.ad} plaka={detay?.arac?.plaka}/>
               </>
             )}
           </div>
@@ -3666,6 +3725,7 @@ function AdminPanel({dosyaId,onCikis}){
               <OnarimTimeline adimlar={adimlar} onTamamla={adimTamamla}/>
             </Card>
             <IsEmriPaneli dosyaId={dosyaId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>yukle(true)}/>
+            <TakipLinkiPaneli dosyaId={dosyaId} sahipTel={dosya.sahip.telefon} sahipAd={dosya.sahip.ad} plaka={dosya.arac.plaka}/>
           </div>
         )}
 
@@ -3947,6 +4007,8 @@ function AdminPanel({dosyaId,onCikis}){
 
 // ─── ANA ROUTER ───────────────────────────────────────────────────────────
 function App(){
+  // ?takip=<token> ile gelen müşteri giriş yapmadan takip sayfasını görür
+  const [takipToken]=useState(()=>new URLSearchParams(location.search).get("takip")||"");
   const [ekran,setEkran]=useState("rolsecim");
   const [wizardAcik,setWizardAcik]=useState(false);
   const [kullanici,setKullanici]=useState(null);
@@ -3963,6 +4025,8 @@ function App(){
     return()=>window.removeEventListener("ht-oturum-bitti",h);
   },[]);
 
+  if(takipToken)return <TakipSayfasi token={takipToken} onCikis={()=>{location.href=location.pathname;}}/>;
+
   return(
     <>
       {oturumMesaj&&ekran==="rolsecim"&&<div onClick={()=>setOturumMesaj("")} style={{position:"fixed",top:12,left:"50%",transform:"translateX(-50%)",zIndex:600,background:"rgba(239,68,68,0.95)",color:"#fff",borderRadius:10,padding:"10px 18px",fontSize:12,fontWeight:700,cursor:"pointer",maxWidth:"calc(100% - 32px)"}}>⚠ {oturumMesaj}</div>}
@@ -3970,7 +4034,7 @@ function App(){
       {ekran==="admin-giris"   &&<AdminGiris   onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
       {ekran==="servis-giris"  &&<ServisGiris  onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
       {ekran==="acente-giris"  &&<AcenteGiris  onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
-      {ekran==="musteri-giris" &&<MusteriGiris onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
+      {ekran==="musteri-giris" &&<MusteriGiris onGeri={()=>setEkran("rolsecim")}/>}
       {ekran==="admin-dashboard"&&(
         <>
           <AdminDashboard onDosyaSec={(id)=>{setSeciliDosyaId(id);setEkran("admin-panel");}} onYeniDosya={()=>setWizardAcik(true)} onCikis={cikis} onServisDetay={(id)=>{setKullanici(k=>({...k,servisDetayId:id}));setEkran("admin-servis-detay");}}/>
@@ -3981,7 +4045,6 @@ function App(){
       {ekran==="admin-servis-detay"&&<ServisDetayAdmin servisId={kullanici?.servisDetayId} onGeri={()=>setEkran("admin-dashboard")}/>}
       {ekran==="servis-panel" &&<ServisPanel servisBilgi={kullanici?.servis||{id:"",ad:"Servis",adres:"",telefon:""}} onCikis={cikis}/>}
       {ekran==="acente-panel" &&<AcentePanel onCikis={cikis}/>}
-      {ekran==="musteri-panel"&&<MusteriPanel onCikis={cikis}/>}
     </>
   );
 }
