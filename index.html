@@ -222,6 +222,31 @@ input:checked+.slider:before{transform:translateX(20px)}
   .ak-kpis{grid-template-columns:1fr 1fr;gap:10px}.ak-kpi b{font-size:22px}
   .ak-tablo .gizle{display:none}
 }
+
+/* ── Dosya detayı (maket "Dijital Hasar Dosyası") ── */
+.ak-geri{border:0;background:transparent;color:#1769e0;padding:0;font-size:12px;font-weight:600;margin-bottom:2px}
+.ak-geri:active{transform:none}
+.ak-adim.bitti{background:#ecfdf5}.ak-adim.bitti b{color:#087c55}
+.ak-adim.simdi{background:#eff6ff;box-shadow:inset 0 3px #3b82f6}.ak-adim.simdi b{color:#2563eb}
+.ak-adim.bekler{background:#fffaf0}.ak-adim.bekler b{color:#a16207}
+.ak-oncelik{height:4px;border-radius:5px;background:linear-gradient(90deg,#06b6d4 0 16%,#8b5cf6 16% 48%,#ec4899 48% 64%,#f59e0b 64% 80%,#10b981 80% 100%);margin:-4px 0 14px}
+.ak-kutular{display:grid;grid-template-columns:repeat(auto-fill,minmax(170px,1fr));gap:10px}
+.ak-kutular div{background:#f7f9fa;border-radius:10px;padding:10px 11px;min-width:0}
+.ak-kutular span{display:block;color:#7b8994;font-size:10px;margin-bottom:4px}
+.ak-kutular b{font-size:12px;color:#17212b;display:block;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ak-sekmeler{display:flex;gap:2px;border-top:1px solid #e3e8ec;margin:14px -16px -16px;padding:0 8px;overflow-x:auto}
+.ak-sekmeler button{border:0;background:transparent;padding:12px 12px;color:#6c7a85;font-size:12px;font-weight:600;border-bottom:2px solid transparent;white-space:nowrap;position:relative}
+.ak-sekmeler button:active{transform:none}
+.ak-sekmeler button.aktif{color:#1769e0;border-bottom-color:#1769e0}
+.ak-sekmeler .say{position:absolute;top:6px;right:0;border-radius:999px;padding:0 5px;font-size:8px;font-weight:800;color:#fff}
+.ak-akis{display:grid;grid-template-columns:1fr 1fr;gap:14px}
+.ak-zaman{border-left:2px solid #dce3e8;margin-left:7px}
+.ak-olay{padding:0 0 14px 17px;position:relative}
+.ak-olay:before{content:"";width:9px;height:9px;border-radius:50%;background:var(--g,#1769e0);position:absolute;left:-5.5px;top:3px}
+.ak-olay b{font-size:12px;color:#17212b}.ak-olay p{margin:3px 0 0;font-size:11px;color:#7a8792}
+.ak-dosya-baslik{white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+@media(max-width:800px){.ak-akis{grid-template-columns:1fr}}
+@media(max-width:620px){.ak-kutular{grid-template-columns:1fr 1fr;gap:8px}.ak-kutular div{padding:8px 9px}.ak-dosya-baslik{white-space:normal}}
 </style>
 </head>
 <body>
@@ -593,9 +618,9 @@ function Chip({renk,children,sm}){
   return <span style={{fontSize:sm?9:10,fontWeight:700,padding:sm?"2px 8px":"3px 10px",borderRadius:20,background:`${renk}18`,color:renk,border:`1px solid ${renk}40`,whiteSpace:"nowrap",letterSpacing:".2px",display:"inline-flex",alignItems:"center",gap:3}}>{children}</span>;
 }
 function Card({children,style={}}){
-  return <div style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:12,padding:16,...style}}>{children}</div>;
+  return <div style={{background:"#fff",border:"1px solid #e5e9ed",borderRadius:14,padding:16,boxShadow:"0 1px 2px #00000008",...style}}>{children}</div>;
 }
-function ST({children}){return <div style={{fontWeight:700,fontSize:12,marginBottom:14,color:"var(--text-2)",letterSpacing:".3px",textTransform:"uppercase"}}>{children}</div>;}
+function ST({children}){return <div style={{fontWeight:700,fontSize:14,marginBottom:12,color:"#253440",letterSpacing:"-.1px"}}>{children}</div>;}
 function KaynakChip({kaynak}){
   const m={acente:{l:"Acente",c:"#3B82F6"},servis:{l:"Servis",c:"#8B5CF6"},musteri:{l:"Müşteri",c:"#F59E0B"},eksper:{l:"Eksper",c:"#10B981"}};
   const k=m[kaynak];if(!k)return null;
@@ -3878,49 +3903,44 @@ function AdminPanel({dosyaId,onCikis}){
 
   return(
     <div style={{fontFamily:"'Inter',sans-serif",background:"var(--bg)",minHeight:"100vh",color:"var(--text-1)",display:"flex",flexDirection:"column",paddingBottom:isMobile?68:0}}>
-      {/* HEADER */}
-      <div className="glass-header" style={{padding:`0 ${P}px`,height:isMobile?52:56,display:"flex",alignItems:"center",justifyContent:"space-between",position:"sticky",top:0,zIndex:50}}>
-        <div style={{display:"flex",alignItems:"center",gap:isMobile?10:16}}>
-          <div style={{width:32,height:32,borderRadius:8,background:"linear-gradient(135deg,#1D4ED8,#2563EB)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:16,flexShrink:0}}>🛡️</div>
-          {!isMobile&&<div><div style={{fontWeight:800,fontSize:14}}>HasarTrack</div><div style={{fontSize:10,color:"var(--text-2)"}}>Hasar Admin Paneli</div></div>}
-          <div style={{fontFamily:"var(--font-mono)",fontSize:isMobile?12:13,fontWeight:600,color:"#818CF8",background:"rgba(79,70,229,0.12)",padding:"3px 10px",borderRadius:6,border:"1px solid rgba(79,70,229,0.25)"}}>{dosya.dosyaNo}</div>
-          {!isMobile&&<Chip renk="#EF4444">⚡ {dosya.oncelik}</Chip>}
+      {/* ÜST: başlık, süreç şeridi, bilgi kutuları, sekmeler (maket "Dijital Hasar Dosyası") */}
+      <div className="ak-top" style={{height:"auto",minHeight:66,padding:`10px ${P}px`}}>
+        <div style={{minWidth:0}}>
+          <button className="ak-geri" onClick={onCikis}>← Listeye dön</button>
+          <h1 className="ak-dosya-baslik">{dosya.dosyaNo} · {[dosya.arac.marka,dosya.arac.model].filter(Boolean).join(" ")}</h1>
+          <p>{[dosya.arac.plaka,dosya.sahip.ad,dosya.sigortaSirketi.ad].filter(Boolean).join(" · ")}</p>
         </div>
-        <div style={{display:"flex",gap:6,alignItems:"center"}}>
-          <button onClick={()=>setServisModal(true)} style={{background:atananServis?"var(--violet-dim)":"var(--amber-dim)",border:`1px solid ${atananServis?"rgba(139,92,246,0.35)":"rgba(245,158,11,0.35)"}`,color:atananServis?"#A78BFA":"#F59E0B",borderRadius:8,padding:"6px 12px",fontSize:isMobile?10:11,fontWeight:700,display:"flex",alignItems:"center",gap:5,transition:"all .15s"}}>
-            🔧 {atananServis?atananServis.ad.split("–")[0].trim():"Servis Ata"}
-          </button>
-          <button onClick={onCikis} style={{background:"var(--border)",border:"1px solid var(--border-md)",color:"var(--text-2)",borderRadius:7,padding:"5px 12px",fontSize:11,fontWeight:600}}>← Dosyalar</button>
-          <button onClick={onCikis} style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",color:"#EF4444",borderRadius:7,padding:"5px 12px",fontSize:11,fontWeight:700}}>Çıkış</button>
+        <div className="ak-eylem" style={{flexWrap:"wrap",justifyContent:"flex-end"}}>
+          <span className={`ak-cip ${dosya.durum==="Tamamlandı"?"ak-ok":dosya.durum==="Aktif"?"ak-bilgi":"ak-gri"}`}>{dosya.durum}</span>
+          {!isMobile&&dosya.oncelik!=="Normal"&&<span className={`ak-cip ${dosya.oncelik==="Acil"?"ak-tehlike":"ak-uyari"}`}>{dosya.oncelik}</span>}
+          <button className="ak-btn" onClick={()=>setServisModal(true)} style={atananServis?{}:{borderColor:"#f59e0b",color:"#a16207"}}>🔧 {atananServis?atananServis.ad.split("–")[0].trim():"Servis Ata"}</button>
         </div>
       </div>
-
-      {/* ARAÇ ŞERİDİ */}
-      <div style={{background:"#FFFFFF",borderBottom:"1px solid var(--border)",padding:`10px ${P}px`,display:"flex",gap:isMobile?8:24,alignItems:"center",overflowX:"auto",flexShrink:0}}>
-        {isMobile?(
-          [{i:"🚗",v:`${dosya.arac.marka} ${dosya.arac.model}`},{i:"🔑",v:dosya.arac.plaka},{i:"💰",v:dosya.muallakHasar,c:"#F59E0B"},{i:"📅",v:dosya.arac.kazaTarihi}].map((r,i)=><div key={i} style={{flexShrink:0,background:"var(--border)",borderRadius:7,padding:"6px 10px",display:"flex",gap:6,alignItems:"center"}}><span style={{fontSize:13}}>{r.i}</span><span style={{fontSize:11,fontWeight:600,color:r.c||"var(--text-1)"}}>{r.v}</span></div>)
-        ):(
-          [{i:"🚗",l:"Araç",v:`${dosya.arac.marka} ${dosya.arac.model} (${dosya.arac.yil})`},{i:"🔑",l:"Plaka",v:dosya.arac.plaka,m:true},{i:"👤",l:"Sahip",v:dosya.sahip.ad},{i:"📱",l:"Telefon",v:dosya.sahip.telefon,m:true},{i:"📋",l:"Branş",v:dosya.sigortaBransi},{i:"💰",l:"Muallak",v:dosya.muallakHasar,c:"#F59E0B"},{i:"🔧",l:"Servis",v:atananServis?.ad||"Atanmadı",c:atananServis?"#A78BFA":"#F59E0B"}].map(r=>(
-            <div key={r.l} style={{display:"flex",gap:7,alignItems:"center",flexShrink:0}}>
-              <span style={{fontSize:13}}>{r.i}</span>
-              <div><div style={{fontSize:9,color:"var(--text-2)",fontWeight:700,letterSpacing:"0.5px"}}>{r.l.toUpperCase()}</div><div style={{fontSize:12,fontWeight:600,color:r.c||"var(--text-1)",fontFamily:r.m?"var(--font-mono)":"inherit"}}>{r.v||"—"}</div></div>
+      <div style={{padding:`14px ${P}px 0`}}>
+        <div className="ak-surec">
+          {adimlar.map(x=><div key={x.id} className={`ak-adim ${x.durum==="tamamlandi"?"bitti":x.durum==="aktif"?"simdi":"bekler"}`} title={x.ad}><b>{AK_SUREC.find(s=>s.ad===x.ad)?.k||x.ad}</b><small>{x.durum==="tamamlandi"?(x.tarih||"Tamam"):x.durum==="aktif"?"Aktif":"Sırada"}</small></div>)}
+        </div>
+        <div className="ak-oncelik"/>
+        <div className="ak-kart">
+          <div className="ak-kutular">
+            {[["Araç",`${[dosya.arac.marka,dosya.arac.model].filter(Boolean).join(" ")}${dosya.arac.yil?` (${dosya.arac.yil})`:""}`],["Plaka",dosya.arac.plaka],["Araç sahibi",dosya.sahip.ad],["Telefon",dosya.sahip.telefon],
+              ["Sigorta",[dosya.sigortaSirketi.ad,dosya.sigortaBransi].filter(Boolean).join(" · ")],["Servis",atananServis?.ad||"Atanmadı"],["Muallak hasar",dosya.muallakHasar],["Tahmini teslim",dosya.onarimMerkezi.tahminiTamir]].map(([l,v])=>(
+              <div key={l}><span>{l}</span><b title={v||""}>{v||"—"}</b></div>
+            ))}
+          </div>
+          {!isMobile&&(
+            <div className="ak-sekmeler">
+              {TABS.map(t=>(
+                <button key={t.id} onClick={()=>setTab(t.id)} className={tab===t.id?"aktif":""}>
+                  {t.l}{t.demo&&<DemoEtiket/>}
+                  {t.badge&&eksikEvrak.length>0&&<span className="say" style={{background:"#EF4444"}}>{eksikEvrak.length}</span>}
+                  {t.id==="fotolar"&&photos.length>0&&<span className="say" style={{background:"#3B82F6"}}>{photos.length}</span>}
+                </button>
+              ))}
             </div>
-          ))
-        )}
-      </div>
-
-      {/* DESKTOP TABS */}
-      {!isMobile&&(
-        <div style={{background:"#FFFFFF",borderBottom:"1px solid var(--border)",padding:"0 24px",display:"flex",gap:2}}>
-          {TABS.map(t=>(
-            <button key={t.id} onClick={()=>setTab(t.id)} className={`nav-tab${tab===t.id?" active":""}`} style={{position:"relative"}}>
-              {t.mi} {t.l}{t.demo&&<DemoEtiket/>}
-              {t.badge&&eksikEvrak.length>0&&<span style={{position:"absolute",top:8,right:2,background:"#EF4444",color:"#fff",borderRadius:"50%",width:14,height:14,fontSize:8,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{eksikEvrak.length}</span>}
-              {t.id==="fotolar"&&photos.length>0&&<span style={{position:"absolute",top:8,right:2,background:"#3B82F6",color:"#fff",borderRadius:4,padding:"0 4px",fontSize:8,fontWeight:800}}>{photos.length}</span>}
-            </button>
-          ))}
+          )}
         </div>
-      )}
+      </div>
 
       {/* İÇERİK */}
       <div style={{flex:1,overflow:"auto",padding:`${isMobile?12:24}px ${P}px`}}>
@@ -3964,6 +3984,23 @@ function AdminPanel({dosyaId,onCikis}){
                 </div>
               </div>
             )}
+            <div className="ak-akis">
+              <Card>
+                <ST>İş Akışı</ST>
+                {adimlar.map(x=>(
+                  <div key={x.id} className="ak-bilet" style={{cursor:"default",borderLeft:`3px solid ${x.durum==="tamamlandi"?"#10b981":x.durum==="aktif"?"#3b82f6":"#e3e8ec"}`}}>
+                    <b>{x.ad}{x.durum==="tamamlandi"?" ✓":""}</b>
+                    <p>{x.durum==="tamamlandi"?`Tamamlandı · ${x.tarih}`:x.durum==="aktif"?"Şu an bu adımda":"Planlandı"}</p>
+                  </div>
+                ))}
+              </Card>
+              <Card>
+                <ST>Son Hareketler</ST>
+                {(()=>{const olay=[...adimlar.filter(x=>x.durum==="tamamlandi"&&x.tarih).map(x=>({t:x.tarih,b:`${x.ad} tamamlandı`,p:x.tarih,g:"#10b981"})),
+                  ...mesajlar.slice(-4).map(m=>({t:m.tarih,b:`${m.gonderen} → ${m.hedef}`,p:`${m.tarih} · ${bos(m.mesaj).slice(0,70)}`,g:"#8b5cf6"}))].reverse();
+                  return olay.length?<div className="ak-zaman">{olay.slice(0,8).map((o,i)=><div key={i} className="ak-olay" style={{"--g":o.g}}><b>{o.b}</b><p>{o.p}</p></div>)}</div>:<div style={{fontSize:12,color:"var(--text-2)"}}>Henüz hareket yok.</div>;})()}
+              </Card>
+            </div>
             {eksikEvrak.length>0&&(
               <Card style={{border:"1px solid rgba(239,68,68,0.2)"}}>
                 <ST>⚠️ Eksik Evraklar <DemoEtiket/></ST>
