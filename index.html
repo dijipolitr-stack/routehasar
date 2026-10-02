@@ -2269,6 +2269,139 @@ function AcenteGiris({onGiris,onGeri}){
   );
 }
 
+// ─── ARAÇ KABUL VE TESLİM TUTANAĞI ────────────────────────────────────────
+// Kabul teslimden önce düzeltilebilir. Teslim bir kez kaydedilir, "Araç Teslimi" adımını kapatır (API).
+const YAKIT_SEC=[0,25,50,75,100];
+const KONTROL_ETIKET={tamam:"Tamam",yok:"Uygulanmaz"};
+function tutanakYazdir(tip,t,b){
+  const satir=(l,v)=>`<tr><td class="l">${htmlKac(l)}</td><td>${htmlKac(v)}</td></tr>`;
+  const aks=Object.entries(t.aksesuarlar||{}).map(([a,v])=>`<span class="aks">${v?"☑":"☐"} ${htmlKac(a)}</span>`).join(" ")||"—";
+  const kontrol=Object.entries(t.kontrol||{}).map(([m,d])=>satir(m,KONTROL_ETIKET[d]||d)).join("");
+  const kabul=tip==="kabul";
+  const html=`<!DOCTYPE html><html><head><meta charset="UTF-8"><title>${kabul?"Araç Kabul":"Araç Teslim"} Tutanağı ${htmlKac(b.dosyaNo)}</title><style>body{font-family:Arial,sans-serif;font-size:12px;color:#222;margin:28px}h2{margin:0 0 4px}p.alt{color:#666;font-size:11px;margin:0 0 16px}table{width:100%;border-collapse:collapse;margin-bottom:14px}td{padding:6px 8px;border:1px solid #ccc;vertical-align:top}td.l{width:38%;font-weight:bold;background:#f5f5f5}h3{font-size:12px;margin:16px 0 6px;text-transform:uppercase;color:#555}.aks{display:inline-block;margin:0 14px 4px 0}.imza{display:flex;gap:40px;margin-top:40px}.imza div{flex:1;border-top:1px solid #333;padding-top:6px;font-size:11px}@media print{body{margin:12mm}}</style></head><body>
+    <h2>${kabul?"Araç Kabul Tutanağı":"Araç Teslim Tutanağı"}</h2>
+    <p class="alt">${htmlKac(b.servisAd||"HasarTrack")} · Dosya ${htmlKac(b.dosyaNo)} · ${htmlKac(new Date(t.created_at).toLocaleString("tr-TR"))}</p>
+    <table>${satir("Plaka",b.plaka)}${satir("Araç",[b.marka,b.model].filter(Boolean).join(" "))}${satir("Araç sahibi",b.sahipAd)}${satir("Kilometre",Number(t.km).toLocaleString("tr-TR")+" km")}${satir("Yakıt / şarj",t.yakit_yuzde==null?"Belirtilmedi":"%"+t.yakit_yuzde)}</table>
+    <h3>Araçtaki aksesuar ve belgeler</h3><div>${aks}</div>
+    ${kontrol?`<h3>Son kontrol</h3><table>${kontrol}</table>`:""}
+    <h3>${kabul?"Mevcut hasar ve notlar":"Açıklama"}</h3><div>${htmlKac(t.aciklama||"—")}</div>
+    <div class="imza"><div>${kabul?"Aracı teslim eden":"Aracı teslim alan"}: ${htmlKac(t.musteri_ad)}<br><br>İmza</div><div>${kabul?"Aracı teslim alan (servis)":"Aracı teslim eden (servis)"}: ${htmlKac(t.personel_ad)}<br><br>İmza</div></div>
+  </body></html>`;
+  const w=window.open("","_blank","width=800,height=900");
+  if(!w)return;
+  w.document.write(html);w.document.close();setTimeout(()=>w.print(),400);
+}
+function TutanakOzet({t,tip,bilgi,onDuzelt}){
+  const aks=Object.entries(t.aksesuarlar||{}).filter(([,v])=>v).map(([a])=>a);
+  const S=({l,v})=><div style={{display:"flex",justifyContent:"space-between",gap:10,padding:"5px 0",borderBottom:"1px solid var(--border)",fontSize:12}}><span style={{color:"var(--text-2)"}}>{l}</span><span style={{fontWeight:600,textAlign:"right"}}>{v}</span></div>;
+  return(
+    <div>
+      <S l="Kilometre" v={`${Number(t.km).toLocaleString("tr-TR")} km`}/>
+      <S l="Yakıt / şarj" v={t.yakit_yuzde==null?"Belirtilmedi":`%${t.yakit_yuzde}`}/>
+      <S l="Aksesuarlar" v={aks.join(", ")||"Yok"}/>
+      {t.aciklama&&<S l={tip==="kabul"?"Mevcut hasar":"Açıklama"} v={t.aciklama}/>}
+      <S l={tip==="kabul"?"Getiren":"Teslim alan"} v={t.musteri_ad}/>
+      <S l="Servis personeli" v={t.personel_ad}/>
+      <S l="Tarih" v={new Date(t.updated_at||t.created_at).toLocaleString("tr-TR")}/>
+      <div style={{display:"flex",gap:8,marginTop:10}}>
+        <button onClick={()=>tutanakYazdir(tip,t,bilgi)} style={{background:"rgba(59,130,246,0.1)",border:"1px solid rgba(59,130,246,0.25)",color:"#3B82F6",borderRadius:7,padding:"5px 12px",fontSize:11,fontWeight:700}}>🖨️ Yazdır</button>
+        {onDuzelt&&<button onClick={onDuzelt} style={{background:"none",border:"1px solid var(--border)",color:"var(--text-2)",borderRadius:7,padding:"5px 12px",fontSize:11,fontWeight:700}}>Düzelt</button>}
+      </div>
+    </div>
+  );
+}
+function TutanakPaneli({dosyaId,bilgi,onDegisti}){
+  const [veri,setVeri]=useState(null);const [hata,setHata]=useState("");const [form,setForm]=useState(null);const [kaydediliyor,setKaydediliyor]=useState(false);
+  const yukle=()=>apiCall(`/tutanaklar/${dosyaId}`).then(setVeri).catch(e=>setHata(e.message));
+  useEffect(()=>{setVeri(null);setForm(null);setHata("");yukle();},[dosyaId]);
+  if(!veri)return <Card><ST>📝 Kabul ve Teslim Tutanağı</ST>{hata?<HataKutusu hata={hata} onTekrar={yukle}/>:<div style={{fontSize:12,color:"var(--text-2)"}}>Yükleniyor...</div>}</Card>;
+  const {kabul,teslim,secenekler}=veri;
+  const formAc=(tip)=>{
+    setHata("");
+    const kaynak=tip==="kabul"?kabul:null;
+    setForm({tip,km:kaynak?String(kaynak.km):tip==="teslim"?String(kabul.km):"",yakit_yuzde:kaynak?kaynak.yakit_yuzde:tip==="teslim"?kabul.yakit_yuzde:null,
+      aksesuarlar:{...(kaynak?.aksesuarlar||(tip==="teslim"?kabul.aksesuarlar:{}))},kontrol:{},aciklama:kaynak?.aciklama||"",
+      musteri_ad:kaynak?.musteri_ad||bilgi.sahipAd||"",personel_ad:kaynak?.personel_ad||""});
+  };
+  const f=(k,v)=>setForm(p=>({...p,[k]:v}));
+  const eksikAks=form?.tip==="teslim"?Object.entries(kabul.aksesuarlar||{}).filter(([a,v])=>v&&!form.aksesuarlar[a]).map(([a])=>a):[];
+  const kaydet=async()=>{
+    if(form.tip==="teslim"&&!confirm("Teslim tutanağı kaydedilince değiştirilemez ve 'Araç Teslimi' adımı tamamlanır. Devam edilsin mi?"))return;
+    setKaydediliyor(true);setHata("");
+    try{
+      const govde={km:form.km===""?null:Number(form.km),yakit_yuzde:form.yakit_yuzde,aksesuarlar:form.aksesuarlar,aciklama:form.aciklama,musteri_ad:form.musteri_ad,personel_ad:form.personel_ad,...(form.tip==="teslim"&&{kontrol:form.kontrol})};
+      const r=form.tip==="kabul"?await apiCall(`/tutanaklar/${dosyaId}/kabul`,"PUT",govde):await apiCall(`/tutanaklar/${dosyaId}/teslim`,"POST",govde);
+      setVeri(v=>({...v,...r}));setForm(null);onDegisti&&onDegisti();
+    }catch(e){setHata(e.message);}finally{setKaydediliyor(false);}
+  };
+  const etiket=(m)=><div style={{fontSize:10,color:"var(--text-2)",fontWeight:700,letterSpacing:".6px",margin:"10px 0 5px"}}>{m}</div>;
+  const secBtn=(aktif,renk="#3B82F6")=>({padding:"5px 10px",borderRadius:7,fontSize:11,fontWeight:aktif?700:500,border:`1px solid ${aktif?renk:"var(--border)"}`,background:aktif?`${renk}18`:"transparent",color:aktif?renk:"var(--text-2)"});
+  const baslik=(m,durum)=><div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:6}}><span style={{fontWeight:700,fontSize:13}}>{m}</span>{durum}</div>;
+  return(
+    <Card>
+      <ST>📝 Kabul ve Teslim Tutanağı</ST>
+      {hata&&<div style={{marginBottom:10}}><HataKutusu hata={hata}/></div>}
+      {form?(
+        <div>
+          {baslik(form.tip==="kabul"?"Araç kabul tutanağı":"Araç teslim tutanağı")}
+          {etiket("KİLOMETRE")}
+          <input type="number" min="0" inputMode="numeric" value={form.km} onChange={e=>f("km",e.target.value)} className="inp mono" placeholder="Örn. 45200"/>
+          {form.tip==="teslim"&&<div style={{fontSize:10,color:"var(--text-2)",marginTop:4}}>Kabulde: {Number(kabul.km).toLocaleString("tr-TR")} km</div>}
+          {etiket("YAKIT / ŞARJ")}
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {YAKIT_SEC.map(y=><button key={y} onClick={()=>f("yakit_yuzde",y)} style={secBtn(form.yakit_yuzde===y)}>%{y}</button>)}
+            <button onClick={()=>f("yakit_yuzde",null)} style={secBtn(form.yakit_yuzde==null,"#64748B")}>Belirtilmedi</button>
+          </div>
+          {etiket("ARAÇTAKİ AKSESUAR VE BELGELER")}
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            {secenekler.aksesuarlar.map(a=><button key={a} onClick={()=>f("aksesuarlar",{...form.aksesuarlar,[a]:!form.aksesuarlar[a]})} style={secBtn(!!form.aksesuarlar[a],"#10B981")}>{form.aksesuarlar[a]?"✓ ":""}{a}</button>)}
+          </div>
+          {eksikAks.length>0&&<div style={{fontSize:11,color:"#F59E0B",marginTop:6}}>⚠ Kabulde vardı, şimdi işaretli değil: {eksikAks.join(", ")}. Açıklama yazın.</div>}
+          {form.tip==="teslim"&&<>
+            {etiket("SON KONTROL")}
+            {secenekler.teslim_kontrol.map(m=>(
+              <div key={m} style={{display:"flex",justifyContent:"space-between",alignItems:"center",gap:8,padding:"5px 0",borderBottom:"1px solid var(--border)"}}>
+                <span style={{fontSize:12}}>{m}</span>
+                <div style={{display:"flex",gap:4,flexShrink:0}}>
+                  <button onClick={()=>f("kontrol",{...form.kontrol,[m]:"tamam"})} style={secBtn(form.kontrol[m]==="tamam","#10B981")}>Tamam</button>
+                  <button onClick={()=>f("kontrol",{...form.kontrol,[m]:"yok"})} style={secBtn(form.kontrol[m]==="yok","#64748B")}>Uygulanmaz</button>
+                </div>
+              </div>
+            ))}
+          </>}
+          {etiket(form.tip==="kabul"?"MEVCUT HASAR VE NOTLAR":"AÇIKLAMA")}
+          <textarea value={form.aciklama} onChange={e=>f("aciklama",e.target.value)} rows={2} className="inp" placeholder={form.tip==="kabul"?"Örn. sağ arka çamurlukta eski çizik":"İsteğe bağlı"} style={{resize:"vertical"}}/>
+          {etiket(form.tip==="kabul"?"ARACI GETİREN":"ARACI TESLİM ALAN")}
+          <input value={form.musteri_ad} onChange={e=>f("musteri_ad",e.target.value)} className="inp" placeholder="Ad soyad"/>
+          {etiket(form.tip==="kabul"?"TESLİM ALAN PERSONEL":"TESLİM EDEN PERSONEL")}
+          <input value={form.personel_ad} onChange={e=>f("personel_ad",e.target.value)} className="inp" placeholder="Ad soyad"/>
+          <div style={{display:"flex",gap:8,marginTop:14}}>
+            <button onClick={kaydet} disabled={kaydediliyor} className="btn-primary" style={{padding:"9px 16px",fontSize:12}}>{kaydediliyor?"Kaydediliyor...":form.tip==="kabul"?"Kabul tutanağını kaydet":"Teslim et ve kaydet"}</button>
+            <button onClick={()=>{setForm(null);setHata("");}} style={{background:"none",border:"1px solid var(--border)",color:"var(--text-2)",borderRadius:8,padding:"9px 14px",fontSize:12}}>Vazgeç</button>
+          </div>
+        </div>
+      ):(
+        <div style={{display:"flex",flexDirection:"column",gap:16}}>
+          <div>
+            {baslik("Kabul",kabul?<Chip renk="#10B981" sm>✓ Dolduruldu</Chip>:<Chip renk="#64748B" sm>Yok</Chip>)}
+            {kabul
+              ?<TutanakOzet t={kabul} tip="kabul" bilgi={bilgi} onDuzelt={teslim?null:()=>formAc("kabul")}/>
+              :<button onClick={()=>formAc("kabul")} className="btn-primary" style={{padding:"8px 14px",fontSize:12}}>+ Kabul tutanağı doldur</button>}
+          </div>
+          <div>
+            {baslik("Teslim",teslim?<Chip renk="#10B981" sm>✓ Teslim edildi</Chip>:<Chip renk="#64748B" sm>Yok</Chip>)}
+            {teslim
+              ?<TutanakOzet t={teslim} tip="teslim" bilgi={bilgi}/>
+              :kabul
+                ?<><div style={{fontSize:11,color:"var(--text-2)",marginBottom:8}}>Teslim, "Araç Teslimi" dışındaki tüm adımlar bitince yapılabilir.</div><button onClick={()=>formAc("teslim")} className="btn-primary" style={{padding:"8px 14px",fontSize:12}}>Teslim tutanağı doldur</button></>
+                :<div style={{fontSize:11,color:"var(--text-2)"}}>Önce kabul tutanağı doldurulmalı.</div>}
+          </div>
+        </div>
+      )}
+    </Card>
+  );
+}
+
 // ─── MÜŞTERİ TAKİP LİNKİ ──────────────────────────────────────────────────
 // Admin/servis süreli link üretir; müşteri ?takip=<token> adresinden giriş yapmadan durumu görür.
 // Token yalnız oluşturulduğu an döner (API özetini saklar), sonra tekrar gösterilemez.
@@ -2647,6 +2780,7 @@ function ServisPanel({servisBilgi,onCikis}){
                 </Card>
                 <IsEmriPaneli dosyaId={seciliId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>{detayYukle(seciliId,true);listeYukle(true);}}/>
                 <DosyaParcalari dosyaId={seciliId}/>
+                <TutanakPaneli dosyaId={seciliId} bilgi={{dosyaNo:detay?.dosyaNo,plaka:detay?.arac?.plaka,marka:detay?.arac?.marka,model:detay?.arac?.model,sahipAd:detay?.sahip?.ad,servisAd:servisBilgi.ad}} onDegisti={()=>{detayYukle(seciliId,true);listeYukle(true);}}/>
                 <TakipLinkiPaneli dosyaId={seciliId} sahipTel={detay?.sahip?.telefon} sahipAd={detay?.sahip?.ad} plaka={detay?.arac?.plaka}/>
               </>
             )}
@@ -3725,6 +3859,7 @@ function AdminPanel({dosyaId,onCikis}){
               <OnarimTimeline adimlar={adimlar} onTamamla={adimTamamla}/>
             </Card>
             <IsEmriPaneli dosyaId={dosyaId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>yukle(true)}/>
+            <TutanakPaneli dosyaId={dosyaId} bilgi={{dosyaNo:dosya.dosyaNo,plaka:dosya.arac.plaka,marka:dosya.arac.marka,model:dosya.arac.model,sahipAd:dosya.sahip.ad,servisAd:dosya.onarimMerkezi.ad}} onDegisti={()=>yukle(true)}/>
             <TakipLinkiPaneli dosyaId={dosyaId} sahipTel={dosya.sahip.telefon} sahipAd={dosya.sahip.ad} plaka={dosya.arac.plaka}/>
           </div>
         )}
