@@ -123,6 +123,105 @@ input:checked+.slider:before{transform:translateX(20px)}
 @keyframes fadeIn{from{opacity:0}to{opacity:1}}
 @keyframes spin{to{transform:rotate(360deg)}}
 @keyframes popIn{from{transform:scale(.94);opacity:0}to{transform:scale(1);opacity:1}}
+
+/* ── Admin kabuğu (Hasar Merkezi V30 tasarım dili) ── */
+:root{--ak-side:245px;--ak-c-intake:#06b6d4;--ak-c-repair:#8b5cf6;--ak-c-supply:#f59e0b;--ak-c-portal:#10b981;--ak-c-finance:#ec4899;--ak-c-system:#94a3b8}
+.ak-side{position:fixed;left:0;top:0;bottom:0;width:var(--ak-side);height:100dvh;background:linear-gradient(180deg,#0c1720 0%,#111e29 58%,#0c1720 100%);color:#dbe5ec;display:flex;flex-direction:column;z-index:40;padding:18px 12px 12px}
+.ak-brand{font-weight:800;font-size:19px;padding:4px 10px 18px;margin:0 4px 6px;border-bottom:1px solid #ffffff12;letter-spacing:-.3px;color:#fff}
+.ak-brand small{display:block;color:#7f94a3;font-size:10px;font-weight:600;margin-top:4px;letter-spacing:.2px}
+.ak-nav{flex:1 1 auto;min-height:0;overflow-y:auto;overflow-x:hidden;scrollbar-width:thin;scrollbar-color:#435461 transparent}
+.ak-grup{font-size:9px;letter-spacing:1.1px;font-weight:800;color:#718695;padding:16px 12px 6px;text-transform:uppercase}
+.ak-nav button{width:100%;display:flex;align-items:center;gap:10px;border:0;border-left:3px solid transparent;background:transparent;color:#aebdca;text-align:left;padding:8px 10px;border-radius:10px;margin:2px 0;font-size:13px;font-weight:500}
+.ak-nav button:hover{background:#20303d;color:#fff}
+.ak-nav button:active{transform:none}
+.ak-nav .ak-ico{width:27px;height:27px;border-radius:8px;display:inline-flex;align-items:center;justify-content:center;font-size:13px;font-style:normal;flex-shrink:0;color:var(--g);background:color-mix(in srgb,var(--g) 13%,transparent)}
+.ak-nav button.aktif{color:#fff;border-left-color:var(--g);background:color-mix(in srgb,var(--g) 13%,transparent)}
+.ak-nav .ak-et{flex:1;min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.ak-nav .ak-rozet{font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px;background:#f59e0b;color:#1c1300}
+.ak-nav .ak-yakinda{font-size:8px;font-weight:700;padding:2px 6px;border-radius:999px;background:#ffffff10;color:#7f94a3;letter-spacing:.3px}
+.ak-alt{border-top:1px solid #ffffff12;padding:12px 8px 2px;display:flex;align-items:center;gap:10px}
+.ak-alt .ak-kim{flex:1;min-width:0;font-size:11px;color:#aebdca}.ak-alt .ak-kim b{display:block;color:#fff;font-size:12px}
+.ak-alt button{border:1px solid #ffffff20;background:#ffffff0d;color:#fca5a5;border-radius:8px;padding:6px 10px;font-size:11px;font-weight:700}
+.ak-main{margin-left:var(--ak-side);min-height:100vh;min-width:0;background:#f4f6f8}
+.ak-main .mob-nav{left:var(--ak-side)}
+.ak-top{position:sticky;top:0;z-index:20;height:66px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:0 26px;background:#ffffffc7;backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid #e7ebee}
+.ak-top h1{font-size:21px;font-weight:800;letter-spacing:-.4px;color:#17212b}.ak-top p{font-size:11px;color:#7a8792;margin-top:2px}
+.ak-eylem{display:flex;gap:8px;align-items:center}
+.ak-btn{border:1px solid #d7dee4;background:#fff;color:#17212b;padding:8px 12px;border-radius:9px;font-size:12px;font-weight:600;white-space:nowrap}
+.ak-btn:hover{border-color:#b8c4ce}
+.ak-btn.ana{background:#1769e0;border-color:#1769e0;color:#fff;box-shadow:0 2px 8px #1769e040}
+.ak-btn.ana:hover{background:#125bc7}
+.ak-icerik{padding:20px 26px 48px}
+.ak-hero{background:linear-gradient(125deg,#142636,#1c3345 55%,#203b4e);color:#fff;border-radius:18px;padding:20px 22px;margin-bottom:16px;box-shadow:0 10px 30px #1325361c}
+.ak-hero .ak-ust{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#8fc9e9;font-weight:800}
+.ak-hero h2{margin:5px 0;font-size:23px;font-weight:800;letter-spacing:-.4px}.ak-hero p{color:#b9c9d5;font-size:12px}
+.ak-hero-eylem{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.ak-hero-eylem button{background:#ffffff10;color:#fff;border:1px solid #ffffff24;padding:9px 14px;border-radius:9px;font-size:12px;font-weight:600}
+.ak-hero-eylem button:hover{background:#ffffff1c}
+.ak-hero-eylem button.ana{background:#fff;color:#163044;border-color:#fff}
+.ak-kart{background:#fff;border:1px solid #e5e9ed;border-radius:14px;padding:16px;box-shadow:0 1px 2px #00000008}
+.ak-kart h3{margin:0;font-size:15px;font-weight:700;color:#253440}
+.ak-baslik{display:flex;align-items:center;justify-content:space-between;gap:10px;margin-bottom:12px}
+.ak-baslik span{font-size:11px;color:#7a8792}
+.ak-kpis{display:grid;grid-template-columns:repeat(4,1fr);gap:14px;margin-bottom:14px}
+.ak-kpi{cursor:pointer;transition:.15s;border-top:3px solid var(--k,#dbe3e9)}
+.ak-kpi:hover{transform:translateY(-1px);box-shadow:0 5px 18px #1d2d3b12}
+.ak-kpi .l{font-size:12px;color:#75838f}.ak-kpi b{font-size:27px;display:block;margin-top:6px;letter-spacing:-.5px;color:#17212b}.ak-kpi .s{font-size:11px;color:#71808c;margin-top:2px}
+.ak-surec{display:flex;align-items:stretch;overflow-x:auto;margin-bottom:14px;padding-bottom:3px}
+.ak-adim{min-width:112px;flex:1;position:relative;padding:10px 14px 9px 20px;background:#fff;border-top:1px solid #e5e9ed;border-bottom:1px solid #e5e9ed;cursor:default}
+.ak-adim:first-child{border-left:1px solid #e5e9ed;border-radius:11px 0 0 11px;padding-left:14px}.ak-adim:last-child{border-right:1px solid #e5e9ed;border-radius:0 11px 11px 0}
+.ak-adim:after{content:"";position:absolute;right:-9px;top:12px;width:18px;height:18px;background:inherit;border-top:1px solid #e5e9ed;border-right:1px solid #e5e9ed;transform:rotate(45deg);z-index:2}
+.ak-adim:last-child:after{display:none}
+.ak-adim b{font-size:10px;display:block;position:relative;z-index:3;color:#253440}.ak-adim small{font-size:10px;color:#7b8994;position:relative;z-index:3}
+.ak-adim.dolu{background:#eff6ff;box-shadow:inset 0 3px var(--g)}.ak-adim.dolu b{color:#1e40af}
+.ak-kanban{display:grid;grid-template-columns:repeat(8,minmax(118px,1fr));gap:10px;overflow-x:auto;padding-bottom:4px}
+.ak-sutun{background:#f6f8fa;border-radius:12px;padding:10px;min-height:160px;border-top:3px solid var(--g)}
+.ak-sutun h4{font-size:11px;color:#556370;margin:2px 2px 4px;display:flex;justify-content:space-between}
+.ak-bilet{background:#fff;border:1px solid #e3e8ec;border-radius:10px;padding:9px 10px;margin:8px 0;cursor:pointer;text-align:left;width:100%;display:block}
+.ak-bilet:hover{border-color:#8db5ed}.ak-bilet:active{transform:none}
+.ak-bilet b{font-size:11px;color:#17212b;white-space:nowrap}.ak-bilet p{font-size:10px;color:#778590;margin-top:4px;line-height:1.4}
+.ak-iki{display:grid;grid-template-columns:1.35fr .65fr;gap:14px;margin-top:14px}
+.ak-tablo{width:100%;border-collapse:collapse}
+.ak-tablo th,.ak-tablo td{text-align:left;padding:11px 9px;border-bottom:1px solid #edf0f2;font-size:12px;vertical-align:middle}
+.ak-tablo th{color:#778590;font-weight:600;font-size:11px}
+.ak-tablo tr.satir{cursor:pointer}.ak-tablo tr.satir:hover{background:#f7f9fb}
+.ak-tablo .no{font-weight:700;color:#17212b;white-space:nowrap}.ak-tablo .alt{display:block;color:#7a8792;font-size:11px;margin-top:2px}
+.ak-cip{display:inline-flex;align-items:center;gap:6px;border-radius:999px;padding:5px 9px;font-size:10px;font-weight:700;white-space:nowrap}
+.ak-cip:before{content:"";width:6px;height:6px;border-radius:50%;background:currentColor}
+.ak-ok{color:#087c55;background:#e9fbf4}.ak-uyari{color:#a16207;background:#fff6df}.ak-bilgi{color:#2563eb;background:#edf5ff}.ak-tehlike{color:#b42318;background:#fff0ee}.ak-mor{color:#6d3ed1;background:#f3efff}.ak-gri{color:#556370;background:#eef2f5}
+.ak-ajanda{display:block;width:100%;text-align:left;border:1px solid #e6ebef;border-left:3px solid var(--g);border-radius:10px;padding:10px 12px;margin-bottom:8px;background:#fff;cursor:pointer}
+.ak-ajanda:hover{box-shadow:0 4px 14px #21384b12}.ak-ajanda:active{transform:none}
+.ak-ajanda b{font-size:12px;color:#17212b;display:block}.ak-ajanda span{font-size:11px;color:#7a8792}
+.ak-bos{font-size:12px;color:#7a8792;padding:18px 4px;text-align:center}
+.ak-ara{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-bottom:14px}
+.ak-ara input{flex:1;min-width:220px;border:1px solid #d9e0e5;border-radius:10px;padding:11px 14px;font-size:13px;background:#fff}
+.ak-ara input:focus{border-color:#1769e0;box-shadow:0 0 0 3px #1769e01f}
+.ak-filtre{display:flex;gap:6px;flex-wrap:wrap}
+.ak-filtre button{border:1px solid #d7dee4;background:#fff;color:#556370;border-radius:999px;padding:6px 12px;font-size:11px;font-weight:600}
+.ak-filtre button.sec{background:#1769e0;border-color:#1769e0;color:#fff}
+.ak-ilerleme{height:5px;background:#edf0f2;border-radius:3px;overflow:hidden;min-width:60px}.ak-ilerleme div{height:100%;background:#1769e0;border-radius:3px}
+.ak-servisler{display:grid;grid-template-columns:repeat(auto-fill,minmax(240px,1fr));gap:12px}
+@media(max-width:1150px){.ak-iki{grid-template-columns:1fr}}
+@media(max-width:950px){
+  :root{--ak-side:76px}
+  .ak-brand{font-size:0;padding:4px 0 14px;text-align:center}.ak-brand:before{content:"HM";font-size:18px}.ak-brand small{display:none}
+  .ak-grup,.ak-nav .ak-et,.ak-nav .ak-yakinda,.ak-alt .ak-kim{display:none}
+  .ak-nav button{justify-content:center;padding:9px 6px;border-left-width:2px;position:relative}
+  .ak-nav .ak-rozet{position:absolute;top:2px;right:4px;padding:1px 5px}
+  .ak-alt{justify-content:center;padding:10px 0 2px}.ak-alt button{padding:6px 7px}
+  .ak-kpis{grid-template-columns:repeat(2,1fr)}
+  .ak-top{padding:0 18px}.ak-icerik{padding:16px 18px 40px}
+}
+@media(max-width:620px){
+  :root{--ak-side:58px}
+  .ak-side{padding:14px 6px 10px}
+  .ak-top{height:auto;min-height:58px;padding:10px 12px}.ak-top h1{font-size:17px}.ak-top p{display:none}
+  .ak-eylem .ak-btn:not(.ana){display:none}.ak-btn.ana{padding:8px 10px;font-size:11px}
+  .ak-icerik{padding:12px 12px 90px}
+  .ak-hero{padding:16px}.ak-hero h2{font-size:19px}
+  .ak-kpis{grid-template-columns:1fr 1fr;gap:10px}.ak-kpi b{font-size:22px}
+  .ak-tablo .gizle{display:none}
+}
 </style>
 </head>
 <body>
@@ -234,6 +333,7 @@ function esleListe(rows){
     tarih:trTarihZaman(r.created_at), durum:r.durum, oncelik:r.oncelik,
     aktifAdim:bos(r.aktif_adim), ilerleme:Number(r.ilerleme)||0,
     atananServis:r.atanan_servis||null, servisAd:bos(r.servis_ad), onayDurumu:r.onay_durumu||"taslak",
+    girisTrh:r.arac_giris_trh||null, tahminiTeslim:r.tahmini_teslimat||null,
   }));
 }
 function esleDetay(d){
@@ -3085,170 +3185,290 @@ function ServisDetayAdmin({servisId, onGeri}){
 
 
 // ─── ADMIN DASHBOARD ───────────────────────────────────────────────────────
-function AdminDashboard({onDosyaSec,onYeniDosya,onCikis,onServisDetay}){
-  const [arama,setArama]=useState("");
-  const [durumFiltre,setDurumFiltre]=useState("");
-  const [isMobile,setIsMobile]=useState(false);
-  const [dosyalar,setDosyalar]=useState([]);
-  const [toplamSonuc,setToplamSonuc]=useState(0);
-  const [listeYukleniyor,setListeYukleniyor]=useState(true);
-  const [listeHata,setListeHata]=useState("");
-  const [ozet,setOzet]=useState(null);
-  const [servisler,setServisler]=useState([]);
-  const [ozetHata,setOzetHata]=useState("");
+// ─── ADMIN KABUĞU: yan menü + üst bar + sayfalar ─────────────────────────
+// Görsel dil "Hasar Merkezi V30" maketinden alındı; içerik canlı API'den gelir.
+// Arka ucu olmayan modüller menüde "yakında" ile durur, sahte veri göstermez.
+const AK_SUREC=[
+  {ad:"Araç Kabulü",k:"Kabul",g:"var(--ak-c-intake)"},
+  {ad:"Ön Hasar Tespiti",k:"Ön Tespit",g:"var(--ak-c-intake)"},
+  {ad:"Ekspertiz İncelemesi",k:"Ekspertiz",g:"var(--ak-c-intake)"},
+  {ad:"Teklif / Onay",k:"Teklif / Onay",g:"var(--ak-c-supply)"},
+  {ad:"Parça Temini",k:"Parça",g:"var(--ak-c-supply)"},
+  {ad:"Onarım",k:"Onarım",g:"var(--ak-c-repair)"},
+  {ad:"Boya & Son Kontrol",k:"Boya & QC",g:"var(--ak-c-finance)"},
+  {ad:"Araç Teslimi",k:"Teslim",g:"var(--ak-c-portal)"},
+];
+const AK_MENU=[
+  {grup:"Genel",g:"var(--ak-c-system)",ogeler:[{id:"kokpit",ico:"▦",ad:"Kokpit"}]},
+  {grup:"Hasar & Onay",g:"var(--ak-c-intake)",ogeler:[{id:"dosyalar",ico:"▤",ad:"Hasar Dosyaları"},{id:"onaylar",ico:"✓",ad:"Bekleyen Onaylar",rozet:"onay"}]},
+  {grup:"Onarım Operasyonu",g:"var(--ak-c-repair)",ogeler:[{id:"atolye",ico:"⌘",ad:"Atölye Panosu"},{id:"y-gantt",ico:"≋",ad:"Gantt Planlama",yakinda:true},{id:"y-dvi",ico:"◈",ad:"DVI / Hasar Haritası",yakinda:true}]},
+  {grup:"Servis & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"servisler",ico:"⬡",ad:"Servisler"},{id:"y-protokol",ico:"▣",ad:"Sigorta Protokolleri",yakinda:true}]},
+  {grup:"Müşteri",g:"var(--ak-c-portal)",ogeler:[{id:"y-ikame",ico:"◇",ad:"İkame Araç",yakinda:true}]},
+  {grup:"Finans & Yönetim",g:"var(--ak-c-finance)",ogeler:[{id:"y-bi",ico:"◫",ad:"Yönetim BI",yakinda:true}]},
+];
+const AK_YAKINDA={
+  "y-gantt":{ad:"Gantt Planlama",metin:"Atölyedeki işlerin gün gün planı: hangi araç hangi bölümde ne zaman, kapasite ve çakışmalar. Bölüm görevlerinin başlama ve bitiş tarihleri üzerine kurulacak."},
+  "y-dvi":{ad:"DVI / Hasar Haritası",metin:"Araç şeması üzerinde hasar noktaları: bölge, hasar tipi, onarım veya değişim kararı ve fotoğraflar. Ekspertiz ve teklif kalemlerine bağlanacak."},
+  "y-protokol":{ad:"Sigorta Protokolleri",metin:"Sigorta şirketine göre işçilik saati, parça iskontosu ve muafiyet kuralları. Teklif bu kurallarla otomatik fiyatlanacak, her kalemde neden bu fiyat olduğu yazacak."},
+  "y-ikame":{ad:"İkame Araç",metin:"İkame araç filosu: araç verme ve geri alma, kilometre, yakıt, HGS ve ceza takibi. Kabul ve teslim tutanağıyla aynı mantıkta çalışacak."},
+  "y-bi":{ad:"Yönetim BI",metin:"Sigorta şirketi ve servis bazında kârlılık, ortalama onarım süresi, onay bekleme süreleri ve gecikme nedenleri."},
+};
+const gunFarki=(iso)=>{if(!iso)return null;const b=new Date();b.setHours(0,0,0,0);const t=new Date(`${String(iso).slice(0,10)}T00:00:00`);return Math.round((t-b)/86400000);};
+const adimRenk=(ad)=>AK_SUREC.find(s=>s.ad===ad)?.g||"var(--ak-c-system)";
+
+function AdminUygulama({onCikis}){
+  const [sayfa,setSayfa]=useState("kokpit");
+  const [dosyaId,setDosyaId]=useState(null);
+  const [servisId,setServisId]=useState(null);
+  const [wizardAcik,setWizardAcik]=useState(false);
+  const [onaySayisi,setOnaySayisi]=useState(0);
   const [yenile,setYenile]=useState(0);
-  const [okunmamis,setOkunmamis]=useState({});
-  const listeSeq=useRef(0);
-  useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
-  const P=isMobile?14:24;
-
-  // Liste: arama 300 ms gecikmeli, durum filtresi API'ye gider
-  useEffect(()=>{
-    const sira=++listeSeq.current;
-    setListeYukleniyor(true);setListeHata("");
-    const t=setTimeout(async()=>{
-      try{
-        const q=new URLSearchParams({limit:"100"});
-        if(arama.trim())q.set("arama",arama.trim());
-        if(durumFiltre)q.set("durum",durumFiltre);
-        const d=await apiCall(`/dosyalar?${q.toString()}`);
-        if(sira!==listeSeq.current)return;
-        setDosyalar(esleListe(d.dosyalar));setToplamSonuc(d.toplam||0);
-      }catch(e){if(sira===listeSeq.current)setListeHata(e.message||"Dosyalar alınamadı.");}
-      finally{if(sira===listeSeq.current)setListeYukleniyor(false);}
-    },arama.trim()?300:0);
-    return()=>clearTimeout(t);
-  },[arama,durumFiltre,yenile]);
-
-  // Sayaçlar ve servis kartları
-  const ozetYukle=async()=>{
-    setOzetHata("");
-    try{
-      const [o,s,m]=await Promise.all([apiCall("/raporlar/ozet"),apiCall("/servisler"),apiCall("/mesajlar/okunmamis").catch(()=>({dosyalar:{}}))]);
-      setOzet(o);setServisler(s.servisler||[]);setOkunmamis(m.dosyalar||{});
-    }catch(e){setOzetHata(e.message||"Özet alınamadı.");}
-  };
-  useEffect(()=>{ozetYukle();},[]);
-
-  const filtreli=dosyalar;
-  const dRenk={Aktif:"#4F46E5",Tamamlandı:"#10B981"};
-  const aktifFiltre=!!(arama||durumFiltre);
-  const servisOzet=(id)=>(ozet?.servisler||[]).find(x=>x.id===id)||{};
+  useEffect(()=>{apiCall("/raporlar/ozet").then(o=>setOnaySayisi(Number(o.bekleyen_onay)||0)).catch(()=>{});},[yenile,dosyaId]);
+  const git=(id)=>{setSayfa(id);setDosyaId(null);setServisId(null);window.scrollTo(0,0);};
+  const dosyaAc=(id)=>{setDosyaId(id);setServisId(null);window.scrollTo(0,0);};
+  const servisAc=(id)=>{setServisId(id);setDosyaId(null);window.scrollTo(0,0);};
+  const aktifMenu=dosyaId?"dosyalar":servisId?"servisler":sayfa;
+  const tumOgeler=AK_MENU.flatMap(m=>m.ogeler);
+  const baslik=tumOgeler.find(o=>o.id===sayfa)?.ad||"Kokpit";
+  const altBaslik={kokpit:"Günün operasyonu, canlı veri",dosyalar:"Arama, filtre ve dosya listesi",onaylar:"Admin kararı bekleyen iş emirleri",atolye:"Hangi araç hangi bölümde",servisler:"Anlaşmalı servisler ve yükleri"}[sayfa]||"Yol haritasındaki modül";
   return(
-    <div style={{fontFamily:"'Inter',sans-serif",background:"var(--bg)",minHeight:"100vh",color:"var(--text-1)"}}>
-      <div style={{background:"var(--surface-1)",borderBottom:"1px solid rgba(255,255,255,0.07)",padding:`0 ${P}px`,height:56,display:"flex",alignItems:"center",justifyContent:"space-between"}}>
-        <div style={{display:"flex",alignItems:"center",gap:12}}>
-          <div style={{width:36,height:36,borderRadius:9,background:"linear-gradient(135deg,#1D4ED8,#2563EB)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>🛡️</div>
-          <div><div style={{fontWeight:800,fontSize:15}}>HasarTrack</div><div style={{fontSize:10,color:"var(--text-2)"}}>Hasar Admin Paneli</div></div>
-        </div>
-        <button onClick={onCikis} className="btn-danger" style={{padding:"6px 14px"}}>Çıkış</button>
-      </div>
-      <div style={{maxWidth:760,margin:"0 auto",padding:`${isMobile?20:40}px ${P}px`}}>
-        <div style={{marginBottom:28}}>
-          <div style={{fontWeight:800,fontSize:isMobile?22:28,letterSpacing:"-0.5px",marginBottom:8}}>Günaydın 👋</div>
-          <div style={{fontSize:14,color:"var(--text-2)"}}>Mevcut bir dosyayı arayın veya yeni hasar dosyası oluşturun.</div>
-        </div>
-        <div style={{position:"relative",marginBottom:14}}>
-          <div style={{position:"absolute",left:16,top:"50%",transform:"translateY(-50%)",fontSize:18,pointerEvents:"none"}}>🔍</div>
-          <input type="text" value={arama} onChange={e=>setArama(e.target.value)} placeholder="Plaka, dosya no veya müşteri adı..." autoFocus style={{width:"100%",background:"var(--surface-2)",border:"1px solid var(--border-md)",borderRadius:12,color:"var(--text-1)",padding:"16px 16px 16px 48px",fontSize:15}}/>
-          {arama&&<button onClick={()=>setArama("")} style={{position:"absolute",right:14,top:"50%",transform:"translateY(-50%)",background:"var(--border-md)",border:"none",color:"var(--text-2)",borderRadius:"50%",width:26,height:26,fontSize:14,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>}
-        </div>
-        <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:14}}>
-          {[["","Tümü"],["Aktif","Aktif"],["Tamamlandı","Tamamlandı"],["Askıda","Askıda"],["İptal","İptal"]].map(([v,l])=><button key={v||"tumu"} onClick={()=>setDurumFiltre(v)} style={{padding:"5px 12px",borderRadius:20,border:`1px solid ${durumFiltre===v?"rgba(79,70,229,0.5)":"var(--border-md)"}`,background:durumFiltre===v?"rgba(79,70,229,0.12)":"var(--surface-2)",color:durumFiltre===v?"#818CF8":"var(--text-2)",fontSize:11,fontWeight:700}}>{l}</button>)}
-        </div>
-        <button onClick={onYeniDosya} style={{width:"100%",background:"linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.04))",border:"2px dashed rgba(59,130,246,0.35)",borderRadius:14,padding:18,fontSize:14,fontWeight:700,color:"#60A5FA",marginBottom:24,display:"flex",alignItems:"center",justifyContent:"center",gap:10,transition:"all .2s"}} onMouseEnter={e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.6)";e.currentTarget.style.background="linear-gradient(135deg,rgba(59,130,246,0.18),rgba(59,130,246,0.08))";}} onMouseLeave={e=>{e.currentTarget.style.borderColor="rgba(59,130,246,0.35)";e.currentTarget.style.background="linear-gradient(135deg,rgba(59,130,246,0.12),rgba(59,130,246,0.04))";}}>
-          <div style={{width:32,height:32,borderRadius:8,background:"rgba(79,70,229,0.2)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>+</div>
-          Yeni Hasar Dosyası Oluştur
-        </button>
-        {!aktifFiltre&&(
+    <>
+      <aside className="ak-side">
+        <div className="ak-brand">HasarTrack<small>Hasar Yönetim Paneli</small></div>
+        <nav className="ak-nav">
+          {AK_MENU.map(m=>(
+            <div key={m.grup}>
+              <div className="ak-grup">{m.grup}</div>
+              {m.ogeler.map(o=>(
+                <button key={o.id} title={o.ad} onClick={()=>git(o.id)} className={aktifMenu===o.id?"aktif":""} style={{"--g":m.g}}>
+                  <i className="ak-ico">{o.ico}</i><span className="ak-et">{o.ad}</span>
+                  {o.rozet==="onay"&&onaySayisi>0&&<span className="ak-rozet">{onaySayisi}</span>}
+                  {o.yakinda&&<span className="ak-yakinda">YAKINDA</span>}
+                </button>
+              ))}
+            </div>
+          ))}
+        </nav>
+        <div className="ak-alt"><div className="ak-kim"><b>Hasar Admin</b>Yönetici</div><button onClick={onCikis} title="Çıkış">Çıkış</button></div>
+      </aside>
+      <main className="ak-main">
+        {dosyaId?(
+          <AdminPanel dosyaId={dosyaId} onCikis={()=>{setDosyaId(null);setYenile(n=>n+1);}}/>
+        ):servisId?(
+          <ServisDetayAdmin servisId={servisId} onGeri={()=>{setServisId(null);setYenile(n=>n+1);}}/>
+        ):(
           <>
-            {ozetHata&&<div style={{marginBottom:12}}><HataKutusu hata={ozetHata} onTekrar={ozetYukle}/></div>}
-            <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:16}}>
-              {[{l:"Toplam",v:ozet?Number(ozet.toplam_dosya):"…",c:"#818CF8"},{l:"Aktif",v:ozet?Number(ozet.aktif_dosya):"…",c:"#4F46E5"},{l:"Servissiz",v:ozet?Number(ozet.servissiz):"…",c:"#F59E0B"}].map(k=><Card key={k.l}><div style={{fontSize:9,color:"var(--text-2)",fontWeight:700,marginBottom:6}}>{k.l.toUpperCase()}</div><div style={{fontSize:26,fontWeight:800,color:k.c}}>{k.v}</div></Card>)}
-            </div>
-            <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:16}}>
-              <BekleyenOnaylar onDosyaAc={onDosyaSec}/>
-              <BolumPanosu onDosyaAc={onDosyaSec}/>
-            </div>
-            <div style={{marginBottom:20}}>
-              <div style={{fontSize:12,color:"var(--text-2)",fontWeight:600,marginBottom:10,letterSpacing:"0.5px"}}>SERVİSLER</div>
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:8}}>
-                {servisler.map(srv=>{
-                  const so=servisOzet(srv.id);
-                  const srvDosyalar={length:Number(so.dosya_sayisi)||0};
-                  const bekleyen=Number(so.bekleyen_onay)||0;
-                  const toplam=Number(so.toplam_muallak)||0;
-                  return(
-                    <button key={srv.id} onClick={()=>onServisDetay(srv.id)} style={{background:"var(--surface-2)",border:`1px solid ${bekleyen>0?"rgba(245,158,11,0.35)":"rgba(139,92,246,0.2)"}`,borderRadius:12,padding:"12px 14px",textAlign:"left",display:"flex",gap:10,alignItems:"flex-start"}}>
-                      <div style={{width:36,height:36,borderRadius:9,background:"rgba(139,92,246,0.15)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18,flexShrink:0}}>🔧</div>
-                      <div style={{flex:1,minWidth:0}}>
-                        <div style={{fontWeight:700,fontSize:12,color:"#C4B5FD",whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis",marginBottom:4}}>{srv.ad}</div>
-                        <div style={{display:"flex",gap:8,flexWrap:"wrap"}}>
-                          <span style={{fontSize:10,color:"var(--text-2)"}}>{srvDosyalar.length} araç</span>
-                          {toplam>0&&<span style={{fontSize:10,color:"#EF4444",fontWeight:600}}>{toplam.toLocaleString("tr-TR")} ₺</span>}
-                          {bekleyen>0&&<span style={{fontSize:9,fontWeight:700,padding:"1px 6px",borderRadius:4,background:"rgba(245,158,11,0.15)",color:"#F59E0B",border:"1px solid rgba(245,158,11,0.3)"}}>{bekleyen} onay</span>}
-                        </div>
-                      </div>
-                      <span style={{color:"#8B5CF6",fontSize:16,flexShrink:0}}>›</span>
-                    </button>
-                  );
-                })}
+            <div className="ak-top">
+              <div><h1>{baslik}</h1><p>{altBaslik}</p></div>
+              <div className="ak-eylem">
+                <button className="ak-btn" onClick={()=>git("onaylar")}>🔔 {onaySayisi} onay</button>
+                <button className="ak-btn ana" onClick={()=>setWizardAcik(true)}>+ Yeni Hasar Dosyası</button>
               </div>
+            </div>
+            <div className="ak-icerik" key={sayfa+yenile}>
+              {sayfa==="kokpit"&&<AdminDashboard onDosyaSec={dosyaAc} onGit={git} onYeniDosya={()=>setWizardAcik(true)} onServisDetay={servisAc}/>}
+              {sayfa==="dosyalar"&&<DosyaListesi onDosyaSec={dosyaAc} onYeniDosya={()=>setWizardAcik(true)}/>}
+              {sayfa==="onaylar"&&<BekleyenOnaylar onDosyaAc={dosyaAc}/>}
+              {sayfa==="atolye"&&<BolumPanosu onDosyaAc={dosyaAc} baslik="🗂️ Atölye Panosu"/>}
+              {sayfa==="servisler"&&<ServislerSayfasi onServisDetay={servisAc}/>}
+              {AK_YAKINDA[sayfa]&&<YakindaSayfasi modul={AK_YAKINDA[sayfa]} onGit={git}/>}
             </div>
           </>
         )}
-        <div style={{fontSize:12,color:"var(--text-2)",fontWeight:600,marginBottom:12,letterSpacing:"0.5px"}}>{aktifFiltre?`${toplamSonuc} sonuç${arama?` ("${arama}")`:""}`:"SON DOSYALAR"}</div>
-        {listeHata?(
-          <HataKutusu hata={listeHata} onTekrar={()=>setYenile(n=>n+1)}/>
-        ):listeYukleniyor&&filtreli.length===0?(
-          <div style={{textAlign:"center",padding:"40px 20px",color:"var(--text-2)",fontSize:13}}><span style={{animation:"pulse .8s infinite"}}>Dosyalar yükleniyor...</span></div>
-        ):filtreli.length===0?(
-          <div style={{textAlign:"center",padding:"40px 20px",color:"rgba(15,23,42,0.06)"}}>
-            <div style={{fontSize:44,marginBottom:12}}>🔎</div>
-            <div style={{fontWeight:700,fontSize:14,marginBottom:6}}>Sonuç bulunamadı</div>
-            <button onClick={onYeniDosya} style={{marginTop:16,background:"rgba(79,70,229,0.15)",border:"1px solid rgba(79,70,229,0.3)",color:"#818CF8",borderRadius:9,padding:"10px 20px",fontSize:13,fontWeight:700}}>Yeni Dosya Oluştur</button>
-          </div>
-        ):(
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            {filtreli.map(d=>{
-              const dc=dRenk[d.durum]||"var(--text-3)";
-              const srv=d.atananServis?{ad:d.servisAd||"Servis"}:null;
-              return(
-                <div key={d.id} onClick={()=>onDosyaSec(d.id)} style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:12,padding:16,cursor:"pointer"}}
-                  onMouseEnter={e=>{e.currentTarget.style.background="#1a2030";e.currentTarget.style.borderColor="rgba(79,70,229,0.3)";}}
-                  onMouseLeave={e=>{e.currentTarget.style.background="var(--surface-2)";e.currentTarget.style.borderColor="var(--border)";}}>
-                  <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",marginBottom:10}}>
-                    <div style={{display:"flex",gap:10,alignItems:"center",flexWrap:"wrap"}}>
-                      <div style={{fontFamily:"var(--font-mono)",fontSize:12,fontWeight:700,color:"#818CF8",background:"rgba(79,70,229,0.12)",padding:"3px 9px",borderRadius:5}}>{d.dosyaNo}</div>
-                      <div style={{fontWeight:800,fontSize:14}}>{d.plaka}</div><MesajRozet n={okunmamis[d.id]}/>
-                    </div>
-                    <div style={{display:"flex",gap:6,alignItems:"center",flexShrink:0}}>
-                      <Chip renk={dc} sm>{d.durum}</Chip>
-                      <span style={{color:"var(--text-2)",fontSize:16}}>›</span>
-                    </div>
-                  </div>
-                  <div style={{display:"flex",gap:isMobile?10:16,flexWrap:"wrap",marginBottom:8}}>
-                    <div style={{fontSize:12,color:"var(--text-2)"}}>🚗 {d.arac}</div>
-                    <div style={{fontSize:12,color:"var(--text-2)"}}>👤 {d.sahip}</div>
-                    <div style={{fontSize:12,color:"var(--text-2)"}}>🏦 {d.sigorta}</div>
-                    <div style={{fontSize:12,color:"#F59E0B",fontWeight:600}}>💰 {d.muallakHasar}</div>
-                  </div>
-                  {srv?(
-                    <div style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 8px",background:"rgba(139,92,246,0.12)",border:"1px solid rgba(139,92,246,0.25)",borderRadius:6,fontSize:10,color:"#A78BFA",fontWeight:600,marginBottom:8}}>🔧 {srv.ad}</div>
-                  ):(
-                    <div style={{display:"inline-flex",alignItems:"center",gap:5,padding:"3px 8px",background:"rgba(245,158,11,0.1)",border:"1px solid rgba(245,158,11,0.25)",borderRadius:6,fontSize:10,color:"#F59E0B",fontWeight:600,marginBottom:8}}>⚠ Servis atanmadı</div>
-                  )}
-                  <div style={{display:"flex",gap:8,alignItems:"center"}}>
-                    <div style={{flex:1,height:4,background:"var(--border)",borderRadius:2}}><div style={{height:"100%",width:`${d.ilerleme}%`,borderRadius:2,background:`linear-gradient(90deg,${dc},${dc}80)`}}/></div>
-                    <span style={{fontSize:10,color:"var(--text-2)",fontFamily:"var(--font-mono)",flexShrink:0}}>%{d.ilerleme} · {d.aktifAdim}</span>
-                  </div>
-                </div>
-              );
-            })}
-          </div>
-        )}
+      </main>
+      {wizardAcik&&<YeniDosyaWizard onKapat={()=>setWizardAcik(false)} onKaydet={(d)=>{setWizardAcik(false);dosyaAc(d.id);}}/>}
+    </>
+  );
+}
+
+// Kokpit: hero, KPI, süreç şeridi, kanban, aktif dosyalar, gün ajandası, servisler
+function AdminDashboard({onDosyaSec,onGit,onYeniDosya,onServisDetay}){
+  const [veri,setVeri]=useState(null);const [hata,setHata]=useState("");
+  const yukle=async()=>{
+    setHata("");
+    try{
+      const [o,l,b]=await Promise.all([apiCall("/raporlar/ozet"),apiCall("/dosyalar?durum=Aktif&limit=200"),apiCall("/is-emirleri/bekleyen-onaylar").catch(()=>({onaylar:[]}))]);
+      setVeri({ozet:o,aktif:esleListe(l.dosyalar),onaylar:b.onaylar||[]});
+    }catch(e){setHata(e.message||"Kokpit verisi alınamadı.");}
+  };
+  useEffect(()=>{yukle();},[]);
+  if(hata)return <HataKutusu hata={hata} onTekrar={yukle}/>;
+  if(!veri)return <div className="ak-bos"><span style={{animation:"pulse .8s infinite"}}>Kokpit yükleniyor...</span></div>;
+  const {ozet,aktif,onaylar}=veri;
+  const geciken=aktif.filter(d=>{const g=gunFarki(d.tahminiTeslim);return g!==null&&g<0;});
+  const yakinTeslim=aktif.filter(d=>{const g=gunFarki(d.tahminiTeslim);return g!==null&&g>=0&&g<=7;});
+  const atolyede=aktif.filter(d=>["Parça Temini","Onarım","Boya & Son Kontrol"].includes(d.aktifAdim));
+  const onayTutar=onaylar.reduce((s,o)=>s+Number(o.tutar||0),0);
+  const sutun=(s)=>aktif.filter(d=>d.aktifAdim===s.ad||(s.ad==="Araç Teslimi"&&!d.aktifAdim&&d.ilerleme>=100));
+  const bugun=new Date().toLocaleDateString("tr-TR",{weekday:"long",day:"numeric",month:"long"});
+  const ajanda=[
+    ...geciken.map(d=>({g:"#ef4444",b:`Teslim gecikti · ${d.dosyaNo}`,s:`${d.plaka} · ${-gunFarki(d.tahminiTeslim)} gün geçti (${trTarih(d.tahminiTeslim)})`,id:d.id,o:0})),
+    ...onaylar.map(o=>({g:"#f59e0b",b:`Onay bekliyor · ${o.dosya_no}`,s:`${o.plaka||""} · ${o.tur==="ek"?"Ek hasar":"Ana iş emri"} · ${Number(o.gun)||0} gündür · ${tlBicim(o.tutar)}`,id:o.dosya_id,o:1})),
+    ...yakinTeslim.map(d=>{const g=gunFarki(d.tahminiTeslim);return {g:"#3b82f6",b:`${g===0?"Bugün":g===1?"Yarın":`${g} gün sonra`} teslim · ${d.dosyaNo}`,s:`${d.plaka} · ${d.arac} · ${d.aktifAdim||"Hazır"}`,id:d.id,o:2+g/10};}),
+    ...aktif.filter(d=>!d.atananServis).map(d=>({g:"#f97316",b:`Servis atanmadı · ${d.dosyaNo}`,s:`${d.plaka} · ${d.sahip}`,id:d.id,o:3})),
+  ].sort((a,b)=>a.o-b.o);
+  return(
+    <>
+      <section className="ak-hero">
+        <div className="ak-ust">HasarTrack · Operasyon Kontrol</div>
+        <h2>Günün operasyonu tek ekranda</h2>
+        <p>{bugun} · {Number(ozet.aktif_dosya)} açık dosya · toplam muallak {tlBicim(ozet.toplam_muallak)||"0 ₺"}</p>
+        <div className="ak-hero-eylem">
+          <button className="ana" onClick={onYeniDosya}>+ Yeni Hasar Dosyası</button>
+          <button onClick={()=>onGit("atolye")}>Atölyeyi Aç</button>
+          <button onClick={()=>onGit("onaylar")}>Onaylar ({onaylar.length})</button>
+          <button onClick={()=>onGit("dosyalar")}>Tüm Dosyalar</button>
+        </div>
+      </section>
+      <section className="ak-kpis">
+        {[{l:"Açık hasar dosyası",v:Number(ozet.aktif_dosya),s:`${Number(ozet.toplam_dosya)} dosyanın · ${Number(ozet.tamamlanan_dosya)} tamamlandı`,k:"var(--ak-c-intake)",git:"dosyalar"},
+          {l:"Atölyedeki araç",v:atolyede.length,s:`${aktif.filter(d=>d.aktifAdim==="Parça Temini").length} parça bekliyor`,k:"var(--ak-c-repair)",git:"atolye"},
+          {l:"Bekleyen onay",v:onaylar.length,s:onaylar.length?tlBicim(onayTutar):"Bekleyen yok",k:"var(--ak-c-supply)",git:"onaylar"},
+          {l:"Gecikme riski",v:geciken.length,s:`7 gün içinde teslim: ${yakinTeslim.length}`,k:geciken.length?"#ef4444":"var(--ak-c-portal)",git:"dosyalar"}].map(x=>(
+          <div key={x.l} className="ak-kart ak-kpi" style={{"--k":x.k}} onClick={()=>onGit(x.git)}><div className="l">{x.l}</div><b>{x.v}</b><div className="s">{x.s}</div></div>
+        ))}
+      </section>
+      <div className="ak-surec">
+        {AK_SUREC.map(s=>{const n=sutun(s).length;return <div key={s.ad} className={`ak-adim${n?" dolu":""}`} style={{"--g":s.g}}><b>{s.k}</b><small>{n?`${n} araç`:"Boş"}</small></div>;})}
       </div>
+      <section className="ak-kart">
+        <div className="ak-baslik"><h3>Hasar Süreç Kanbanı</h3><span>{aktif.length} aktif dosya</span></div>
+        <div className="ak-kanban">
+          {AK_SUREC.map(s=>{const ds=sutun(s);return(
+            <div key={s.ad} className="ak-sutun" style={{"--g":s.g}}>
+              <h4><span>{s.k}</span><span>{ds.length}</span></h4>
+              {ds.map(d=>(
+                <button key={d.id} className="ak-bilet" onClick={()=>onDosyaSec(d.id)}>
+                  <b>{d.dosyaNo}</b>
+                  <p>{d.plaka} · {d.arac}<br/>{d.servisAd||"Servis atanmadı"}{d.tahminiTeslim?` · teslim ${trTarih(d.tahminiTeslim)}`:""}</p>
+                </button>
+              ))}
+            </div>
+          );})}
+        </div>
+      </section>
+      <div className="ak-iki">
+        <section className="ak-kart" style={{overflowX:"auto"}}>
+          <div className="ak-baslik"><h3>Aktif Hasar Dosyaları</h3><button className="ak-btn" onClick={()=>onGit("dosyalar")}>Tümünü gör</button></div>
+          {aktif.length===0?<div className="ak-bos">Aktif dosya yok.</div>:(
+            <table className="ak-tablo">
+              <thead><tr><th>Dosya</th><th className="gizle">Araç</th><th className="gizle">Müşteri</th><th className="gizle">Sigorta</th><th>Aşama</th><th>Teslim</th></tr></thead>
+              <tbody>{aktif.slice(0,8).map(d=>{const g=gunFarki(d.tahminiTeslim);return(
+                <tr key={d.id} className="satir" onClick={()=>onDosyaSec(d.id)}>
+                  <td><span className="no">{d.dosyaNo}</span><span className="alt">{d.plaka}</span></td>
+                  <td className="gizle">{d.arac}</td><td className="gizle">{d.sahip}</td><td className="gizle">{d.sigorta}</td>
+                  <td><span className="ak-cip" style={{color:adimRenk(d.aktifAdim),background:`color-mix(in srgb,${adimRenk(d.aktifAdim)} 12%,white)`}}>{d.aktifAdim||"Hazır"}</span></td>
+                  <td>{d.tahminiTeslim?<span className={`ak-cip ${g<0?"ak-tehlike":g<=2?"ak-uyari":"ak-gri"}`}>{trTarih(d.tahminiTeslim)}</span>:"—"}</td>
+                </tr>);})}</tbody>
+            </table>
+          )}
+        </section>
+        <div style={{display:"grid",gap:14,alignContent:"start"}}>
+          <section className="ak-kart">
+            <div className="ak-baslik"><h3>Bugünün Ajandası</h3><span>{ajanda.length} iş</span></div>
+            {ajanda.length===0?<div className="ak-bos">Bekleyen iş yok.</div>:ajanda.slice(0,8).map((a,i)=>(
+              <button key={i} className="ak-ajanda" style={{"--g":a.g}} onClick={()=>onDosyaSec(a.id)}><b>{a.b}</b><span>{a.s}</span></button>
+            ))}
+          </section>
+          <section className="ak-kart">
+            <div className="ak-baslik"><h3>Servisler</h3><button className="ak-btn" onClick={()=>onGit("servisler")}>Tümü</button></div>
+            {(ozet.servisler||[]).slice(0,5).map(s=>(
+              <button key={s.id} className="ak-ajanda" style={{"--g":"var(--ak-c-repair)"}} onClick={()=>onServisDetay(s.id)}>
+                <b>{s.ad}</b><span>{Number(s.dosya_sayisi)} aktif araç{Number(s.bekleyen_onay)?` · ${s.bekleyen_onay} onay bekliyor`:""}</span>
+              </button>
+            ))}
+          </section>
+        </div>
+      </div>
+    </>
+  );
+}
+
+// Hasar dosyaları: arama, durum filtresi, tablo (mobilde dar sütunlar gizlenir)
+function DosyaListesi({onDosyaSec,onYeniDosya}){
+  const [arama,setArama]=useState("");const [durum,setDurum]=useState("");
+  const [dosyalar,setDosyalar]=useState([]);const [toplam,setToplam]=useState(0);
+  const [yukleniyor,setYukleniyor]=useState(true);const [hata,setHata]=useState("");const [yenile,setYenile]=useState(0);
+  const [okunmamis,setOkunmamis]=useState({});
+  const seq=useRef(0);
+  useEffect(()=>{apiCall("/mesajlar/okunmamis").then(m=>setOkunmamis(m.dosyalar||{})).catch(()=>{});},[]);
+  useEffect(()=>{
+    const sira=++seq.current;setYukleniyor(true);setHata("");
+    const t=setTimeout(async()=>{
+      try{
+        const q=new URLSearchParams({limit:"200"});
+        if(arama.trim())q.set("arama",arama.trim());
+        if(durum)q.set("durum",durum);
+        const d=await apiCall(`/dosyalar?${q.toString()}`);
+        if(sira!==seq.current)return;
+        setDosyalar(esleListe(d.dosyalar));setToplam(d.toplam||0);
+      }catch(e){if(sira===seq.current)setHata(e.message||"Dosyalar alınamadı.");}
+      finally{if(sira===seq.current)setYukleniyor(false);}
+    },arama.trim()?300:0);
+    return()=>clearTimeout(t);
+  },[arama,durum,yenile]);
+  const dCip={Aktif:"ak-bilgi",Tamamlandı:"ak-ok",Askıda:"ak-uyari",İptal:"ak-gri"};
+  return(
+    <section className="ak-kart" style={{overflowX:"auto"}}>
+      <div className="ak-ara">
+        <input value={arama} onChange={e=>setArama(e.target.value)} placeholder="🔍  Plaka, dosya no veya müşteri adı" autoFocus/>
+        <div className="ak-filtre">{[["","Tümü"],["Aktif","Aktif"],["Tamamlandı","Tamamlandı"],["Askıda","Askıda"],["İptal","İptal"]].map(([v,l])=><button key={l} className={durum===v?"sec":""} onClick={()=>setDurum(v)}>{l}</button>)}</div>
+      </div>
+      <div className="ak-baslik"><span>{yukleniyor?"Yükleniyor...":`${toplam} dosya`}</span></div>
+      {hata?<HataKutusu hata={hata} onTekrar={()=>setYenile(n=>n+1)}/>:dosyalar.length===0&&!yukleniyor?(
+        <div className="ak-bos">Sonuç bulunamadı. <button className="ak-btn ana" style={{marginLeft:8}} onClick={onYeniDosya}>+ Yeni dosya</button></div>
+      ):(
+        <table className="ak-tablo">
+          <thead><tr><th>Dosya</th><th className="gizle">Araç</th><th className="gizle">Müşteri</th><th className="gizle">Sigorta</th><th className="gizle">Servis</th><th>Durum</th><th className="gizle">İlerleme</th><th className="gizle">Muallak</th></tr></thead>
+          <tbody>{dosyalar.map(d=>(
+            <tr key={d.id} className="satir" onClick={()=>onDosyaSec(d.id)}>
+              <td><span className="no">{d.dosyaNo}</span> <MesajRozet n={okunmamis[d.id]}/><span className="alt">{d.plaka} · {d.tarih}</span></td>
+              <td className="gizle">{d.arac}</td><td className="gizle">{d.sahip}</td><td className="gizle">{d.sigorta}</td>
+              <td className="gizle">{d.servisAd||<span className="ak-cip ak-uyari">Atanmadı</span>}</td>
+              <td><span className={`ak-cip ${dCip[d.durum]||"ak-gri"}`}>{d.durum}</span>{d.durum==="Aktif"&&d.aktifAdim&&<span className="alt">{d.aktifAdim}</span>}</td>
+              <td className="gizle"><div className="ak-ilerleme"><div style={{width:`${d.ilerleme}%`}}/></div><span className="alt">%{d.ilerleme}</span></td>
+              <td className="gizle" style={{fontWeight:600}}>{d.muallakHasar||"—"}</td>
+            </tr>
+          ))}</tbody>
+        </table>
+      )}
+    </section>
+  );
+}
+
+function ServislerSayfasi({onServisDetay}){
+  const [ozet,setOzet]=useState(null);const [servisler,setServisler]=useState(null);const [hata,setHata]=useState("");
+  const yukle=()=>{setHata("");Promise.all([apiCall("/raporlar/ozet"),apiCall("/servisler")]).then(([o,s])=>{setOzet(o);setServisler(s.servisler||[]);}).catch(e=>setHata(e.message));};
+  useEffect(()=>{yukle();},[]);
+  if(hata)return <HataKutusu hata={hata} onTekrar={yukle}/>;
+  if(!servisler)return <div className="ak-bos">Yükleniyor...</div>;
+  const so=(id)=>(ozet?.servisler||[]).find(x=>x.id===id)||{};
+  return(
+    <div className="ak-servisler">
+      {servisler.map(s=>{const o=so(s.id);return(
+        <button key={s.id} className="ak-kart ak-kpi" style={{"--k":s.aktif?"var(--ak-c-repair)":"#cbd5e1",textAlign:"left"}} onClick={()=>onServisDetay(s.id)}>
+          <div style={{display:"flex",justifyContent:"space-between",gap:8}}><b style={{fontSize:15,marginTop:0}}>{s.ad}</b>{!s.aktif&&<span className="ak-cip ak-gri">Pasif</span>}</div>
+          <div className="s" style={{marginTop:6}}>{s.adres||"Adres yok"}{s.telefon?` · ${s.telefon}`:""}</div>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap",marginTop:10}}>
+            <span className="ak-cip ak-mor">{Number(o.dosya_sayisi)||0} aktif araç</span>
+            {Number(o.bekleyen_onay)>0&&<span className="ak-cip ak-uyari">{o.bekleyen_onay} onay bekliyor</span>}
+            {Number(o.toplam_muallak)>0&&<span className="ak-cip ak-gri">{tlBicim(o.toplam_muallak)}</span>}
+          </div>
+        </button>
+      );})}
     </div>
+  );
+}
+
+function YakindaSayfasi({modul,onGit}){
+  return(
+    <section className="ak-kart" style={{maxWidth:680}}>
+      <span className="ak-cip ak-gri">Yol haritasında</span>
+      <h3 style={{fontSize:20,margin:"12px 0 8px"}}>{modul.ad}</h3>
+      <p style={{fontSize:13,color:"#556370",lineHeight:1.7}}>{modul.metin}</p>
+      <p style={{fontSize:12,color:"#7a8792",lineHeight:1.6,marginTop:12}}>Bu modül henüz canlı değil. Ekranı gerçek veri olmadan göstermemek için şimdilik burada açıklaması duruyor.</p>
+      <button className="ak-btn ana" style={{marginTop:16}} onClick={()=>onGit("kokpit")}>Kokpite dön</button>
+    </section>
   );
 }
 
@@ -4145,17 +4365,15 @@ function App(){
   // ?takip=<token> ile gelen müşteri giriş yapmadan takip sayfasını görür
   const [takipToken]=useState(()=>new URLSearchParams(location.search).get("takip")||"");
   const [ekran,setEkran]=useState("rolsecim");
-  const [wizardAcik,setWizardAcik]=useState(false);
   const [kullanici,setKullanici]=useState(null);
-  const [seciliDosyaId,setSeciliDosyaId]=useState(null);
   const [oturumMesaj,setOturumMesaj]=useState("");
 
   const giris=(k)=>{setOturumMesaj("");setKullanici(k);setEkran(`${k.rol}-${k.rol==="admin"?"dashboard":k.rol==="servis"?"panel":k.rol==="acente"?"panel":"panel"}`);};
-  const cikis=()=>{localStorage.removeItem("ht_token");setEkran("rolsecim");setKullanici(null);setSeciliDosyaId(null);};
+  const cikis=()=>{localStorage.removeItem("ht_token");setEkran("rolsecim");setKullanici(null);};
 
   // Token süresi dolduğunda veya reddedildiğinde (401) giriş ekranına dön
   useEffect(()=>{
-    const h=()=>{setKullanici(null);setSeciliDosyaId(null);setWizardAcik(false);setEkran("rolsecim");setOturumMesaj("Oturum sona erdi, lütfen tekrar giriş yapın.");};
+    const h=()=>{setKullanici(null);setEkran("rolsecim");setOturumMesaj("Oturum sona erdi, lütfen tekrar giriş yapın.");};
     window.addEventListener("ht-oturum-bitti",h);
     return()=>window.removeEventListener("ht-oturum-bitti",h);
   },[]);
@@ -4170,14 +4388,7 @@ function App(){
       {ekran==="servis-giris"  &&<ServisGiris  onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
       {ekran==="acente-giris"  &&<AcenteGiris  onGiris={giris} onGeri={()=>setEkran("rolsecim")}/>}
       {ekran==="musteri-giris" &&<MusteriGiris onGeri={()=>setEkran("rolsecim")}/>}
-      {ekran==="admin-dashboard"&&(
-        <>
-          <AdminDashboard onDosyaSec={(id)=>{setSeciliDosyaId(id);setEkran("admin-panel");}} onYeniDosya={()=>setWizardAcik(true)} onCikis={cikis} onServisDetay={(id)=>{setKullanici(k=>({...k,servisDetayId:id}));setEkran("admin-servis-detay");}}/>
-          {wizardAcik&&<YeniDosyaWizard onKapat={()=>setWizardAcik(false)} onKaydet={(d)=>{setWizardAcik(false);setSeciliDosyaId(d.id);setEkran("admin-panel");}}/>}
-        </>
-      )}
-      {ekran==="admin-panel"  &&seciliDosyaId&&<AdminPanel dosyaId={seciliDosyaId} onCikis={()=>setEkran("admin-dashboard")}/>}
-      {ekran==="admin-servis-detay"&&<ServisDetayAdmin servisId={kullanici?.servisDetayId} onGeri={()=>setEkran("admin-dashboard")}/>}
+      {ekran==="admin-dashboard"&&<AdminUygulama onCikis={cikis}/>}
       {ekran==="servis-panel" &&<ServisPanel servisBilgi={kullanici?.servis||{id:"",ad:"Servis",adres:"",telefon:""}} onCikis={cikis}/>}
       {ekran==="acente-panel" &&<AcentePanel onCikis={cikis}/>}
     </>
