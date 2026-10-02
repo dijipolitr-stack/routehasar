@@ -259,7 +259,8 @@ function esleAdim(a){
 }
 function esleKalem(k){
   return {id:k.id,kategori:k.kategori||"Diğer",aciklama:k.aciklama,birim:k.birim||"Adet",
-    miktar:Number(k.miktar)||0,birimFiyat:Number(k.birim_fiyat)||0,durum:k.durum||"bekliyor"};
+    miktar:Number(k.miktar)||0,birimFiyat:Number(k.birim_fiyat)||0,durum:k.durum||"bekliyor",odeyen:k.odeyen||"sigorta",
+    isEmriId:k.is_emri_id||null,onaylayanTip:k.onaylayan_tip||null,onaylayanAd:k.onaylayan_ad||""};
 }
 // Yeni dosya sihirbazı formu -> POST /dosyalar gövdesi
 function esleWizard(f){
@@ -308,9 +309,6 @@ const ALAN_HARITASI = {
   "eksper.incelemeTarihi":["eksper","inceleme_tarihi","tarih"],
   "eksper.tahminiHasar":["eksper","tahmini_hasar","para"],
   "eksper.onayDurumu":["eksper","onay_durumu","metin"],
-  "muhasebe.servisFaturaNo":["muhasebe","servis_fatura_no","metin"],
-  "muhasebe.servisFaturaTarihi":["muhasebe","servis_fatura_trh","tarih"],
-  "muhasebe.servisFatura":["muhasebe","servis_fatura_tutar","para"],
   "muhasebe.sigortaOdemeTarihi":["muhasebe","sigorta_odeme_trh","tarih"],
   "muhasebe.sigortaOdeme":["muhasebe","sigorta_odeme_tutar","para"],
   "muhasebe.notlar":["muhasebe","notlar","metin"],
@@ -346,12 +344,14 @@ async function dosyaKaydet(dosyaId,yollar,eski,yeni,onUygula){
 function islemApiOlustur(dosyaId,yenile){
   const u=`/islemler/${dosyaId}`;
   return {
-    kalemEkle:async(f)=>{await apiCall(u,"POST",{kategori:f.kategori,aciklama:f.aciklama,birim:f.birim,miktar:f.miktar,birim_fiyat:f.birimFiyat});await yenile();},
-    kalemToplu:async(liste)=>{await apiCall(`${u}/toplu`,"POST",{kalemler:liste.map(k=>({kategori:k.kategori,aciklama:k.aciklama,birim:k.birim,miktar:k.miktar,birim_fiyat:k.birimFiyat}))});await yenile();},
+    kalemEkle:async(f)=>{await apiCall(u,"POST",{kategori:f.kategori,aciklama:f.aciklama,birim:f.birim,miktar:f.miktar,birim_fiyat:f.birimFiyat,odeyen:f.odeyen,is_emri_id:f.isEmriId});await yenile();},
+    kalemToplu:async(liste,isEmriId)=>{await apiCall(`${u}/toplu`,"POST",{is_emri_id:isEmriId,kalemler:liste.map(k=>({kategori:k.kategori,aciklama:k.aciklama,birim:k.birim,miktar:k.miktar,birim_fiyat:k.birimFiyat,odeyen:k.odeyen}))});await yenile();},
     kalemKaydet:async(id,alanlar)=>{await apiCall(`${u}/${id}`,"PATCH",alanlar);await yenile();},
     kalemSil:async(id)=>{await apiCall(`${u}/${id}`,"DELETE");await yenile();},
-    onayaGonder:async()=>{await apiCall(`${u}/onaya-gonder`,"POST");await yenile();},
-    adminKarar:async(karar,not)=>{await apiCall(`${u}/admin-karar`,"POST",{karar,not_metni:not||undefined});await yenile();},
+    onayaGonder:async(isEmriId)=>{await apiCall(`${u}/onaya-gonder`,"POST",{is_emri_id:isEmriId});await yenile();},
+    adminKarar:async(karar,not,ek)=>{await apiCall(`${u}/admin-karar`,"POST",{karar,not_metni:not||undefined,...(ek||{})});await yenile();},
+    // Ek hasar: ana iş emri onaylandıktan sonra yeni iş emri (kendi onay turu)
+    ekHasar:async(aciklama)=>{const r=await apiCall(`/is-emirleri/${dosyaId}`,"POST",{aciklama});await yenile();return r;},
   };
 }
 // Ortak durum ekranları
@@ -509,14 +509,10 @@ const ISLEM_KAT_RENK = {
   "İşçilik": "#F59E0B", "Malzeme": "#10B981", "Diğer": "var(--text-3)",
 };
 
-const DEMO_PHOTOS = [
-  {id:1,url:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='400' height='300' fill='%231a1f2e'/><text x='200' y='150' text-anchor='middle' fill='%23EF4444' font-size='60'>🚗</text><text x='200' y='200' text-anchor='middle' fill='%2394A3B8' font-size='14' font-family='sans-serif'>Sağ Ön Çamurluk</text></svg>",etiket:"Sağ Ön Çamurluk",kategori:"kaza",tarih:"15.03.2024",yukleyen:"Admin",boyut:"2.1 MB"},
-  {id:2,url:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='400' height='300' fill='%231a1f2e'/><text x='200' y='150' text-anchor='middle' fill='%23F59E0B' font-size='60'>💥</text><text x='200' y='200' text-anchor='middle' fill='%2394A3B8' font-size='14' font-family='sans-serif'>Ön Tampon</text></svg>",etiket:"Ön Tampon",kategori:"kaza",tarih:"15.03.2024",yukleyen:"Admin",boyut:"1.8 MB"},
-  {id:3,url:"data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' width='400' height='300'><rect width='400' height='300' fill='%231a1f2e'/><text x='200' y='150' text-anchor='middle' fill='%2310B981' font-size='60'>🔍</text><text x='200' y='200' text-anchor='middle' fill='%2394A3B8' font-size='14' font-family='sans-serif'>Ekspertiz</text></svg>",etiket:"Ekspertiz Genel",kategori:"ekspertiz",tarih:"17.03.2024",yukleyen:"Servis",boyut:"3.2 MB"},
-];
 
-const KATEGORILER=[{id:"tumu",label:"Tümü",ikon:"🖼️"},{id:"kaza",label:"Kaza",ikon:"💥"},{id:"ekspertiz",label:"Ekspertiz",ikon:"🔍"},{id:"onarim",label:"Onarım",ikon:"🔧"},{id:"teslimat",label:"Teslimat",ikon:"✅"}];
+const KATEGORILER=[{id:"tumu",label:"Tümü",ikon:"🖼️"},{id:"kaza",label:"Kaza",ikon:"💥"},{id:"ekspertiz",label:"Ekspertiz",ikon:"🔍"},{id:"onarim",label:"Onarım",ikon:"🔧"},{id:"teslimat",label:"Teslimat",ikon:"✅"},{id:"ek_hasar",label:"Ek Hasar",ikon:"➕"}];
 const TC_CONF={"Araç Sahibi":{renk:"#F59E0B",icon:"👤",bg:"rgba(245,158,11,0.1)"},"Sigorta Şirketi":{renk:"#3B82F6",icon:"🏦",bg:"rgba(59,130,246,0.1)"},"Onarım Merkezi":{renk:"#8B5CF6",icon:"🔧",bg:"rgba(139,92,246,0.1)"},"Eksper":{renk:"#10B981",icon:"🔎",bg:"rgba(16,185,129,0.1)"},"Admin":{renk:"#4F46E5",icon:"🛡️",bg:"rgba(79,70,229,0.1)"},"Servis":{renk:"#8B5CF6",icon:"🔧",bg:"rgba(139,92,246,0.1)"}};
+const EV_DURUM={tamam:{renk:"#10B981",icon:"✓",label:"Teslim"},eksik:{renk:"#EF4444",icon:"!",label:"Eksik"},bekliyor:{renk:"#64748B",icon:"○",label:"Bekliyor"}};
 const ED={tamam:{renk:"#10B981",icon:"✓",label:"Teslim"},eksik:{renk:"#EF4444",icon:"!",label:"Eksik"},bekliyor:{renk:"var(--text-3)",icon:"○",label:"Bekliyor"}};
 
 // ─── KÜÇÜK BİLEŞENLER ────────────────────────────────────────────────────
@@ -1608,7 +1604,656 @@ const STOK_HAREKETLERI = [
 // ─── MUHASEBE İŞ AKIŞI v2 ────────────────────────────────────────────────
 // Servis girer (50+ kalem desteği) → Onaya gönderir → Admin onaylar
 
-function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe,setMuhasebe,dosya,rol,exportCSV,exportPDF,api}){
+// ─── İŞ EMİRLERİ, BÖLÜM GÖREVLERİ, PANO ─────────────────────────────────────
+// Servis tek hesapla girer; görev adımını bitiren usta adıyla bildirir. Bildirilmeyen görev açık kalır.
+const BOLUMLER_UI=[
+  {id:"sokum",l:"Söküm",c:"#64748B"},{id:"kaporta",l:"Kaporta",c:"#4F46E5"},{id:"boya",l:"Boya",c:"#8B5CF6"},
+  {id:"mekanik",l:"Mekanik",c:"#EF4444"},{id:"elektrik",l:"Elektrik",c:"#F59E0B"},{id:"montaj",l:"Montaj",c:"#10B981"},
+  {id:"dis_hizmet",l:"Dış hizmet",c:"#0EA5E9"},
+];
+const bolumBul=(id)=>BOLUMLER_UI.find(b=>b.id===id)||{id,l:id,c:"#64748B"};
+const GOREV_DURUM={bekliyor:{l:"Bekliyor",c:"#64748B"},devam:{l:"Devam ediyor",c:"#3B82F6"},beklemede:{l:"Beklemede",c:"#F59E0B"},tamam:{l:"Tamamlandı",c:"#10B981"}};
+const ONAY_ROZET={taslak:{l:"Taslak",c:"#64748B"},bekliyor:{l:"Onay bekliyor",c:"#F59E0B"},onaylandi:{l:"Onaylandı",c:"#10B981"},reddedildi:{l:"Reddedildi",c:"#EF4444"}};
+const ONAYLAYAN_AD={eksper:"Eksper",musteri:"Müşteri",admin:"Admin"};
+const isEmriAdi=(ie)=>ie.tur==="ana"?"Ana iş emri":`Ek hasar #${ie.no-1}`;
+const gunMetni=(g)=>Number(g)>0?`${g} gündür`:"bugün";
+const kucukBtn=(c)=>({background:`${c}14`,border:`1px solid ${c}50`,color:c,borderRadius:7,padding:"4px 10px",fontSize:11,fontWeight:700});
+const kucukInp={background:"var(--border)",border:"1px solid var(--border-hi)",borderRadius:7,color:"var(--text-1)",padding:"6px 9px",fontSize:12};
+// Son kullanılan usta adı (cihaz başına, kolaylık için)
+const sonUsta={al:()=>{try{return localStorage.getItem("ht_son_usta")||"";}catch(e){return "";}},yaz:(v)=>{try{localStorage.setItem("ht_son_usta",v);}catch(e){}}};
+
+function IsEmriPaneli({dosyaId,yenileAnahtar,onDegisti}){
+  const [veri,setVeri]=useState(null);
+  const [hata,setHata]=useState("");
+  const [islemde,setIslemde]=useState(false);
+  const [yeniGorev,setYeniGorev]=useState(null); // {isEmriId,bolum,aciklama,sorumlu_usta}
+  const [bitir,setBitir]=useState(null);         // {gorev,adim,usta}
+  const [bekleme,setBekleme]=useState(null);     // {gorev,neden}
+  const seq=useRef(0);
+  const yukle=async()=>{
+    const s=++seq.current;
+    try{const d=await apiCall(`/is-emirleri/${dosyaId}`);if(s===seq.current){setVeri(d);setHata("");}}
+    catch(e){if(s===seq.current)setHata(e.message||"İş emirleri alınamadı.");}
+  };
+  useEffect(()=>{yukle();},[dosyaId,yenileAnahtar]);
+  const calis=async(fn)=>{
+    if(islemde)return;
+    setIslemde(true);setHata("");
+    try{await fn();await yukle();if(onDegisti)onDegisti();return true;}
+    catch(e){setHata(e.message||"İşlem başarısız.");return false;}
+    finally{setIslemde(false);}
+  };
+  const u=(ie)=>`/is-emirleri/${dosyaId}/${ie}/gorevler`;
+  const gorevEkle=()=>calis(async()=>{
+    await apiCall(u(yeniGorev.isEmriId),"POST",{bolum:yeniGorev.bolum,aciklama:yeniGorev.aciklama,sorumlu_usta:yeniGorev.sorumlu_usta});
+    setYeniGorev(null);
+  });
+  const durumYap=(g,durum,neden)=>calis(async()=>{await apiCall(`${u(g.is_emri_id)}/${g.id}`,"PATCH",{durum,bekleme_nedeni:neden});setBekleme(null);});
+  const gorevSil=(g)=>{if(window.confirm(`${bolumBul(g.bolum).l} görevi silinsin mi?`))calis(()=>apiCall(`${u(g.is_emri_id)}/${g.id}`,"DELETE"));};
+  const adimBitir=()=>calis(async()=>{
+    const usta=bitir.usta.trim();
+    if(!usta)throw new Error("İşi bitiren ustanın adını yazın");
+    await apiCall(`${u(bitir.gorev.is_emri_id)}/${bitir.gorev.id}/adimlar/${bitir.adim.id}/tamamla`,"POST",{usta});
+    sonUsta.yaz(usta);setBitir(null);
+  });
+
+  if(!veri)return hata?<HataKutusu hata={hata} onTekrar={yukle}/>:<Card><span style={{fontSize:12,color:"var(--text-2)",animation:"pulse .8s infinite"}}>İş emirleri yükleniyor...</span></Card>;
+  const isEmirleri=veri.is_emirleri.filter(ie=>ie.durum!=="iptal");
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      {hata&&<HataKutusu hata={hata}/>}
+      {isEmirleri.map(ie=>{
+        const oz=ONAY_ROZET[ie.onay_durumu]||ONAY_ROZET.taslak;
+        const acik=ie.gorevler.filter(g=>g.durum!=="tamam").length;
+        return(
+          <Card key={ie.id}>
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:8,flexWrap:"wrap",marginBottom:10}}>
+              <div>
+                <div style={{display:"flex",gap:8,alignItems:"center",flexWrap:"wrap"}}>
+                  <span style={{fontWeight:800,fontSize:14}}>🧾 {isEmriAdi(ie)}</span>
+                  <Chip renk={oz.c} sm>{oz.l}{ie.onay_durumu==="bekliyor"?` · ${gunMetni(ie.bekleme_gun)}`:""}</Chip>
+                </div>
+                {ie.aciklama&&<div style={{fontSize:12,color:"var(--text-2)",marginTop:4}}>{ie.aciklama}</div>}
+                <div style={{fontSize:11,color:"var(--text-3)",marginTop:3}}>{ie.gorevler.length} bölüm görevi · {acik} açık</div>
+              </div>
+              <button onClick={()=>setYeniGorev({isEmriId:ie.id,bolum:"kaporta",aciklama:"",sorumlu_usta:""})} style={kucukBtn("#8B5CF6")}>+ Bölüm görevi</button>
+            </div>
+
+            {yeniGorev?.isEmriId===ie.id&&(
+              <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:8,padding:10,background:"rgba(139,92,246,0.05)",borderRadius:9,marginBottom:10}}>
+                <select value={yeniGorev.bolum} onChange={e=>setYeniGorev(p=>({...p,bolum:e.target.value}))} style={kucukInp}>{BOLUMLER_UI.map(b=><option key={b.id} value={b.id}>{b.l}</option>)}</select>
+                <input value={yeniGorev.aciklama} onChange={e=>setYeniGorev(p=>({...p,aciklama:e.target.value}))} placeholder="Yapılacak iş (örn. sağ ön çamurluk)" style={kucukInp}/>
+                <input value={yeniGorev.sorumlu_usta} onChange={e=>setYeniGorev(p=>({...p,sorumlu_usta:e.target.value}))} placeholder="Sorumlu usta (isteğe bağlı)" style={kucukInp}/>
+                <div style={{display:"flex",gap:6}}>
+                  <button onClick={gorevEkle} disabled={islemde} style={{...kucukBtn("#8B5CF6"),background:"#8B5CF6",color:"#fff"}}>Ekle</button>
+                  <button onClick={()=>setYeniGorev(null)} style={kucukBtn("#64748B")}>Vazgeç</button>
+                </div>
+              </div>
+            )}
+
+            {ie.gorevler.length===0&&<div style={{fontSize:12,color:"var(--text-2)"}}>Henüz bölüm görevi yok. İşi bölümlere ayırarak aracın hangi bölümde olduğunu takip edin.</div>}
+            <div style={{display:"flex",flexDirection:"column",gap:8}}>
+              {ie.gorevler.map(g=>{
+                const b=bolumBul(g.bolum),gd=GOREV_DURUM[g.durum]||GOREV_DURUM.bekliyor;
+                const biten=g.adimlar.filter(a=>a.durum==="tamam").length;
+                return(
+                  <div key={g.id} style={{border:`1px solid ${b.c}35`,borderLeft:`4px solid ${b.c}`,borderRadius:10,padding:"10px 12px",background:"var(--surface-2)"}}>
+                    <div style={{display:"flex",justifyContent:"space-between",gap:8,flexWrap:"wrap"}}>
+                      <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                        <span style={{fontWeight:800,fontSize:13,color:b.c}}>{b.l}</span>
+                        <Chip renk={gd.c} sm>{gd.l}</Chip>
+                        <span style={{fontSize:11,color:"var(--text-2)"}}>{biten}/{g.adimlar.length} adım</span>
+                        {g.durum!=="tamam"&&<span style={{fontSize:11,color:Number(g.gun)>=3?"#EF4444":"var(--text-3)"}}>· {gunMetni(g.gun)}</span>}
+                      </div>
+                      {g.durum!=="tamam"&&(
+                        <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                          {g.durum==="bekliyor"&&<button onClick={()=>durumYap(g,"devam")} style={kucukBtn("#3B82F6")}>Başladı</button>}
+                          {g.durum==="beklemede"&&<button onClick={()=>durumYap(g,"devam")} style={kucukBtn("#3B82F6")}>Devam et</button>}
+                          {g.durum!=="beklemede"&&<button onClick={()=>setBekleme({gorev:g,neden:""})} style={kucukBtn("#F59E0B")}>Beklemeye al</button>}
+                          {biten===0&&<button onClick={()=>gorevSil(g)} style={kucukBtn("#EF4444")}>Sil</button>}
+                        </div>
+                      )}
+                    </div>
+                    {g.aciklama&&<div style={{fontSize:12,marginTop:4}}>{g.aciklama}</div>}
+                    <div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>
+                      {g.sorumlu_usta&&<>👷 {g.sorumlu_usta}</>}
+                      {g.durum==="tamam"&&<> · Bitiren: {g.bitiren_usta} ({trTarihZaman(g.bitis_trh)})</>}
+                    </div>
+                    {g.durum==="beklemede"&&g.bekleme_nedeni&&<div style={{fontSize:11,color:"#B45309",marginTop:4}}>⏸ {g.bekleme_nedeni}</div>}
+                    {bekleme?.gorev.id===g.id&&(
+                      <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
+                        <input autoFocus value={bekleme.neden} onChange={e=>setBekleme(p=>({...p,neden:e.target.value}))} placeholder="Neden bekliyor? (örn. parça bekleniyor)" style={{...kucukInp,flex:1,minWidth:180}}/>
+                        <button onClick={()=>durumYap(g,"beklemede",bekleme.neden)} disabled={islemde} style={kucukBtn("#F59E0B")}>Kaydet</button>
+                        <button onClick={()=>setBekleme(null)} style={kucukBtn("#64748B")}>Vazgeç</button>
+                      </div>
+                    )}
+                    <div style={{display:"flex",flexDirection:"column",gap:4,marginTop:8}}>
+                      {g.adimlar.map(a=>(
+                        <div key={a.id} style={{display:"flex",alignItems:"center",gap:8,flexWrap:"wrap",fontSize:12}}>
+                          <span style={{width:18,height:18,borderRadius:"50%",display:"inline-flex",alignItems:"center",justifyContent:"center",fontSize:10,flexShrink:0,background:a.durum==="tamam"?"#10B981":"var(--border)",color:a.durum==="tamam"?"#fff":"var(--text-3)"}}>{a.durum==="tamam"?"✓":a.sira}</span>
+                          <span style={{flex:1,minWidth:120,color:a.durum==="tamam"?"var(--text-2)":"var(--text-1)"}}>{a.ad}</span>
+                          {a.durum==="tamam"
+                            ?<span style={{fontSize:10,color:"var(--text-3)"}}>{a.tamamlayan_usta} · {trTarihZaman(a.tamamlanma_trh)}</span>
+                            :bitir?.adim.id===a.id
+                              ?<span style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+                                <input autoFocus value={bitir.usta} onChange={e=>setBitir(p=>({...p,usta:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&adimBitir()} placeholder="İşi bitiren usta" style={{...kucukInp,width:150}}/>
+                                <button onClick={adimBitir} disabled={islemde} style={{...kucukBtn("#10B981"),background:"#10B981",color:"#fff"}}>Bildir</button>
+                                <button onClick={()=>setBitir(null)} style={kucukBtn("#64748B")}>×</button>
+                              </span>
+                              :<button onClick={()=>setBitir({gorev:g,adim:a,usta:g.sorumlu_usta||sonUsta.al()})} style={kucukBtn("#10B981")}>Bitti bildir</button>}
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </Card>
+        );
+      })}
+    </div>
+  );
+}
+
+// Açık bölüm görevleri: hangi araç hangi bölümde, hangi adımda, kaç gündür
+function BolumPanosu({onDosyaAc,baslik="🗂️ Bölüm Panosu"}){
+  const [gorevler,setGorevler]=useState(null);
+  const [hata,setHata]=useState("");
+  const yukle=async()=>{setHata("");try{setGorevler((await apiCall("/is-emirleri/pano")).gorevler);}catch(e){setHata(e.message||"Pano alınamadı.");}};
+  useEffect(()=>{yukle();},[]);
+  if(!gorevler)return hata?<HataKutusu hata={hata} onTekrar={yukle}/>:<Card><span style={{fontSize:12,color:"var(--text-2)",animation:"pulse .8s infinite"}}>Pano yükleniyor...</span></Card>;
+  const dolu=BOLUMLER_UI.filter(b=>gorevler.some(g=>g.bolum===b.id));
+  return(
+    <Card>
+      <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,gap:8}}>
+        <ST>{baslik} ({gorevler.length} açık görev)</ST>
+        <button onClick={yukle} style={kucukBtn("#64748B")}>↻ Yenile</button>
+      </div>
+      {hata&&<HataKutusu hata={hata} onTekrar={yukle}/>}
+      {gorevler.length===0&&<div style={{fontSize:12,color:"var(--text-2)"}}>Açık bölüm görevi yok. Görevler, dosyanın Onarım sekmesinden eklenir.</div>}
+      <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(220px,1fr))",gap:10}}>
+        {dolu.map(b=>(
+          <div key={b.id} style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderTop:`3px solid ${b.c}`,borderRadius:10,padding:10}}>
+            <div style={{fontWeight:800,fontSize:12,color:b.c,marginBottom:8}}>{b.l} ({gorevler.filter(g=>g.bolum===b.id).length})</div>
+            <div style={{display:"flex",flexDirection:"column",gap:6}}>
+              {gorevler.filter(g=>g.bolum===b.id).map(g=>{const gd=GOREV_DURUM[g.durum]||GOREV_DURUM.bekliyor;return(
+                <div key={g.id} onClick={()=>onDosyaAc&&onDosyaAc(g.dosya_id)} style={{background:"var(--surface-1, #fff)",border:"1px solid var(--border)",borderRadius:8,padding:"8px 9px",cursor:onDosyaAc?"pointer":"default"}}>
+                  <div style={{display:"flex",justifyContent:"space-between",gap:6}}>
+                    <span style={{fontWeight:800,fontSize:12}}>{g.plaka||g.dosya_no}</span>
+                    <span style={{fontSize:10,fontWeight:700,color:Number(g.gun)>=3?"#EF4444":"var(--text-3)"}}>{gunMetni(g.gun)}</span>
+                  </div>
+                  <div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>{[g.marka,g.model].filter(Boolean).join(" ")}{g.is_emri_tur==="ek_hasar"?` · Ek hasar #${g.is_emri_no-1}`:""}</div>
+                  <div style={{fontSize:11,marginTop:4}}><span style={{color:gd.c,fontWeight:700}}>{gd.l}</span>{g.aktif_adim&&<> · {g.aktif_adim}</>} <span style={{color:"var(--text-3)"}}>({g.biten_adim}/{g.adim_sayisi})</span></div>
+                  {g.durum==="beklemede"&&g.bekleme_nedeni&&<div style={{fontSize:10,color:"#B45309",marginTop:2}}>⏸ {g.bekleme_nedeni}</div>}
+                  {(g.sorumlu_usta||g.servis_ad)&&<div style={{fontSize:10,color:"var(--text-3)",marginTop:2}}>{[g.sorumlu_usta&&`👷 ${g.sorumlu_usta}`,g.servis_ad].filter(Boolean).join(" · ")}</div>}
+                </div>
+              );})}
+            </div>
+          </div>
+        ))}
+      </div>
+    </Card>
+  );
+}
+
+// Admin: onay bekleyen iş emirleri (ek hasar dahil), kaç gündür bekliyor
+function BekleyenOnaylar({onDosyaAc}){
+  const [liste,setListe]=useState(null);
+  const [hata,setHata]=useState("");
+  const yukle=async()=>{setHata("");try{setListe((await apiCall("/is-emirleri/bekleyen-onaylar")).onaylar);}catch(e){setHata(e.message||"Bekleyen onaylar alınamadı.");}};
+  useEffect(()=>{yukle();},[]);
+  if(hata)return <HataKutusu hata={hata} onTekrar={yukle}/>;
+  if(!liste||liste.length===0)return null;
+  return(
+    <Card style={{border:"1px solid rgba(245,158,11,0.35)",background:"rgba(245,158,11,0.04)"}}>
+      <ST>⏳ Onay Bekleyenler ({liste.length})</ST>
+      {liste.map(o=>(
+        <div key={o.id} onClick={()=>onDosyaAc(o.dosya_id)} style={{display:"flex",justifyContent:"space-between",gap:8,padding:"9px 0",borderTop:"1px solid var(--border)",cursor:"pointer",flexWrap:"wrap"}}>
+          <div>
+            <div style={{fontWeight:700,fontSize:13}}>{o.plaka||o.dosya_no} <span style={{fontSize:11,color:"var(--text-2)",fontWeight:500}}>· {o.tur==="ana"?"Ana iş emri":`Ek hasar #${o.no-1}`}</span></div>
+            <div style={{fontSize:11,color:"var(--text-2)"}}>{[o.dosya_no,o.servis_ad,`${o.kalem_sayisi} kalem`].filter(Boolean).join(" · ")}</div>
+          </div>
+          <div style={{textAlign:"right"}}>
+            <div style={{fontWeight:800,fontFamily:"var(--font-mono)",fontSize:13}}>{tlBicim(o.tutar)}</div>
+            <div style={{fontSize:11,fontWeight:700,color:Number(o.gun)>=2?"#EF4444":"#B45309"}}>{gunMetni(o.gun)} bekliyor</div>
+          </div>
+        </div>
+      ))}
+    </Card>
+  );
+}
+
+// ─── FOTOĞRAF VE EVRAK (depo: API, imzalı URL) ───────────────────────────────
+// Çok parçalı yükleme; apiCall ile aynı oturum ve hata davranışı
+async function apiYukleme(endpoint,dosya,alanlar={}){
+  const token=localStorage.getItem("ht_token");
+  const fd=new FormData();
+  for(const [k,v] of Object.entries(alanlar))if(v!==undefined&&v!==null&&v!=="")fd.append(k,v);
+  fd.append("dosya",dosya,dosya.name||"dosya");
+  let res;
+  try{res=await fetch(`${API_URL}${endpoint}`,{method:"POST",headers:token?{Authorization:`Bearer ${token}`}:{},body:fd});}
+  catch(e){const err=new Error("Sunucuya ulaşılamadı");err.status=0;throw err;}
+  if(!res.ok){
+    const j=await res.json().catch(()=>({}));
+    const err=new Error(j.error||(res.status===413?"Dosya çok büyük (en fazla 4 MB)":`HTTP ${res.status}`));err.status=res.status;
+    if(res.status===401&&token){localStorage.removeItem("ht_token");window.dispatchEvent(new Event("ht-oturum-bitti"));}
+    throw err;
+  }
+  return res.json();
+}
+// Fotoğrafı yüklemeden önce küçültür (uzun kenar 1600 px, JPEG). Desteklenmezse olduğu gibi döner.
+async function gorselKucult(f,maks=1600,kalite=0.82){
+  if(!/^image\/(jpeg|png|webp)$/.test(f.type))return f;
+  try{
+    const bmp=await createImageBitmap(f);
+    const o=Math.min(1,maks/Math.max(bmp.width,bmp.height));
+    if(o===1&&f.size<1.5*1048576)return f;
+    const c=document.createElement("canvas");c.width=Math.round(bmp.width*o);c.height=Math.round(bmp.height*o);
+    c.getContext("2d").drawImage(bmp,0,0,c.width,c.height);
+    const b=await new Promise(r=>c.toBlob(r,"image/jpeg",kalite));
+    return b?new File([b],f.name.replace(/\.[^.]+$/,"")+".jpg",{type:"image/jpeg"}):f;
+  }catch(e){return f;}
+}
+const boyutMetni=(b)=>b?(b>=1048576?`${(b/1048576).toFixed(1)} MB`:`${Math.max(1,Math.round(b/1024))} KB`):"";
+function esleFoto(f){
+  return {id:f.id,url:f.url,etiket:f.etiket||f.dosya_adi||"Fotoğraf",kategori:f.kategori||"kaza",tarih:trTarihZaman(f.created_at),
+    yukleyen:f.yukleyen_ad||(f.yukleyen_rol==="servis"?"Servis":"Admin"),boyut:boyutMetni(f.boyut_byte),isEmriId:f.is_emri_id||null};
+}
+function esleEvrak(e){
+  return {id:e.id,ad:e.ad,kaynak:e.kaynak||"Admin",durum:e.durum,tarih:trTarihZaman(e.teslim_trh),uyari:e.uyari_not||"",
+    url:e.url,dosyaAdi:e.dosya_adi||"",boyut:boyutMetni(e.boyut_byte),yukleyen:e.yukleyen_ad||"",pdf:e.mime_tipi==="application/pdf"};
+}
+
+function FotoGaleri({dosyaId,rol,onListe}){
+  const [fotolar,setFotolar]=useState(null);
+  const [hata,setHata]=useState("");
+  const [yukleniyor,setYukleniyor]=useState(0);
+  const [kat,setKat]=useState("tumu");
+  const [lightbox,setLightbox]=useState(null);
+  const [etiket,setEtiket]=useState(null); // {id,metin}
+  const girdi=useRef();
+  const yukle=async()=>{
+    try{const l=(await apiCall(`/fotograflar/${dosyaId}`)).fotograflar.map(esleFoto);setFotolar(l);setHata("");if(onListe)onListe(l);}
+    catch(e){setHata(e.message||"Fotoğraflar alınamadı.");}
+  };
+  useEffect(()=>{setFotolar(null);yukle();},[dosyaId]);
+  const dosyalariYukle=async(liste)=>{
+    const gorseller=Array.from(liste||[]).filter(f=>f.type.startsWith("image/"));
+    if(!gorseller.length){setHata("Yalnız fotoğraf yüklenebilir (JPG, PNG, WEBP).");return;}
+    setHata("");setYukleniyor(gorseller.length);
+    const hatalar=[];
+    for(const f of gorseller){
+      try{await apiYukleme(`/fotograflar/${dosyaId}`,await gorselKucult(f),{kategori:kat!=="tumu"?kat:undefined});}
+      catch(e){hatalar.push(`${f.name}: ${e.message}`);}
+      setYukleniyor(n=>n-1);
+    }
+    if(hatalar.length)setHata(hatalar.join(" · "));
+    await yukle();
+  };
+  const guncelle=async(id,alanlar)=>{try{await apiCall(`/fotograflar/${dosyaId}/${id}`,"PATCH",alanlar);setEtiket(null);await yukle();}catch(e){setHata(e.message);}};
+  const sil=async(f)=>{if(!window.confirm(`"${f.etiket}" silinsin mi?`))return;try{await apiCall(`/fotograflar/${dosyaId}/${f.id}`,"DELETE");if(lightbox?.id===f.id)setLightbox(null);await yukle();}catch(e){setHata(e.message);}};
+
+  const liste=(fotolar||[]).filter(f=>kat==="tumu"||f.kategori===kat);
+  const li=lightbox?liste.findIndex(f=>f.id===lightbox.id):-1;
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      <div onClick={()=>girdi.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();dosyalariYukle(e.dataTransfer.files);}} style={{border:"2px dashed rgba(139,92,246,0.35)",borderRadius:12,padding:22,textAlign:"center",cursor:"pointer",background:"rgba(139,92,246,0.03)"}}>
+        <input ref={girdi} type="file" accept="image/*" multiple onChange={e=>{dosyalariYukle(e.target.files);e.target.value="";}} style={{display:"none"}}/>
+        <div style={{fontSize:32,marginBottom:6}}>📷</div>
+        <div style={{fontWeight:700,fontSize:13,color:"#8B5CF6"}}>{yukleniyor?`${yukleniyor} fotoğraf yükleniyor...`:rol==="servis"?"Onarım fotoğrafı yükle":"Fotoğraf yükle"}</div>
+        <div style={{fontSize:11,color:"var(--text-2)",marginTop:3}}>Sürükleyin veya tıklayın · JPG, PNG, WEBP · {kat!=="tumu"?`"${KATEGORILER.find(k=>k.id===kat)?.label}" kategorisine`:"varsayılan kategoriye"} eklenir</div>
+      </div>
+      {hata&&<HataKutusu hata={hata} onTekrar={fotolar?undefined:yukle}/>}
+      <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+        {KATEGORILER.map(k=>{const n=k.id==="tumu"?(fotolar||[]).length:(fotolar||[]).filter(f=>f.kategori===k.id).length;return(
+          <button key={k.id} onClick={()=>setKat(k.id)} style={{padding:"5px 11px",borderRadius:7,fontSize:11,fontWeight:700,border:`1px solid ${kat===k.id?"rgba(59,130,246,0.45)":"var(--border-md)"}`,background:kat===k.id?"rgba(59,130,246,0.12)":"transparent",color:kat===k.id?"#2563EB":"var(--text-2)"}}>{k.ikon} {k.label} ({n})</button>
+        );})}
+      </div>
+      {!fotolar?<div style={{fontSize:12,color:"var(--text-2)"}}><span style={{animation:"pulse .8s infinite"}}>Fotoğraflar yükleniyor...</span></div>
+      :liste.length===0?<div style={{fontSize:12,color:"var(--text-2)",textAlign:"center",padding:20}}>Bu kategoride fotoğraf yok.</div>
+      :<div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:12}}>
+        {liste.map(f=>(
+          <div key={f.id} className="photo-card" style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:10,overflow:"hidden"}}>
+            {f.url?<img src={f.url} alt={f.etiket} loading="lazy" onClick={()=>setLightbox(f)} style={{width:"100%",aspectRatio:"4/3",objectFit:"cover",display:"block",cursor:"pointer",background:"var(--border)"}}/>
+              :<div style={{aspectRatio:"4/3",display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,color:"var(--text-3)"}}>Görsel alınamadı</div>}
+            <div style={{padding:"8px 9px"}}>
+              {etiket?.id===f.id
+                ?<div style={{display:"flex",gap:4}}><input autoFocus value={etiket.metin} onChange={e=>setEtiket(p=>({...p,metin:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&guncelle(f.id,{etiket:etiket.metin})} style={{...kucukInp,flex:1,minWidth:0,padding:"3px 6px"}}/><button onClick={()=>guncelle(f.id,{etiket:etiket.metin})} style={kucukBtn("#10B981")}>✓</button></div>
+                :<div style={{fontSize:12,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}} title={f.etiket}>{f.etiket}</div>}
+              <div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{f.tarih} · {f.yukleyen}{f.boyut&&` · ${f.boyut}`}</div>
+              <div style={{display:"flex",gap:4,marginTop:6,alignItems:"center"}}>
+                <select value={f.kategori} onChange={e=>guncelle(f.id,{kategori:e.target.value})} style={{...kucukInp,padding:"2px 4px",fontSize:10,flex:1,minWidth:0}}>
+                  {KATEGORILER.filter(k=>k.id!=="tumu").map(k=><option key={k.id} value={k.id}>{k.ikon} {k.label}</option>)}
+                </select>
+                <button onClick={()=>setEtiket({id:f.id,metin:f.etiket})} title="Etiketi düzenle" style={{...kucukBtn("#64748B"),padding:"2px 7px"}}>✏️</button>
+                <button onClick={()=>sil(f)} title="Sil" style={{...kucukBtn("#EF4444"),padding:"2px 7px"}}>🗑️</button>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>}
+      {lightbox&&(
+        <div onClick={()=>setLightbox(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
+          <div onClick={e=>e.stopPropagation()} style={{maxWidth:960,width:"100%",position:"relative"}}>
+            <img src={lightbox.url} alt={lightbox.etiket} style={{width:"100%",maxHeight:"78vh",objectFit:"contain",display:"block",borderRadius:10}}/>
+            {li>0&&<button onClick={()=>setLightbox(liste[li-1])} style={{position:"absolute",left:10,top:"45%",background:"rgba(0,0,0,0.6)",border:"none",color:"#fff",borderRadius:"50%",width:40,height:40,fontSize:22}}>‹</button>}
+            {li>=0&&li<liste.length-1&&<button onClick={()=>setLightbox(liste[li+1])} style={{position:"absolute",right:10,top:"45%",background:"rgba(0,0,0,0.6)",border:"none",color:"#fff",borderRadius:"50%",width:40,height:40,fontSize:22}}>›</button>}
+            <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",color:"#fff",marginTop:10,gap:8,flexWrap:"wrap"}}>
+              <div><div style={{fontWeight:700}}>{lightbox.etiket}</div><div style={{fontSize:12,opacity:.7}}>{lightbox.tarih} · {lightbox.yukleyen}</div></div>
+              <div style={{display:"flex",gap:8}}>
+                <a href={lightbox.url} target="_blank" rel="noopener" style={{color:"#fff",fontSize:12,border:"1px solid rgba(255,255,255,0.3)",borderRadius:6,padding:"5px 12px",textDecoration:"none"}}>Tam boyut ↗</a>
+                <button onClick={()=>setLightbox(null)} style={{background:"rgba(255,255,255,0.15)",border:"none",color:"#fff",borderRadius:6,padding:"5px 12px"}}>Kapat</button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}
+
+function EvrakListesi({dosyaId,rol,onListe}){
+  const [evrak,setEvrak]=useState(null);
+  const [hata,setHata]=useState("");
+  const [yuklenen,setYuklenen]=useState(null); // evrak id
+  const [hedef,setHedef]=useState(null);
+  const [eksikNot,setEksikNot]=useState(null); // {id,metin}
+  const [yeni,setYeni]=useState(null);          // {ad,kaynak}
+  const girdi=useRef();
+  const yukle=async()=>{
+    try{const l=(await apiCall(`/evrak/${dosyaId}`)).evrak.map(esleEvrak);setEvrak(l);setHata("");if(onListe)onListe(l);}
+    catch(e){setHata(e.message||"Evrak alınamadı.");}
+  };
+  useEffect(()=>{setEvrak(null);yukle();},[dosyaId]);
+  const sec=(id)=>{setHedef(id);setTimeout(()=>girdi.current?.click(),0);};
+  const dosyaSecildi=async(f)=>{
+    if(!f||!hedef)return;
+    setYuklenen(hedef);setHata("");
+    try{await apiYukleme(`/evrak/${dosyaId}/${hedef}/yukle`,await gorselKucult(f,2000,0.85));await yukle();}
+    catch(e){setHata(`${f.name}: ${e.message}`);}
+    finally{setYuklenen(null);setHedef(null);}
+  };
+  const guncelle=async(id,alanlar)=>{try{await apiCall(`/evrak/${dosyaId}/${id}`,"PATCH",alanlar);setEksikNot(null);await yukle();}catch(e){setHata(e.message);}};
+  const ekle=async()=>{try{await apiCall(`/evrak/${dosyaId}`,"POST",yeni);setYeni(null);await yukle();}catch(e){setHata(e.message);}};
+  const sil=async(e)=>{if(!window.confirm(`"${e.ad}" listeden silinsin mi?`))return;try{await apiCall(`/evrak/${dosyaId}/${e.id}`,"DELETE");await yukle();}catch(x){setHata(x.message);}};
+
+  if(!evrak)return hata?<HataKutusu hata={hata} onTekrar={yukle}/>:<div style={{fontSize:12,color:"var(--text-2)"}}><span style={{animation:"pulse .8s infinite"}}>Evrak yükleniyor...</span></div>;
+  const say=(d)=>evrak.filter(e=>e.durum===d).length;
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:12}}>
+      <input ref={girdi} type="file" accept=".pdf,image/jpeg,image/png,image/webp" onChange={e=>{dosyaSecildi(e.target.files[0]);e.target.value="";}} style={{display:"none"}}/>
+      <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:8}}>
+        {[{l:"Teslim",v:say("tamam"),c:"#10B981"},{l:"Eksik",v:say("eksik"),c:"#EF4444"},{l:"Bekliyor",v:say("bekliyor"),c:"#64748B"}].map(k=>(
+          <Card key={k.l} style={{textAlign:"center",padding:12}}><div style={{fontSize:20,fontWeight:800,color:k.c}}>{k.v}</div><div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{k.l}</div></Card>
+        ))}
+      </div>
+      {hata&&<HataKutusu hata={hata}/>}
+      {evrak.map(e=>{const s=EV_DURUM[e.durum]||EV_DURUM.bekliyor;const tc=TC_CONF[e.kaynak]||TC_CONF["Admin"];return(
+        <div key={e.id} style={{background:"var(--surface-2)",border:`1px solid ${s.renk}30`,borderRadius:10,padding:"11px 13px"}}>
+          <div style={{display:"flex",gap:10,alignItems:"flex-start",flexWrap:"wrap"}}>
+            <div style={{width:30,height:30,borderRadius:8,flexShrink:0,background:`${s.renk}18`,color:s.renk,display:"flex",alignItems:"center",justifyContent:"center",fontWeight:800}}>{s.icon}</div>
+            <div style={{flex:1,minWidth:160}}>
+              <div style={{fontWeight:700,fontSize:13}}>{e.ad}</div>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap",marginTop:3}}>
+                <span style={{fontSize:10,fontWeight:700,color:tc.renk}}>{tc.icon} {e.kaynak}</span>
+                <Chip renk={s.renk} sm>{s.label}</Chip>
+                {e.tarih&&<span style={{fontSize:10,color:"var(--text-2)"}}>{e.tarih}</span>}
+                {e.url&&<a href={e.url} target="_blank" rel="noopener" style={{fontSize:11,fontWeight:700,color:"#2563EB"}}>{e.pdf?"📄":"🖼️"} {e.dosyaAdi||"Görüntüle"}{e.boyut&&` (${e.boyut})`}</a>}
+              </div>
+              {e.uyari&&<div style={{fontSize:11,color:"#B45309",marginTop:4}}>⚠ {e.uyari}</div>}
+            </div>
+            <div style={{display:"flex",gap:4,flexWrap:"wrap"}}>
+              <button onClick={()=>sec(e.id)} disabled={!!yuklenen} style={kucukBtn("#8B5CF6")}>{yuklenen===e.id?"Yükleniyor...":e.url?"Değiştir":"Yükle"}</button>
+              {e.durum!=="eksik"&&<button onClick={()=>setEksikNot({id:e.id,metin:e.uyari})} style={kucukBtn("#EF4444")}>Eksik</button>}
+              {e.durum!=="tamam"&&e.url&&<button onClick={()=>guncelle(e.id,{durum:"tamam",uyari_not:null})} style={kucukBtn("#10B981")}>Teslim</button>}
+              {rol==="admin"&&<button onClick={()=>sil(e)} title="Listeden sil" style={kucukBtn("#64748B")}>×</button>}
+            </div>
+          </div>
+          {eksikNot?.id===e.id&&(
+            <div style={{display:"flex",gap:6,marginTop:8,flexWrap:"wrap"}}>
+              <input autoFocus value={eksikNot.metin} onChange={x=>setEksikNot(p=>({...p,metin:x.target.value}))} placeholder="Ne eksik? (örn. imzasız, okunmuyor)" style={{...kucukInp,flex:1,minWidth:180}}/>
+              <button onClick={()=>guncelle(e.id,{durum:"eksik",uyari_not:eksikNot.metin})} style={kucukBtn("#EF4444")}>Kaydet</button>
+              <button onClick={()=>setEksikNot(null)} style={kucukBtn("#64748B")}>Vazgeç</button>
+            </div>
+          )}
+        </div>
+      );})}
+      {yeni?(
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",padding:10,background:"rgba(139,92,246,0.05)",borderRadius:9}}>
+          <input autoFocus value={yeni.ad} onChange={e=>setYeni(p=>({...p,ad:e.target.value}))} placeholder="Evrak adı (örn. Çekici faturası)" style={{...kucukInp,flex:2,minWidth:180}}/>
+          <select value={yeni.kaynak} onChange={e=>setYeni(p=>({...p,kaynak:e.target.value}))} style={kucukInp}>
+            {["Araç Sahibi","Sigorta Şirketi","Eksper","Servis","Admin"].map(k=><option key={k}>{k}</option>)}
+          </select>
+          <button onClick={ekle} style={kucukBtn("#8B5CF6")}>Ekle</button>
+          <button onClick={()=>setYeni(null)} style={kucukBtn("#64748B")}>Vazgeç</button>
+        </div>
+      ):<button onClick={()=>setYeni({ad:"",kaynak:rol==="servis"?"Servis":"Admin"})} style={{...kucukBtn("#8B5CF6"),alignSelf:"flex-start"}}>+ Evrak ekle</button>}
+    </div>
+  );
+}
+
+// ─── FATURALAR (servis faturaları + dış hizmet faturaları) ─────────────────
+// Tutarlar KDV hariç girilir; KDV ve toplamı API hesaplar. Servis ve admin aynı ekranı kullanır.
+const TARAFLAR=[{id:"sigorta",l:"Sigorta",c:"#3B82F6"},{id:"musteri",l:"Müşteri",c:"#F59E0B"},{id:"acente",l:"Acente",c:"#8B5CF6"},{id:"diger",l:"Diğer",c:"#64748B"}];
+const tarafBul=(id)=>TARAFLAR.find(t=>t.id===id)||TARAFLAR[3];
+const KDV_ORANLARI=[20,10,1,0];
+const ODEME_DURUM={bekliyor:{l:"Ödeme bekliyor",c:"#F59E0B"},kismi:{l:"Kısmi ödendi",c:"#3B82F6"},odendi:{l:"Ödendi",c:"#10B981"}};
+const BOS_SERVIS_FATURA={alici_tipi:"sigorta",alici_ad:"",alici_vkn:"",fatura_no:"",fatura_trh:"",tutar:"",kdv_orani:20,odenen_tutar:"",odeme_trh:"",notlar:""};
+const BOS_DIS_FATURA={firma:"",firma_vkn:"",hizmet:"",is_emri_id:"",islem_id:"",fatura_no:"",fatura_trh:"",tutar:"",kdv_orani:20,yansitildi:false,notlar:""};
+
+// API satırı -> form (TL ve GG.AA.YYYY metni)
+function faturaFormu(tur,f){
+  const b=tur==="servis"?BOS_SERVIS_FATURA:BOS_DIS_FATURA;
+  const o={};
+  for(const k of Object.keys(b)){
+    const v=f[k];
+    if(k==="fatura_trh"||k==="odeme_trh")o[k]=trTarih(v);
+    else if(k==="tutar"||k==="odenen_tutar")o[k]=v===null||v===undefined?"":tlBicim(v);
+    else if(k==="kdv_orani")o[k]=Number(v);
+    else if(k==="yansitildi")o[k]=!!v;
+    else o[k]=bos(v);
+  }
+  return o;
+}
+// form -> API gövdesi. Dönüşüm hatası istek atılmadan fırlatılır.
+function faturaGovdesi(tur,f){
+  const g={...f,fatura_trh:isoTarih(f.fatura_trh),tutar:tlSayi(f.tutar),kdv_orani:Number(f.kdv_orani)};
+  if(g.tutar===null)throw new Error("Tutar (KDV hariç) zorunlu");
+  if(tur==="servis"){g.odeme_trh=isoTarih(f.odeme_trh);g.odenen_tutar=tlSayi(f.odenen_tutar)||0;}
+  else{g.islem_id=f.islem_id||null;g.is_emri_id=f.is_emri_id||null;}
+  return g;
+}
+
+function FaturaPaneli({dosyaId,dosya,kalemler,isEmirleri,yenileAnahtar,onOzet}){
+  const [veri,setVeri]=useState(null);
+  const [hata,setHata]=useState("");
+  const [form,setForm]=useState(null); // {tur, id|null, alanlar}
+  const [formHata,setFormHata]=useState("");
+  const [kaydediliyor,setKaydediliyor]=useState(false);
+  const seq=useRef(0);
+  const yukle=async()=>{
+    const s=++seq.current;setHata("");
+    try{const d=await apiCall(`/faturalar/${dosyaId}`);if(s!==seq.current)return;setVeri(d);if(onOzet)onOzet(d);}
+    catch(e){if(s===seq.current)setHata(e.message||"Faturalar alınamadı.");}
+  };
+  useEffect(()=>{yukle();},[dosyaId,yenileAnahtar]);
+
+  const formAc=(tur,f,ilk)=>{setFormHata("");setForm({tur,id:f?.id||null,alanlar:f?faturaFormu(tur,f):{...(tur==="servis"?BOS_SERVIS_FATURA:BOS_DIS_FATURA),...ilk}});};
+  // Kalan payı olan taraf için alıcı bilgisi dosyadan önerilir
+  const payIcinFatura=(taraf,tutar)=>{
+    const ilk={alici_tipi:taraf,tutar:tlBicim(tutar)};
+    if(taraf==="sigorta")ilk.alici_ad=dosya?.sigortaSirketi?.ad||"";
+    if(taraf==="musteri"){ilk.alici_ad=dosya?.sahip?.ad||"";const tc=bos(dosya?.sahip?.tc).trim();if(/^\d{10,11}$/.test(tc))ilk.alici_vkn=tc;}
+    formAc("servis",null,ilk);
+  };
+  const alanAyarla=(k,v)=>setForm(p=>({...p,alanlar:{...p.alanlar,[k]:v}}));
+  const kaydet=async()=>{
+    if(kaydediliyor)return;
+    setFormHata("");
+    let govde;
+    try{govde=faturaGovdesi(form.tur,form.alanlar);}catch(e){setFormHata(e.message);return;}
+    setKaydediliyor(true);
+    try{
+      const u=`/faturalar/${dosyaId}/${form.tur}`;
+      if(form.id)await apiCall(`${u}/${form.id}`,"PATCH",govde);else await apiCall(u,"POST",govde);
+      setForm(null);await yukle();
+    }catch(e){setFormHata(e.message||"Kaydedilemedi.");}
+    finally{setKaydediliyor(false);}
+  };
+  const sil=async(tur,f)=>{
+    const ad=tur==="servis"?`${f.alici_ad} faturası`:`${f.firma} faturası`;
+    if(!window.confirm(`${ad} silinsin mi?`))return;
+    try{await apiCall(`/faturalar/${dosyaId}/${tur}/${f.id}`,"DELETE");if(form?.id===f.id)setForm(null);await yukle();}
+    catch(e){setHata(e.message||"Silinemedi.");}
+  };
+
+  if(!veri)return hata?<HataKutusu hata={hata} onTekrar={yukle}/>:<Card><span style={{fontSize:12,color:"var(--text-2)",animation:"pulse .8s infinite"}}>Faturalar yükleniyor...</span></Card>;
+  const {ozet}=veri;
+  const inp={background:"var(--border)",border:"1px solid var(--border-hi)",borderRadius:7,color:"var(--text-1)",padding:"7px 10px",fontSize:12,width:"100%"};
+  const lbl={fontSize:10,color:"var(--text-2)",fontWeight:600,marginBottom:4};
+  const btn=(c)=>({background:`${c}1a`,border:`1px solid ${c}55`,color:c,borderRadius:7,padding:"5px 11px",fontSize:11,fontWeight:700});
+  // Bileşen değil fonksiyon olarak çağrılır; böylece yazarken input odağı kaybolmaz
+  const alan=(k,l,{ph,genis,tip}={})=>{
+    const v=form.alanlar[k];
+    return <div key={k} style={{gridColumn:genis?"1 / -1":undefined}}>
+      <div style={lbl}>{l}</div>
+      {tip==="taraf"?<select value={v} onChange={e=>alanAyarla(k,e.target.value)} style={inp}>{TARAFLAR.map(t=><option key={t.id} value={t.id}>{t.l}</option>)}</select>
+      :tip==="kdv"?<select value={v} onChange={e=>alanAyarla(k,Number(e.target.value))} style={inp}>{KDV_ORANLARI.map(o=><option key={o} value={o}>%{o}</option>)}</select>
+      :tip==="isemri"?<select value={v} onChange={e=>alanAyarla(k,e.target.value)} style={inp}><option value="">Ana iş emri</option>{(isEmirleri||[]).filter(x=>x.tur!=="ana").map(x=><option key={x.id} value={x.id}>{isEmriAdi(x)}</option>)}</select>
+      :tip==="kalem"?<select value={v} onChange={e=>alanAyarla(k,e.target.value)} style={inp}><option value="">Bağlı değil</option>{(kalemler||[]).map(i=><option key={i.id} value={i.id}>{i.kategori}: {i.aciklama}</option>)}</select>
+      :tip==="onay"?<label style={{display:"flex",gap:8,alignItems:"center",fontSize:12,color:"var(--text-1)",paddingTop:6}}><input type="checkbox" checked={!!v} onChange={e=>alanAyarla(k,e.target.checked)}/> Servis faturasına yansıtıldı</label>
+      :<input value={v} onChange={e=>alanAyarla(k,e.target.value)} placeholder={ph||""} style={inp}/>}
+    </div>;
+  };
+  const kdvMetni=(f)=>`KDV %${Number(f.kdv_orani)}: ${tlBicim(f.kdv_tutar)} · Toplam ${tlBicim(f.toplam)}`;
+  const gorunenTaraflar=TARAFLAR.filter(t=>ozet.pay[t.id]||ozet.faturalanan[t.id]);
+
+  return(
+    <div style={{display:"flex",flexDirection:"column",gap:14}}>
+      {hata&&<HataKutusu hata={hata} onTekrar={yukle}/>}
+
+      {/* Pay özeti: kim ne kadar ödeyecek, ne kadarı faturalandı */}
+      <Card>
+        <ST>🧾 Fatura Payları (KDV hariç)</ST>
+        <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(150px,1fr))",gap:10}}>
+          {gorunenTaraflar.map(t=>{
+            const kalan=ozet.kalan[t.id];
+            return <div key={t.id} style={{border:"1px solid var(--border)",borderRadius:10,padding:"10px 12px",background:"var(--surface-2)"}}>
+              <div style={{fontSize:10,fontWeight:700,color:t.c,marginBottom:6}}>{t.l.toLocaleUpperCase("tr-TR")} PAYI</div>
+              <div style={{fontSize:16,fontWeight:800,fontFamily:"var(--font-mono)"}}>{tlBicim(ozet.pay[t.id])}</div>
+              <div style={{fontSize:11,color:"var(--text-2)",marginTop:4}}>Faturalanan: {tlBicim(ozet.faturalanan[t.id])}</div>
+              {kalan>0?<button onClick={()=>payIcinFatura(t.id,kalan)} style={{...btn(t.c),marginTop:8,width:"100%"}}>+ {tlBicim(kalan)} için fatura</button>
+              :kalan<0?<div style={{fontSize:11,color:"#EF4444",marginTop:6}}>Paydan {tlBicim(-kalan)} fazla faturalandı</div>
+              :<div style={{fontSize:11,color:"#10B981",marginTop:6}}>✓ Tamamı faturalandı</div>}
+            </div>;
+          })}
+          {gorunenTaraflar.length===0&&<div style={{fontSize:12,color:"var(--text-2)"}}>Henüz kalem yok. Kalemlerdeki "Ödeyen" alanına göre paylar burada hesaplanır.</div>}
+        </div>
+        {ozet.muafiyet>0&&<div style={{fontSize:11,color:"var(--text-2)",marginTop:10}}>Muafiyet {tlBicim(ozet.muafiyet)} sigorta payından düşülüp müşteri payına eklendi.</div>}
+      </Card>
+
+      {/* Servis faturaları */}
+      <Card>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,gap:8,flexWrap:"wrap"}}>
+          <ST>📄 Servis Faturaları ({veri.servis_faturalari.length})</ST>
+          <button onClick={()=>formAc("servis")} style={btn("#8B5CF6")}>+ Fatura</button>
+        </div>
+        {veri.servis_faturalari.length===0&&<div style={{fontSize:12,color:"var(--text-2)"}}>Henüz servis faturası girilmedi.</div>}
+        {veri.servis_faturalari.map(f=>{const t=tarafBul(f.alici_tipi),od=ODEME_DURUM[f.odeme_durumu]||ODEME_DURUM.bekliyor;return(
+          <div key={f.id} style={{padding:"10px 0",borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"flex-start",flexWrap:"wrap"}}>
+            <div style={{flex:1,minWidth:180}}>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                <Chip renk={t.c} sm>{t.l}</Chip>
+                <span style={{fontWeight:700,fontSize:13}}>{f.alici_ad}</span>
+                <span style={{fontSize:10,fontWeight:700,color:od.c}}>{od.l}</span>
+              </div>
+              <div style={{fontSize:11,color:"var(--text-2)",marginTop:4}}>{[f.fatura_no&&`No ${f.fatura_no}`,trTarih(f.fatura_trh),f.alici_vkn&&`VKN/TCKN ${f.alici_vkn}`].filter(Boolean).join(" · ")||"Fatura no ve tarih girilmedi"}</div>
+              <div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>{kdvMetni(f)}{Number(f.odenen_tutar)>0&&` · Ödenen ${tlBicim(f.odenen_tutar)}${f.odeme_trh?` (${trTarih(f.odeme_trh)})`:""}`}</div>
+              {f.notlar&&<div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>📝 {f.notlar}</div>}
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontWeight:800,fontFamily:"var(--font-mono)",fontSize:14}}>{tlBicim(f.tutar)}</div>
+              <div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}}>
+                <button onClick={()=>formAc("servis",f)} style={btn("#64748B")}>Düzenle</button>
+                <button onClick={()=>sil("servis",f)} style={btn("#EF4444")}>Sil</button>
+              </div>
+            </div>
+          </div>
+        );})}
+      </Card>
+
+      {/* Dış hizmet faturaları */}
+      <Card>
+        <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",marginBottom:12,gap:8,flexWrap:"wrap"}}>
+          <ST>🔗 Dış Hizmet Faturaları ({veri.dis_faturalar.length}) · {tlBicim(ozet.dis_toplam)}</ST>
+          <button onClick={()=>formAc("dis")} style={btn("#10B981")}>+ Dış Fatura</button>
+        </div>
+        {veri.dis_faturalar.length===0&&<div style={{fontSize:12,color:"var(--text-2)"}}>Cam, döşeme, rot-balans gibi dışarıdan alınan hizmetlerin faturaları burada tutulur.</div>}
+        {veri.dis_faturalar.map(f=>{const k=(kalemler||[]).find(i=>i.id===f.islem_id);const fie=(isEmirleri||[]).find(x=>x.id===f.is_emri_id);return(
+          <div key={f.id} style={{padding:"10px 0",borderTop:"1px solid var(--border)",display:"flex",gap:10,alignItems:"flex-start",flexWrap:"wrap"}}>
+            <div style={{flex:1,minWidth:180}}>
+              <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
+                <span style={{fontWeight:700,fontSize:13}}>{f.firma}</span>
+                <span style={{fontSize:12,color:"var(--text-2)"}}>{f.hizmet}</span>
+                <span style={{fontSize:10,fontWeight:700,color:f.yansitildi?"#10B981":"var(--text-3)"}}>{f.yansitildi?"✓ Faturaya yansıtıldı":"Yansıtılmadı"}</span>
+              </div>
+              <div style={{fontSize:11,color:"var(--text-2)",marginTop:4}}>{[f.fatura_no&&`No ${f.fatura_no}`,trTarih(f.fatura_trh),f.firma_vkn&&`VKN ${f.firma_vkn}`,fie&&fie.tur!=="ana"&&isEmriAdi(fie),k&&`Kalem: ${k.aciklama}`].filter(Boolean).join(" · ")||"Fatura no ve tarih girilmedi"}</div>
+              <div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>{kdvMetni(f)}</div>
+              {f.notlar&&<div style={{fontSize:11,color:"var(--text-2)",marginTop:2}}>📝 {f.notlar}</div>}
+            </div>
+            <div style={{textAlign:"right"}}>
+              <div style={{fontWeight:800,fontFamily:"var(--font-mono)",fontSize:14}}>{tlBicim(f.tutar)}</div>
+              <div style={{display:"flex",gap:4,marginTop:6,justifyContent:"flex-end"}}>
+                <button onClick={()=>formAc("dis",f)} style={btn("#64748B")}>Düzenle</button>
+                <button onClick={()=>sil("dis",f)} style={btn("#EF4444")}>Sil</button>
+              </div>
+            </div>
+          </div>
+        );})}
+      </Card>
+
+      {/* Fatura formu (ekle / düzenle) */}
+      {form&&(
+        <Card style={{border:"1.5px solid rgba(139,92,246,0.35)"}}>
+          <ST>{form.id?"Faturayı düzenle":form.tur==="servis"?"Yeni servis faturası":"Yeni dış hizmet faturası"}</ST>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(170px,1fr))",gap:10}}>
+            {form.tur==="servis"?[
+              alan("alici_tipi","ALICI",{tip:"taraf"}),
+              alan("alici_ad","ALICI ADI / ÜNVANI",{ph:"Örn. Anadolu Sigorta"}),
+              alan("alici_vkn","VKN / TCKN",{ph:"10 veya 11 hane"}),
+              alan("fatura_no","FATURA NO"),
+              alan("fatura_trh","FATURA TARİHİ",{ph:"GG.AA.YYYY"}),
+              alan("tutar","TUTAR (KDV HARİÇ) ₺",{ph:"0"}),
+              alan("kdv_orani","KDV",{tip:"kdv"}),
+              alan("odenen_tutar","ÖDENEN (KDV DAHİL) ₺",{ph:"0"}),
+              alan("odeme_trh","ÖDEME TARİHİ",{ph:"GG.AA.YYYY"}),
+              alan("notlar","NOT",{genis:true}),
+            ]:[
+              alan("firma","FİRMA",{ph:"Örn. Cam Usta Ltd."}),
+              alan("firma_vkn","FİRMA VKN",{ph:"10 veya 11 hane"}),
+              alan("hizmet","HİZMET",{ph:"Örn. Ön cam değişimi"}),
+              alan("is_emri_id","İŞ EMRİ",{tip:"isemri"}),
+              alan("islem_id","BAĞLI KALEM",{tip:"kalem"}),
+              alan("fatura_no","FATURA NO"),
+              alan("fatura_trh","FATURA TARİHİ",{ph:"GG.AA.YYYY"}),
+              alan("tutar","TUTAR (KDV HARİÇ) ₺",{ph:"0"}),
+              alan("kdv_orani","KDV",{tip:"kdv"}),
+              alan("yansitildi","DURUM",{tip:"onay"}),
+              alan("notlar","NOT",{genis:true}),
+            ]}
+          </div>
+          {formHata&&<div style={{marginTop:10}}><HataKutusu hata={formHata}/></div>}
+          <div style={{display:"flex",gap:8,marginTop:12}}>
+            <button onClick={kaydet} disabled={kaydediliyor} style={{background:"#8B5CF6",border:"none",color:"#fff",borderRadius:8,padding:"9px 18px",fontSize:12,fontWeight:700}}>{kaydediliyor?"Kaydediliyor...":"Kaydet"}</button>
+            <button onClick={()=>setForm(null)} style={{background:"var(--border)",border:"1px solid var(--border-md)",color:"var(--text-2)",borderRadius:8,padding:"9px 14px",fontSize:12}}>Vazgeç</button>
+          </div>
+        </Card>
+      )}
+    </div>
+  );
+}
+
+function MuhasebeGorunum({islemler:tumIslemler,setIslemler,onayDurumu:onayProp,setOnayDurumu,muhasebe,setMuhasebe,dosya,rol,exportCSV,exportPDF,api:apiTum,onFaturaOzet,isEmirleri}){
   const [isMobile,setIsMobile]=useState(false);
   const [aramaMetni,setAramaMetni]=useState("");
   const [filtreKat,setFiltreKat]=useState("tumu");
@@ -1618,11 +2263,29 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
   const [topluAcik,setTopluAcik]=useState(false);
   const [topluMetin,setTopluMetin]=useState("");
   const [topluHata,setTopluHata]=useState("");
-  const [yeniForm,setYeniForm]=useState({kategori:"Kaporta",aciklama:"",birim:"Adet",miktar:"1",birimFiyat:""});
+  const [yeniForm,setYeniForm]=useState({kategori:"Kaporta",aciklama:"",birim:"Adet",miktar:"1",birimFiyat:"",odeyen:"sigorta"});
   const [adminNot,setAdminNot]=useState("");
   const [onayLoading,setOnayLoading]=useState(false);
   const [kapaliKatlar,setKapaliKatlar]=useState({});
   const [islemHata,setIslemHata]=useState("");
+  const [seciliIE,setSeciliIE]=useState(null);
+  const [ekHasar,setEkHasar]=useState(null); // açıklama metni (form açıkken)
+  const [eksperAd,setEksperAd]=useState("");
+  const [musteriAd,setMusteriAd]=useState("");
+  useEffect(()=>{setEksperAd(dosya?.eksper?.ad||"");setMusteriAd(dosya?.sahip?.ad||"");},[dosya?.id]);
+  // İş emri: seçilmediyse onay bekleyen, yoksa düzenlenebilir son iş emri, yoksa ana
+  const gorunenIE=(isEmirleri||[]).filter(x=>x.durum!=="iptal");
+  const ie=gorunenIE.find(x=>x.id===seciliIE)||gorunenIE.find(x=>x.onay_durumu==="bekliyor")
+    ||[...gorunenIE].reverse().find(x=>x.onay_durumu!=="onaylandi")||gorunenIE[0]||null;
+  const islemler=ie?tumIslemler.filter(i=>i.isEmriId===ie.id):tumIslemler;
+  const onayDurumu=ie?ie.onay_durumu:onayProp;
+  const api=apiTum&&ie?{...apiTum,
+    kalemEkle:(f)=>apiTum.kalemEkle({...f,isEmriId:ie.id}),
+    kalemToplu:(l)=>apiTum.kalemToplu(l,ie.id),
+    onayaGonder:()=>apiTum.onayaGonder(ie.id),
+    adminKarar:(k,n)=>apiTum.adminKarar(k,n,{is_emri_id:ie.id,eksper_ad:eksperAd||undefined,musteri_ad:musteriAd||undefined}),
+  }:apiTum;
+  const anaOnayli=gorunenIE.some(x=>x.tur==="ana"&&x.onay_durumu==="onaylandi");
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
 
   const servisEdit = rol==="servis" && (onayDurumu==="taslak"||onayDurumu==="reddedildi");
@@ -1663,7 +2326,7 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
   // İşlem fonksiyonları: api verilmişse API'ye gider, yoksa yerel demo state
   const calis=async(fn)=>{setOnayLoading(true);setIslemHata("");try{await fn();}catch(e){setIslemHata(e.message||"İşlem başarısız");}finally{setOnayLoading(false);}};
   const islemGuncelle=(id,alan,val)=>{
-    if(api&&alan==="durum"){calis(()=>api.kalemKaydet(id,{durum:val}));return;}
+    if(api&&(alan==="durum"||alan==="odeyen")){calis(()=>api.kalemKaydet(id,{[alan]:val}));return;}
     setIslemler(p=>p.map(i=>i.id===id?{...i,[alan]:alan==="miktar"||alan==="birimFiyat"?parseFloat(val)||0:val}:i));
   };
   const duzenleToggle=(isl,editing)=>{
@@ -1676,7 +2339,7 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
   };
   const islemEkle=()=>{
     if(!yeniForm.aciklama.trim()||!yeniForm.birimFiyat)return;
-    const f={kategori:yeniForm.kategori,aciklama:yeniForm.aciklama,birim:yeniForm.birim,miktar:parseFloat(yeniForm.miktar)||1,birimFiyat:parseFloat(yeniForm.birimFiyat)||0};
+    const f={kategori:yeniForm.kategori,aciklama:yeniForm.aciklama,birim:yeniForm.birim,miktar:parseFloat(yeniForm.miktar)||1,birimFiyat:parseFloat(yeniForm.birimFiyat)||0,odeyen:yeniForm.odeyen};
     if(api){
       if(!f.birimFiyat){setIslemHata("Birim fiyat geçerli bir sayı olmalı");return;}
       calis(async()=>{await api.kalemEkle(f);setYeniForm(p=>({...p,aciklama:"",birimFiyat:""}));});
@@ -1753,11 +2416,37 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
         )}
       </div>
 
+      {/* İş emri seçimi (ana + ek hasar turları) */}
+      {apiTum&&gorunenIE.length>0&&(
+        <div style={{display:"flex",gap:6,flexWrap:"wrap",alignItems:"center"}}>
+          {gorunenIE.map(x=>{const oz=ONAY_ROZET[x.onay_durumu]||ONAY_ROZET.taslak;const aktif=ie?.id===x.id;return(
+            <button key={x.id} onClick={()=>setSeciliIE(x.id)} style={{padding:"6px 11px",borderRadius:8,fontSize:11,fontWeight:700,border:`1.5px solid ${aktif?oz.c:"var(--border-md)"}`,background:aktif?`${oz.c}14`:"transparent",color:aktif?oz.c:"var(--text-2)"}}>
+              {isEmriAdi(x)} · {oz.l}{x.onay_durumu==="bekliyor"&&x.gonderim_trh?` (${trTarihZaman(x.gonderim_trh)})`:""}
+            </button>
+          );})}
+          {(rol==="servis"||rol==="admin")&&anaOnayli&&ekHasar===null&&(
+            <button onClick={()=>setEkHasar("")} style={{padding:"6px 11px",borderRadius:8,fontSize:11,fontWeight:700,border:"1.5px dashed #EF4444",background:"rgba(239,68,68,0.06)",color:"#EF4444"}}>+ Ek hasar bildir</button>
+          )}
+        </div>
+      )}
+      {ekHasar!==null&&(
+        <div style={{padding:12,background:"rgba(239,68,68,0.05)",border:"1px solid rgba(239,68,68,0.25)",borderRadius:10}}>
+          <div style={{fontSize:12,fontWeight:700,color:"#EF4444",marginBottom:6}}>Ek hasar bildirimi</div>
+          <div style={{fontSize:11,color:"var(--text-2)",marginBottom:8}}>Söküm veya onarım sırasında çıkan yeni hasar için ayrı bir iş emri açılır. Kalemlerini girip ayrıca onaya gönderirsiniz. Sigorta kalemlerini eksper, sigorta harici kalemleri müşteri onaylar.</div>
+          <textarea autoFocus value={ekHasar} onChange={e=>setEkHasar(e.target.value)} rows={2} placeholder="Ne bulundu? (örn. söküm sonrası sağ ön panelde ezik)" style={{width:"100%",background:"var(--border)",border:"1px solid var(--border-md)",borderRadius:8,color:"var(--text-1)",padding:"8px 10px",fontSize:12,resize:"vertical"}}/>
+          <div style={{display:"flex",gap:8,marginTop:8}}>
+            <button disabled={onayLoading||!ekHasar.trim()} onClick={()=>calis(async()=>{const r=await apiTum.ekHasar(ekHasar.trim());setEkHasar(null);setSeciliIE(r.id);})} style={{background:"#EF4444",border:"none",color:"#fff",borderRadius:7,padding:"7px 14px",fontSize:12,fontWeight:700}}>Ek hasar iş emri aç</button>
+            <button onClick={()=>setEkHasar(null)} style={{background:"var(--border)",border:"1px solid var(--border-md)",color:"var(--text-2)",borderRadius:7,padding:"7px 12px",fontSize:12}}>Vazgeç</button>
+          </div>
+        </div>
+      )}
+      {ie?.aciklama&&ie.tur==="ek_hasar"&&<div style={{fontSize:12,color:"var(--text-2)"}}>📝 {ie.aciklama}</div>}
+
       {/* Red uyarısı */}
       {rol==="servis"&&onayDurumu==="reddedildi"&&(
         <div style={{padding:"12px 14px",background:"rgba(239,68,68,0.08)",border:"1px solid rgba(239,68,68,0.25)",borderRadius:10,fontSize:12,color:"#EF4444",lineHeight:1.6}}>
           ✕ <strong>Reddedildi.</strong> Kalemleri güncelleyip tekrar gönderebilirsiniz.
-          {muhasebe?.notlar&&<div style={{marginTop:6,color:"var(--text-2)"}}>Admin notu: {muhasebe.notlar}</div>}
+          {(ie?.karar_notu||muhasebe?.notlar)&&<div style={{marginTop:6,color:"var(--text-2)"}}>Admin notu: {ie?.karar_notu||muhasebe.notlar}</div>}
         </div>
       )}
 
@@ -1807,7 +2496,7 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
         {servisEdit&&yeniAcik&&(
           <div style={{padding:"12px 14px",borderBottom:"1px solid rgba(255,255,255,0.06)",background:"rgba(139,92,246,0.04)"}}>
             <div style={{fontSize:11,color:"#A78BFA",fontWeight:700,marginBottom:10}}>YENİ KALEM</div>
-            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 3fr 1fr 1fr 1fr auto",gap:8,alignItems:"end"}}>
+            <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"2fr 3fr 1fr 1fr 1fr 1.3fr auto",gap:8,alignItems:"end"}}>
               <div>
                 <div style={{fontSize:10,color:"var(--text-2)",fontWeight:600,marginBottom:4}}>KATEGORİ</div>
                 <select value={yeniForm.kategori} onChange={e=>setYeniForm(p=>({...p,kategori:e.target.value}))} style={selStyle}>
@@ -1829,6 +2518,12 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
               <div>
                 <div style={{fontSize:10,color:"var(--text-2)",fontWeight:600,marginBottom:4}}>BİRİM FİYAT ₺</div>
                 <input type="number" value={yeniForm.birimFiyat} onChange={e=>setYeniForm(p=>({...p,birimFiyat:e.target.value}))} onKeyDown={e=>e.key==="Enter"&&islemEkle()} placeholder="0" style={{...selStyle,width:"100%"}}/>
+              </div>
+              <div>
+                <div style={{fontSize:10,color:"var(--text-2)",fontWeight:600,marginBottom:4}}>ÖDEYEN</div>
+                <select value={yeniForm.odeyen} onChange={e=>setYeniForm(p=>({...p,odeyen:e.target.value}))} style={{...selStyle,width:"100%"}}>
+                  {TARAFLAR.map(t=><option key={t.id} value={t.id}>{t.l}</option>)}
+                </select>
               </div>
               <button onClick={islemEkle} style={{background:"#8B5CF6",border:"none",color:"#fff",borderRadius:7,padding:"8px 14px",fontSize:13,fontWeight:800,height:36}}>+</button>
             </div>
@@ -1894,6 +2589,7 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
                             <th style={{...thStyle,width:70,textAlign:"right"}} onClick={()=>siralamaDegistir("miktar")}>Miktar<SiraOk alan="miktar"/></th>
                             <th style={{...thStyle,width:100,textAlign:"right"}} onClick={()=>siralamaDegistir("birimFiyat")}>Birim Fiyat<SiraOk alan="birimFiyat"/></th>
                             <th style={{...thStyle,width:100,textAlign:"right"}} onClick={()=>siralamaDegistir("toplam")}>Toplam<SiraOk alan="toplam"/></th>
+                            <th style={{...thStyle,width:90}}>Ödeyen</th>
                             <th style={{...thStyle,width:80}}>Durum</th>
                             {(servisEdit||adminEdit)&&<th style={{width:64}}/>}
                           </tr>
@@ -1906,6 +2602,7 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
                               <tr key={isl.id} style={{borderBottom:"1px solid rgba(255,255,255,0.03)",background:idx%2===0?"transparent":"rgba(255,255,255,0.01)"}}>
                                 <td style={{padding:"8px 10px",color:"var(--text-1)"}}>
                                   {editing?<input value={isl.aciklama} onChange={e=>islemGuncelle(isl.id,"aciklama",e.target.value)} style={{...selStyle,padding:"4px 8px",width:"100%"}}/>:isl.aciklama}
+                                  {isl.onaylayanAd&&<div style={{fontSize:10,color:"var(--text-3)",marginTop:2}}>✓ {ONAYLAYAN_AD[isl.onaylayanTip]||"Onaylayan"}: {isl.onaylayanAd}</div>}
                                 </td>
                                 <td style={{padding:"8px 10px",color:"var(--text-2)"}}>{isl.birim}</td>
                                 <td style={{padding:"8px 10px",color:"var(--text-2)",textAlign:"right"}}>
@@ -1915,6 +2612,13 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
                                   {editing?<input type="number" value={isl.birimFiyat} onChange={e=>islemGuncelle(isl.id,"birimFiyat",e.target.value)} style={{...selStyle,padding:"4px 6px",width:80,textAlign:"right"}}/>:`${isl.birimFiyat.toLocaleString("tr-TR")} ₺`}
                                 </td>
                                 <td style={{padding:"8px 10px",fontWeight:700,textAlign:"right",fontFamily:"var(--font-mono)",color:"var(--text-1)"}}>{toplam.toLocaleString("tr-TR")} ₺</td>
+                                <td style={{padding:"8px 10px"}}>
+                                  {servisEdit||adminEdit?(
+                                    <select value={isl.odeyen||"sigorta"} onChange={e=>islemGuncelle(isl.id,"odeyen",e.target.value)} style={{...selStyle,padding:"3px 6px",fontSize:11,color:tarafBul(isl.odeyen||"sigorta").c}}>
+                                      {TARAFLAR.map(t=><option key={t.id} value={t.id}>{t.l}</option>)}
+                                    </select>
+                                  ):<span style={{fontSize:10,fontWeight:700,color:tarafBul(isl.odeyen||"sigorta").c}}>{tarafBul(isl.odeyen||"sigorta").l}</span>}
+                                </td>
                                 <td style={{padding:"8px 10px"}}>
                                   {adminEdit?(
                                     <div style={{display:"flex",gap:4}}>
@@ -1983,6 +2687,9 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
         {muhasebe?.notlar&&<div style={{marginTop:8,padding:"9px 12px",background:"var(--surface-3)",border:"1px solid var(--border)",borderRadius:8,fontSize:12,color:"var(--text-2)",lineHeight:1.6}}>📝 {muhasebe.notlar}</div>}
       </div>
 
+      {apiTum&&dosya?.id&&<FaturaPaneli dosyaId={dosya.id} dosya={dosya} kalemler={tumIslemler} isEmirleri={gorunenIE} onOzet={onFaturaOzet}
+        yenileAnahtar={tumIslemler.map(i=>`${i.id}:${i.odeyen}:${i.miktar*i.birimFiyat}:${i.durum}`).join("|")}/>}
+
       {/* Servis — Onaya Gönder */}
       {rol==="servis"&&(onayDurumu==="taslak"||onayDurumu==="reddedildi")&&(
         <button onClick={onayaGonder} disabled={onayLoading||islemler.length===0} style={{background:islemler.length>0?"#8B5CF6":"rgba(139,92,246,0.3)",border:"none",color:"#fff",borderRadius:10,padding:"14px",fontSize:14,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center",gap:10}}>
@@ -2005,8 +2712,20 @@ function MuhasebeGorunum({islemler,setIslemler,onayDurumu,setOnayDurumu,muhasebe
       {/* Admin — Onay paneli */}
       {rol==="admin"&&onayDurumu==="bekliyor"&&(
         <div style={{background:"rgba(79,70,229,0.07)",border:"1px solid rgba(79,70,229,0.25)",borderRadius:12,padding:16}}>
-          <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#818CF8"}}>📋 Servis Onay Talebi</div>
+          <div style={{fontWeight:700,fontSize:14,marginBottom:4,color:"#818CF8"}}>📋 Servis Onay Talebi{ie?` · ${isEmriAdi(ie)}`:""}</div>
           <div style={{fontSize:12,color:"var(--text-2)",marginBottom:14}}>{islemler.length} kalem · <strong style={{color:"var(--text-1)"}}>{toplamFatura.toLocaleString("tr-TR")} ₺</strong> · Bekleyen: <strong style={{color:"#F59E0B"}}>{bekleyenKalem}</strong> kalem</div>
+          {(islemler.some(i=>i.durum!=="reddedildi"&&i.odeyen==="sigorta")||islemler.some(i=>i.durum!=="reddedildi"&&i.odeyen==="musteri"))&&(
+            <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fit,minmax(200px,1fr))",gap:10,marginBottom:12}}>
+              {islemler.some(i=>i.durum!=="reddedildi"&&i.odeyen==="sigorta")&&<div>
+                <div style={{fontSize:11,color:"var(--text-2)",fontWeight:600,marginBottom:6}}>SİGORTA KALEMLERİNİ ONAYLAYAN EKSPER</div>
+                <input value={eksperAd} onChange={e=>setEksperAd(e.target.value)} placeholder="Eksper adı" style={{width:"100%",background:"var(--border)",border:"1px solid var(--border-md)",borderRadius:8,color:"var(--text-1)",padding:"8px 10px",fontSize:12}}/>
+              </div>}
+              {islemler.some(i=>i.durum!=="reddedildi"&&i.odeyen==="musteri")&&<div>
+                <div style={{fontSize:11,color:"var(--text-2)",fontWeight:600,marginBottom:6}}>SİGORTA HARİCİ KALEMLERİ ONAYLAYAN MÜŞTERİ</div>
+                <input value={musteriAd} onChange={e=>setMusteriAd(e.target.value)} placeholder="Müşteri adı" style={{width:"100%",background:"var(--border)",border:"1px solid var(--border-md)",borderRadius:8,color:"var(--text-1)",padding:"8px 10px",fontSize:12}}/>
+              </div>}
+            </div>
+          )}
           <div style={{marginBottom:12}}>
             <div style={{fontSize:11,color:"var(--text-2)",fontWeight:600,marginBottom:6}}>ADMIN NOTU (isteğe bağlı)</div>
             <textarea value={adminNot} onChange={e=>setAdminNot(e.target.value)} rows={2} placeholder="Reddetme sebebi veya açıklama..." style={{width:"100%",background:"var(--border)",border:"1px solid var(--border-md)",borderRadius:8,color:"var(--text-1)",padding:"9px 12px",fontSize:12,resize:"none"}}/>
@@ -2395,19 +3114,10 @@ function ServisPanel({servisBilgi,onCikis}){
   const [adimLoading,setAdimLoading]=useState(false);
   const [islemler,setIslemler]=useState([]);
   const [onayDurumu,setOnayDurumu]=useState("taslak");
+  const [isEmirleri,setIsEmirleri]=useState([]);
   const [muhasebeData,setMuhasebeData]=useState({});
   const detaySeq=useRef(0);
-  // Fotoğraf ve evrak sekmeleri bu işte API'ye bağlı değil (Demo)
-  const [photos,setPhotos]=useState(DEMO_PHOTOS);
-  const [servisEvrak,setServisEvrak]=useState([
-    {id:1,ad:"Fotoğraflı Hasar Formu",durum:"yuklendi",tarih:"16.03.2024",yukleyen:"Servis",boyut:"1.2 MB"},
-    {id:2,ad:"Proforma Fatura",durum:"bekliyor",tarih:"",yukleyen:"",boyut:""},
-    {id:3,ad:"Onarım Tamamlama Formu",durum:"bekliyor",tarih:"",yukleyen:"",boyut:""},
-  ]);
-  const [lightboxFoto,setLightboxFoto]=useState(null);
   const [isMobile,setIsMobile]=useState(false);
-  const fotoRef=useRef();
-  const belgeRef2=useRef();
   useEffect(()=>{const c=()=>setIsMobile(window.innerWidth<768);c();window.addEventListener("resize",c);return()=>window.removeEventListener("resize",c);},[]);
 
   const listeYukle=async(sessiz)=>{
@@ -2429,6 +3139,7 @@ function ServisPanel({servisBilgi,onCikis}){
       setAdimlar((d.onarim_adimlari||[]).map(esleAdim));
       setIslemler((i.kalemler||[]).map(esleKalem));
       setOnayDurumu(i.onay_durumu||"taslak");
+      setIsEmirleri(i.is_emirleri||[]);
     }catch(e){if(sira===detaySeq.current)setDetayHata(e.message||"Dosya alınamadı.");}
     finally{if(sira===detaySeq.current)setDetayYukleniyor(false);}
   };
@@ -2453,10 +3164,7 @@ function ServisPanel({servisBilgi,onCikis}){
     }catch(e){setAdimHata(e.message||"Adım tamamlanamadı.");}
     finally{setAdimLoading(false);}
   };
-  const handleUpload=(files)=>Array.from(files).filter(f=>f.type.startsWith("image/")).forEach(f=>{const r=new FileReader();r.onload=e=>{const np={id:Date.now()+Math.random(),url:e.target.result,etiket:f.name.replace(/\.[^.]+$/,""),kategori:"onarim",tarih:new Date().toLocaleDateString("tr-TR"),yukleyen:"Servis",boyut:(f.size/1048576).toFixed(1)+" MB",yukleniyor:true};setPhotos(p=>[np,...p]);setTimeout(()=>setPhotos(p=>p.map(ph=>ph.id===np.id?{...ph,yukleniyor:false}:ph)),1200);};r.readAsDataURL(f);});
-  const handleBelge2=(files)=>Array.from(files).forEach(f=>{const r=new FileReader();r.onload=e=>setServisEvrak(p=>[...p,{id:Date.now()+Math.random(),ad:f.name,durum:"yuklendi",tarih:new Date().toLocaleDateString("tr-TR"),yukleyen:"Servis",boyut:(f.size/1048576).toFixed(1)+" MB",url:e.target.result}]);r.readAsDataURL(f);});
-
-  const TABS=[{id:"araclar",l:"Araçlar",mi:"🚗"},{id:"onarim",l:"Onarım",mi:"🔧"},{id:"stok",l:"Stok",mi:"📦"},{id:"muhasebe",l:"Muhasebe",mi:"💰"},{id:"evrak",l:"Evrak",mi:"📄"},{id:"fotolar",l:"Foto",mi:"📷"},{id:"iletisim",l:"İletişim",mi:"📞"}];
+  const TABS=[{id:"araclar",l:"Araçlar",mi:"🚗"},{id:"pano",l:"Pano",mi:"🗂️"},{id:"onarim",l:"Onarım",mi:"🔧"},{id:"stok",l:"Stok",mi:"📦"},{id:"muhasebe",l:"Muhasebe",mi:"💰"},{id:"evrak",l:"Evrak",mi:"📄"},{id:"fotolar",l:"Foto",mi:"📷"},{id:"iletisim",l:"İletişim",mi:"📞"}];
 
   return(
     <div style={{fontFamily:"var(--font-body)",background:"var(--bg)",minHeight:"100vh",color:"var(--text-1)",display:"flex",flexDirection:"column",paddingBottom:isMobile?64:0}}>
@@ -2534,67 +3242,18 @@ function ServisPanel({servisBilgi,onCikis}){
                   <div style={{height:6,background:"rgba(15,23,42,0.05)",borderRadius:3,marginBottom:20,overflow:"hidden"}}><div style={{height:"100%",width:`${oP}%`,borderRadius:3,background:"linear-gradient(90deg,#8B5CF6,#6D28D9)",transition:"width .6s"}}/></div>
                   <OnarimTimeline adimlar={adimlar} onTamamla={adimTamamla}/>
                 </Card>
+                <IsEmriPaneli dosyaId={seciliId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>{detayYukle(seciliId,true);listeYukle(true);}}/>
               </>
             )}
           </div>
         )}
-        {tab==="fotolar"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:14}}>
-            <DemoBanner/>
-            <div onClick={()=>fotoRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();handleUpload(e.dataTransfer.files);}} style={{border:"2px dashed rgba(139,92,246,0.3)",borderRadius:12,padding:24,textAlign:"center",cursor:"pointer",background:"rgba(139,92,246,0.03)",transition:"all .2s"}} onMouseEnter={e=>e.currentTarget.style.borderColor="rgba(139,92,246,0.5)"} onMouseLeave={e=>e.currentTarget.style.borderColor="rgba(139,92,246,0.3)"}>
-              <input ref={fotoRef} type="file" accept="image/*" multiple onChange={e=>handleUpload(e.target.files)} style={{display:"none"}}/>
-              <div style={{fontSize:36,marginBottom:8}}>📷</div>
-              <div style={{fontWeight:700,fontSize:13,color:"#A78BFA",marginBottom:4}}>Onarım fotoğrafı yükle</div>
-              <div style={{fontSize:11,color:"var(--text-2)"}}>JPG, PNG, WEBP</div>
-            </div>
-            {photos.length>0&&(
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(3,1fr)",gap:12}}>
-                {photos.map(foto=>(
-                  <div key={foto.id} className="photo-card" style={{borderRadius:10,overflow:"hidden",position:"relative",background:"var(--surface-2)",border:"1px solid var(--border)"}}>
-                    {foto.yukleniyor&&<div style={{position:"absolute",inset:0,background:"rgba(9,14,26,0.85)",zIndex:10,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:28,height:28,border:"3px solid rgba(139,92,246,0.3)",borderTop:"3px solid #8B5CF6",borderRadius:"50%",animation:"spin .8s linear infinite"}}/></div>}
-                    <img src={foto.url} alt={foto.etiket} style={{width:"100%",aspectRatio:"4/3",objectFit:"cover",display:"block",cursor:"pointer"}} onClick={()=>setLightboxFoto(foto)}/>
-                    <div style={{padding:"8px 10px"}}>
-                      <div style={{fontSize:11,fontWeight:600,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{foto.etiket}</div>
-                      <div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{foto.tarih} · {foto.yukleyen}</div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            )}
-          </div>
-        )}
-        {tab==="evrak"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:12}}>
-            <DemoBanner/>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              {[{l:"Yüklendi",v:servisEvrak.filter(e=>e.durum==="yuklendi").length,c:"#10B981"},{l:"Bekliyor",v:servisEvrak.filter(e=>e.durum==="bekliyor").length,c:"#F59E0B"},{l:"Toplam",v:servisEvrak.length,c:"#8B5CF6"}].map(k=>(
-                <Card key={k.l} style={{textAlign:"center",padding:12}}><div style={{fontSize:20,fontWeight:800,color:k.c}}>{k.v}</div><div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{k.l}</div></Card>
-              ))}
-            </div>
-            <div onClick={()=>belgeRef2.current?.click()} style={{border:"2px dashed rgba(139,92,246,0.3)",borderRadius:12,padding:20,textAlign:"center",cursor:"pointer",background:"rgba(139,92,246,0.03)"}}>
-              <input ref={belgeRef2} type="file" multiple accept=".pdf,.jpg,.jpeg,.png,.docx" onChange={e=>handleBelge2(e.target.files)} style={{display:"none"}}/>
-              <div style={{fontSize:32,marginBottom:8}}>📂</div>
-              <div style={{fontWeight:600,fontSize:13,color:"#A78BFA",marginBottom:4}}>Belge yükle</div>
-              <div style={{fontSize:11,color:"var(--text-2)"}}>PDF, JPG, PNG, DOCX</div>
-            </div>
-            {servisEvrak.map(e=>(
-              <div key={e.id} style={{background:"var(--surface-2)",border:`1px solid ${e.durum==="yuklendi"?"rgba(16,185,129,0.2)":"rgba(245,158,11,0.2)"}`,borderRadius:10,padding:"13px 14px",display:"flex",gap:12,alignItems:"center"}}>
-                <div style={{width:36,height:36,borderRadius:9,flexShrink:0,background:e.durum==="yuklendi"?"rgba(16,185,129,0.15)":"rgba(245,158,11,0.1)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:18}}>
-                  {e.durum==="yuklendi"?"✅":"📄"}
-                </div>
-                <div style={{flex:1}}>
-                  <div style={{fontWeight:600,fontSize:13,marginBottom:4}}>{e.ad}</div>
-                  <div style={{display:"flex",gap:6,alignItems:"center",flexWrap:"wrap"}}>
-                    <Chip renk={e.durum==="yuklendi"?"#10B981":"#F59E0B"} sm>{e.durum==="yuklendi"?"✓ Yüklendi":"⏳ Bekliyor"}</Chip>
-                    {e.tarih&&<span style={{fontSize:10,color:"var(--text-2)",fontFamily:"var(--font-mono)"}}>{e.tarih}</span>}
-                    {e.boyut&&<span style={{fontSize:10,color:"var(--text-2)"}}>{e.boyut}</span>}
-                  </div>
-                </div>
-                {e.durum==="bekliyor"&&<button onClick={()=>belgeRef2.current?.click()} style={{background:"rgba(139,92,246,0.15)",border:"1px solid rgba(139,92,246,0.3)",color:"#A78BFA",borderRadius:7,padding:"5px 10px",fontSize:11,fontWeight:700}}>Yükle</button>}
-              </div>
-            ))}
-          </div>
-        )}
+        {tab==="pano"&&<BolumPanosu onDosyaAc={dosyaSec}/>}
+        {tab==="fotolar"&&(!seciliId
+          ?<div style={{textAlign:"center",padding:"40px 20px",color:"var(--text-2)",fontSize:13}}>Önce Araçlar sekmesinden bir araç seçin.</div>
+          :<FotoGaleri dosyaId={seciliId} rol="servis"/>)}
+        {tab==="evrak"&&(!seciliId
+          ?<div style={{textAlign:"center",padding:"40px 20px",color:"var(--text-2)",fontSize:13}}>Önce Araçlar sekmesinden bir araç seçin.</div>
+          :<EvrakListesi dosyaId={seciliId} rol="servis"/>)}
         {tab==="muhasebe"&&(
           !seciliId?(
             <div style={{textAlign:"center",padding:"40px 20px",color:"var(--text-2)",fontSize:13}}>Önce Araçlar sekmesinden bir araç seçin.</div>
@@ -2603,7 +3262,7 @@ function ServisPanel({servisBilgi,onCikis}){
           ):detayHata&&!detay?(
             <HataKutusu hata={detayHata} onTekrar={()=>detayYukle(seciliId)}/>
           ):(
-            <MuhasebeGorunum islemler={islemler} setIslemler={setIslemler} onayDurumu={onayDurumu} setOnayDurumu={setOnayDurumu} muhasebe={muhasebeData} setMuhasebe={setMuhasebeData} dosya={detay} rol="servis" api={islemApi}/>
+            <MuhasebeGorunum islemler={islemler} setIslemler={setIslemler} onayDurumu={onayDurumu} setOnayDurumu={setOnayDurumu} muhasebe={muhasebeData} setMuhasebe={setMuhasebeData} dosya={detay} rol="servis" api={islemApi} isEmirleri={isEmirleri}/>
           )
         )}
         {tab==="stok"&&(
@@ -2635,7 +3294,6 @@ function ServisPanel({servisBilgi,onCikis}){
         )}
       </div>
       {isMobile&&<div className="mob-nav">{TABS.map(t=><button key={t.id} onClick={()=>setTab(t.id)} className="mob-nav-btn"><span style={{fontSize:16}}>{t.mi}</span><span style={{fontSize:7,fontWeight:tab===t.id?700:500,color:tab===t.id?"#A78BFA":"var(--text-3)"}}>{t.l}</span>{tab===t.id&&<div style={{position:"absolute",top:0,left:"20%",right:"20%",height:2,background:"#8B5CF6",borderRadius:"0 0 2px 2px"}}/>}</button>)}</div>}
-      {lightboxFoto&&<div onClick={()=>setLightboxFoto(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}><div onClick={e=>e.stopPropagation()} style={{maxWidth:860,width:"100%"}}><img src={lightboxFoto.url} alt={lightboxFoto.etiket} style={{width:"100%",maxHeight:"80vh",objectFit:"contain",display:"block",borderRadius:12}}/><button onClick={()=>setLightboxFoto(null)} style={{position:"absolute",top:16,right:16,background:"rgba(15,23,42,0.1)",border:"none",color:"#fff",borderRadius:"50%",width:36,height:36,fontSize:20}}>×</button></div></div>}
     </div>
   );
 }
@@ -2965,6 +3623,10 @@ function AdminDashboard({onDosyaSec,onYeniDosya,onCikis,onServisDetay}){
             <div style={{display:"grid",gridTemplateColumns:"repeat(3,1fr)",gap:10,marginBottom:16}}>
               {[{l:"Toplam",v:ozet?Number(ozet.toplam_dosya):"…",c:"#818CF8"},{l:"Aktif",v:ozet?Number(ozet.aktif_dosya):"…",c:"#4F46E5"},{l:"Servissiz",v:ozet?Number(ozet.servissiz):"…",c:"#F59E0B"}].map(k=><Card key={k.l}><div style={{fontSize:9,color:"var(--text-2)",fontWeight:700,marginBottom:6}}>{k.l.toUpperCase()}</div><div style={{fontSize:26,fontWeight:800,color:k.c}}>{k.v}</div></Card>)}
             </div>
+            <div style={{display:"flex",flexDirection:"column",gap:14,marginBottom:16}}>
+              <BekleyenOnaylar onDosyaAc={onDosyaSec}/>
+              <BolumPanosu onDosyaAc={onDosyaSec}/>
+            </div>
             <div style={{marginBottom:20}}>
               <div style={{fontSize:12,color:"var(--text-2)",fontWeight:600,marginBottom:10,letterSpacing:"0.5px"}}>SERVİSLER</div>
               <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr":"repeat(3,1fr)",gap:8}}>
@@ -3274,8 +3936,10 @@ function ServisAtamaModal({dosya,servisler,onAta,onKapat}){
 function AdminPanel({dosyaId,onCikis}){
   const [dosya,setDosya]=useState(null);
   const [adimlar,setAdimlar]=useState([]);
-  const [evrak,setEvrak]=useState(EVRAK_LISTESI);
-  const [photos,setPhotos]=useState(DEMO_PHOTOS);
+  // Evrak ve fotoğraflar API'den (özet kartları ve sekme rozetleri için listeler burada tutulur)
+  const [evrak,setEvrak]=useState([]);
+  const [photos,setPhotos]=useState([]);
+  const [isEmirleri,setIsEmirleri]=useState([]);
   const [mesajlar,setMesajlar]=useState([
     {id:1,gonderen:"Admin",hedef:"Eksper",tarih:"18.03 09:12",mesaj:"Ahmet Bey, ekspertiz raporunu sisteme yükleyebilir misiniz?"},
     {id:2,gonderen:"Eksper",hedef:"Admin",tarih:"18.03 10:45",mesaj:"Rapor bugün öğleden sonra tamamlanacak."},
@@ -3309,6 +3973,7 @@ function AdminPanel({dosyaId,onCikis}){
   const [adimLoading,setAdimLoading]=useState(false);
   const [tumDosyalar,setTumDosyalar]=useState([]);
   const [servisler,setServisler]=useState([]);
+  const [faturaVeri,setFaturaVeri]=useState(null);
   const orijinalRef=useRef(null);
   const seqRef=useRef(0);
   const fotoRef=useRef();
@@ -3320,11 +3985,13 @@ function AdminPanel({dosyaId,onCikis}){
     if(!sessiz)setYukleniyor(true);
     setYuklemeHata("");
     try{
-      const [d,i,l,sv]=await Promise.all([
+      const [d,i,l,sv,ev,ft]=await Promise.all([
         apiCall(`/dosyalar/${dosyaId}`),
         apiCall(`/islemler/${dosyaId}`),
         apiCall("/dosyalar?limit=200").catch(()=>({dosyalar:[]})),
         apiCall("/servisler").catch(()=>({servisler:[]})),
+        apiCall(`/evrak/${dosyaId}`).catch(()=>({evrak:[]})),
+        apiCall(`/fotograflar/${dosyaId}`).catch(()=>({fotograflar:[]})),
       ]);
       if(sira!==seqRef.current)return;
       const dm=esleDetay(d);
@@ -3335,6 +4002,9 @@ function AdminPanel({dosyaId,onCikis}){
       setOnayDurumu(i.onay_durumu||"taslak");
       setTumDosyalar(esleListe(l.dosyalar));
       setServisler(sv.servisler||[]);
+      setIsEmirleri(i.is_emirleri||[]);
+      setEvrak((ev.evrak||[]).map(esleEvrak));
+      setPhotos((ft.fotograflar||[]).map(esleFoto));
     }catch(e){if(sira===seqRef.current)setYuklemeHata(e.message||"Dosya alınamadı.");}
     finally{if(sira===seqRef.current)setYukleniyor(false);}
   };
@@ -3351,7 +4021,7 @@ function AdminPanel({dosyaId,onCikis}){
   const exportCSV=() => {
     const rows=[
       ["Dosya No","Araç","Plaka","Sahip","Sigorta","Muallak Hasar","Servis Fatura","Sigorta Ödemesi","Onaylanan Tutar","Net Fark","Durum"],
-      ...tumDosyalar.map(d=>[d.dosyaNo,d.arac,d.plaka,d.sahip,d.sigorta,d.muallakHasar,d.id===dosya.id?muhasebe.servisFatura||"":"—",d.id===dosya.id?muhasebe.sigortaOdeme||"":"—",d.id===dosya.id?muhasebe.onaylananTutar||"":"—",d.id===dosya.id&&muhasebe.sigortaOdeme&&muhasebe.servisFatura?`${(parseFloat(muhasebe.servisFatura.replace(/[^\d,]/g,"").replace(",","."))||0)-(parseFloat(muhasebe.sigortaOdeme.replace(/[^\d,]/g,"").replace(",","."))||0)} TL`:"—",d.durum])
+      ...tumDosyalar.map(d=>[d.dosyaNo,d.arac,d.plaka,d.sahip,d.sigorta,d.muallakHasar,d.id===dosya.id?servisFaturaMetin:"—",d.id===dosya.id?muhasebe.sigortaOdeme||"":"—",d.id===dosya.id?muhasebe.onaylananTutar||"":"—",d.id===dosya.id&&muhasebe.sigortaOdeme&&muhasebe.servisFatura?`${(parseFloat(muhasebe.servisFatura.replace(/[^\d,]/g,"").replace(",","."))||0)-(parseFloat(muhasebe.sigortaOdeme.replace(/[^\d,]/g,"").replace(",","."))||0)} TL`:"—",d.durum])
     ];
     const csv=rows.map(r=>r.map(v=>`"${String(v).replace(/"/g,'""')}"`).join(",")).join("\n");
     const blob=new Blob(["﻿"+csv],{type:"text/csv;charset=utf-8;"});
@@ -3368,7 +4038,7 @@ function AdminPanel({dosyaId,onCikis}){
       <p style="color:#666;font-size:11px">Oluşturulma: ${tarih} &nbsp;·&nbsp; Dosya: ${dosya.dosyaNo} &nbsp;·&nbsp; Araç: ${dosya.arac.plaka} — ${dosya.arac.marka} ${dosya.arac.model}</p>
       <div class="ozet">
         <div class="kart"><div class="kart-baslik">Muallak Hasar</div><div class="kart-deger">${dosya.muallakHasar}</div></div>
-        <div class="kart"><div class="kart-baslik">Servis Faturası</div><div class="kart-deger" style="color:#EF4444">${muhasebe.servisFatura||"—"}</div></div>
+        <div class="kart"><div class="kart-baslik">Servis Faturası</div><div class="kart-deger" style="color:#EF4444">${servisFaturaMetin||"—"}</div></div>
         <div class="kart"><div class="kart-baslik">Sigorta Ödemesi</div><div class="kart-deger" style="color:#10B981">${muhasebe.sigortaOdeme||"Bekleniyor"}</div></div>
         <div class="kart"><div class="kart-baslik">Net Fark</div><div class="kart-deger ${fark>=0?"fark-pos":"fark-neg"}">${fark>=0?"+":""}${fark.toLocaleString("tr-TR")} ₺</div></div>
       </div>
@@ -3385,15 +4055,15 @@ function AdminPanel({dosyaId,onCikis}){
   const eksikEvrak=evrak.filter(e=>e.durum==="eksik");
   const tamamEvrak=evrak.filter(e=>e.durum==="tamam").length;
   const oP=Math.round((adimlar.filter(a=>a.durum==="tamamlandi").length/adimlar.length)*100);
-  const eP=Math.round((tamamEvrak/evrak.length)*100);
+  const eP=evrak.length?Math.round((tamamEvrak/evrak.length)*100):0;
   const aktifAdim=adimlar.find(a=>a.durum==="aktif");
-  const filtrePhotos=aktifKat==="tumu"?photos:photos.filter(p=>p.kategori===aktifKat);
-  const lbIdx=lightboxFoto?filtrePhotos.findIndex(p=>p.id===lightboxFoto.id):-1;
   const P=isMobile?12:24;
   const atananServis=servisler.find(s=>s.id===dosya.atananServis);
 
   // Muhasebe hesaplamaları
-  const faturaTutar=parseFloat((muhasebe.servisFatura||"0").replace(/[^\d,]/g,"").replace(",","."))||0;
+  // Servis faturası: servis_faturalari toplamı (KDV hariç), FaturaPaneli'nden gelir
+  const faturaTutar=(faturaVeri?.servis_faturalari||[]).reduce((t,f)=>t+Number(f.tutar),0);
+  const servisFaturaMetin=faturaVeri?.servis_faturalari?.length?tlBicim(faturaTutar):"";
   const odeme=parseFloat((muhasebe.sigortaOdeme||"0").replace(/[^\d,]/g,"").replace(",","."))||0;
   const muallak=parseFloat((dosya.muallakHasar||"0").replace(/[^\d,]/g,"").replace(",","."))||0;
   const fark=faturaTutar-odeme;
@@ -3430,10 +4100,6 @@ function AdminPanel({dosyaId,onCikis}){
     }catch(e){setKayitHata(e.message||"Adım tamamlanamadı.");}
     finally{setAdimLoading(false);}
   };
-  const handleUpload=(files)=>Array.from(files).filter(f=>f.type.startsWith("image/")).forEach(f=>{const r=new FileReader();r.onload=e=>{const np={id:Date.now()+Math.random(),url:e.target.result,etiket:f.name.replace(/\.[^.]+$/,""),kategori:"kaza",tarih:new Date().toLocaleDateString("tr-TR"),yukleyen:"Admin",boyut:(f.size/1048576).toFixed(1)+" MB",yukleniyor:true};setPhotos(p=>[np,...p]);setTimeout(()=>setPhotos(p=>p.map(ph=>ph.id===np.id?{...ph,yukleniyor:false}:ph)),1200);};r.readAsDataURL(f);});
-  const silFoto=(id)=>{setPhotos(p=>p.filter(ph=>ph.id!==id));setSilOnayi(null);if(lightboxFoto?.id===id)setLightboxFoto(null);};
-  const etiketKaydet=(id)=>{setPhotos(p=>p.map(ph=>ph.id===id?{...ph,etiket:yeniEtiket}:ph));setEtiketDuzenle(null);};
-  const katDegistir=(id,k)=>setPhotos(p=>p.map(ph=>ph.id===id?{...ph,kategori:k}:ph));
   const mesajGonder=()=>{if(!mesajMetin.trim())return;setMesajlar(p=>[...p,{id:p.length+1,gonderen:"Admin",hedef,tarih:"Şimdi",mesaj:mesajMetin.trim()}]);setMesajMetin("");};
   const smsGonder=()=>{setSmsGon(true);setTimeout(()=>{setSmsGon(false);setSmsOk(true);const m=aktifAdim?SMS_MESAJLARI[aktifAdim.ad]?.(dosya)||"":"";setSmsMesajlar(p=>[{id:Date.now(),tarih:new Date().toLocaleDateString("tr-TR"),saat:new Date().toLocaleTimeString("tr-TR",{hour:"2-digit",minute:"2-digit"}),durum:"iletildi",adim:aktifAdim?.ad||"",alici:dosya.sahip.telefon,n:m.length,oto:false},...p]);setTimeout(()=>setSmsOk(false),3000);},1800);};
   const EM=(k)=>editMode===k;
@@ -3442,8 +4108,8 @@ function AdminPanel({dosyaId,onCikis}){
     {id:"ozet",l:"Özet",mi:"📋"},
     {id:"dosya",l:"Dosya",mi:"📁"},
     {id:"onarim",l:"Onarım",mi:"🔧"},
-    {id:"evrak",l:"Evrak",mi:"📄",badge:true,demo:true},
-    {id:"fotolar",l:"Foto",mi:"📷",demo:true},
+    {id:"evrak",l:"Evrak",mi:"📄",badge:true},
+    {id:"fotolar",l:"Foto",mi:"📷"},
     {id:"muhasebe",l:"Muhasebe",mi:"💰"},
     {id:"stok",l:"Stok",mi:"📦",demo:true},
     {id:"iletisim",l:"Mesaj",mi:"💬",demo:true},
@@ -3499,7 +4165,7 @@ function AdminPanel({dosyaId,onCikis}){
       {/* İÇERİK */}
       <div style={{flex:1,overflow:"auto",padding:`${isMobile?12:24}px ${P}px`}}>
         {kayitHata&&<div style={{marginBottom:12}}><HataKutusu hata={kayitHata}/></div>}
-        {["evrak","fotolar","stok","iletisim","sms"].includes(tab)&&<DemoBanner/>}
+        {["stok","iletisim","sms"].includes(tab)&&<DemoBanner/>}
 
         {tab==="ozet"&&(
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -3651,88 +4317,12 @@ function AdminPanel({dosyaId,onCikis}){
               <div style={{height:6,background:"rgba(15,23,42,0.05)",borderRadius:3,marginBottom:20}}><div style={{height:"100%",width:`${oP}%`,borderRadius:3,background:"linear-gradient(90deg,#4F46E5,#7C3AED)"}}/></div>
               <OnarimTimeline adimlar={adimlar} onTamamla={adimTamamla}/>
             </Card>
+            <IsEmriPaneli dosyaId={dosyaId} yenileAnahtar={isEmirleri.map(x=>x.onay_durumu).join()} onDegisti={()=>yukle(true)}/>
           </div>
         )}
 
-        {tab==="evrak"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:10}}>
-            <div style={{display:"grid",gridTemplateColumns:"1fr 1fr 1fr",gap:8}}>
-              {[{l:"Teslim",v:tamamEvrak,c:"#10B981"},{l:"Eksik",v:eksikEvrak.length,c:"#EF4444"},{l:"Bekliyor",v:evrak.filter(e=>e.durum==="bekliyor").length,c:"var(--text-3)"}].map(k=>(
-                <Card key={k.l} style={{textAlign:"center",padding:12,border:k.l==="Eksik"&&k.v>0?"1px solid rgba(239,68,68,0.3)":"1px solid rgba(255,255,255,0.06)"}}>
-                  <div style={{fontSize:22,fontWeight:800,color:k.c}}>{k.v}</div><div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{k.l}</div>
-                </Card>
-              ))}
-            </div>
-            {evrak.map(e=>{const s=ED[e.durum];const tc=TC_CONF[e.kaynak]||TC_CONF["Admin"];return(
-              <div key={e.id} style={{background:"var(--surface-2)",border:`1px solid ${e.durum==="eksik"?"rgba(239,68,68,0.22)":"var(--border)"}`,borderRadius:10,padding:"13px 14px"}}>
-                <div style={{display:"flex",gap:12,alignItems:"flex-start"}}>
-                  <div style={{width:26,height:26,borderRadius:"50%",flexShrink:0,background:`${s.renk}12`,border:`2px solid ${s.renk}35`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:11,fontWeight:800,color:s.renk,marginTop:1}}>{s.icon}</div>
-                  <div style={{flex:1,minWidth:0}}>
-                    <div style={{fontWeight:600,fontSize:13,marginBottom:5}}>{e.ad}</div>
-                    <div style={{display:"flex",gap:6,flexWrap:"wrap",marginBottom:4}}><Chip renk={tc.renk} sm>{tc.icon} {e.kaynak}</Chip><Chip renk={s.renk} sm>{s.label}</Chip></div>
-                    {e.tarih&&<div style={{fontSize:11,color:"#10B981",fontFamily:"var(--font-mono)"}}>✓ {e.tarih}</div>}
-                    {e.uyari&&<div style={{fontSize:11,color:"#EF4444",marginTop:4,lineHeight:1.5}}>⚠ {e.uyari}</div>}
-                    {e.durum==="eksik"&&<button onClick={()=>{setTab("iletisim");setHedef(e.kaynak);setMesajMetin(`"${e.ad}" belgesini iletmenizi rica ederiz.`);}} style={{marginTop:8,background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.25)",color:"#EF4444",borderRadius:6,padding:"5px 11px",fontSize:11,fontWeight:700}}>Talep Gönder →</button>}
-                  </div>
-                  <div style={{display:"flex",flexDirection:"column",gap:4,flexShrink:0}}>
-                    {["tamam","eksik","bekliyor"].map(d=><button key={d} onClick={()=>setEvrak(p=>p.map(ev=>ev.id===e.id?{...ev,durum:d,tarih:d==="tamam"?new Date().toLocaleDateString("tr-TR"):ev.tarih}:ev))} style={{padding:"2px 7px",borderRadius:4,border:"none",background:e.durum===d?`${ED[d].renk}20`:"var(--border)",color:e.durum===d?ED[d].renk:"var(--text-3)",fontSize:9,fontWeight:e.durum===d?700:400}}>{ED[d].label}</button>)}
-                  </div>
-                </div>
-              </div>
-            );})}
-          </div>
-        )}
-
-        {tab==="fotolar"&&(
-          <div style={{display:"flex",flexDirection:"column",gap:16}}>
-            <div style={{display:"grid",gridTemplateColumns:isMobile?"repeat(3,1fr)":"repeat(5,1fr)",gap:10}}>
-              {KATEGORILER.map(k=>{const cnt=k.id==="tumu"?photos.length:photos.filter(p=>p.kategori===k.id).length;return(
-                <button key={k.id} onClick={()=>setAktifKat(k.id)} style={{background:aktifKat===k.id?"rgba(59,130,246,0.15)":"var(--surface-3)",border:`1px solid ${aktifKat===k.id?"rgba(59,130,246,0.4)":"var(--border)"}`,borderRadius:10,padding:"10px 8px",cursor:"pointer",textAlign:"center"}}>
-                  <div style={{fontSize:isMobile?18:20,marginBottom:4}}>{k.ikon}</div>
-                  <div style={{fontSize:18,fontWeight:800,color:aktifKat===k.id?"#60A5FA":"var(--text-1)"}}>{cnt}</div>
-                  <div style={{fontSize:9,color:aktifKat===k.id?"#60A5FA":"var(--text-3)",marginTop:2,fontWeight:600}}>{k.label}</div>
-                </button>
-              );})}
-            </div>
-            <div onClick={()=>fotoRef.current?.click()} onDragOver={e=>e.preventDefault()} onDrop={e=>{e.preventDefault();handleUpload(e.dataTransfer.files);}} style={{border:"2px dashed rgba(79,70,229,0.3)",borderRadius:12,padding:24,textAlign:"center",cursor:"pointer",background:"rgba(79,70,229,0.03)"}}>
-              <input ref={fotoRef} type="file" accept="image/*" multiple onChange={e=>handleUpload(e.target.files)} style={{display:"none"}}/>
-              <div style={{fontSize:36,marginBottom:8}}>📷</div>
-              <div style={{fontWeight:700,fontSize:13,color:"#818CF8",marginBottom:4}}>Fotoğraf sürükleyin veya tıklayın</div>
-              <div style={{fontSize:11,color:"var(--text-2)"}}>JPG, PNG, WEBP</div>
-            </div>
-            {filtrePhotos.length>0&&(
-              <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(3,1fr)",gap:isMobile?10:14}}>
-                {filtrePhotos.map(foto=>{const kat=KATEGORILER.find(k=>k.id===foto.kategori);return(
-                  <div key={foto.id} className="photo-card" style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:12,overflow:"hidden",position:"relative"}}>
-                    {foto.yukleniyor&&<div style={{position:"absolute",inset:0,background:"rgba(13,17,23,0.8)",zIndex:10,display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{width:32,height:32,border:"3px solid rgba(79,70,229,0.3)",borderTop:"3px solid #4F46E5",borderRadius:"50%",animation:"spin .8s linear infinite"}}/></div>}
-                    <div style={{position:"relative",cursor:"pointer"}} onClick={()=>!foto.yukleniyor&&setLightboxFoto(foto)}>
-                      <img src={foto.url} alt={foto.etiket} style={{width:"100%",aspectRatio:"4/3",objectFit:"cover",display:"block"}}/>
-                      <div className="photo-overlay" style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.55)",opacity:0,transition:"opacity .2s",display:"flex",alignItems:"center",justifyContent:"center"}}><div style={{background:"rgba(15,23,42,0.15)",borderRadius:"50%",width:44,height:44,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20}}>🔍</div></div>
-                      <div style={{position:"absolute",top:8,left:8}}><span style={{fontSize:9,fontWeight:700,padding:"3px 7px",borderRadius:4,background:"rgba(0,0,0,0.65)",color:"#fff"}}>{kat?.ikon} {kat?.label}</span></div>
-                    </div>
-                    <div style={{padding:"10px 12px"}}>
-                      {etiketDuzenle===foto.id?(
-                        <div style={{display:"flex",gap:6}}><input type="text" value={yeniEtiket} onChange={e=>setYeniEtiket(e.target.value)} onKeyDown={e=>{if(e.key==="Enter")etiketKaydet(foto.id);if(e.key==="Escape")setEtiketDuzenle(null);}} autoFocus style={{flex:1,background:"var(--border)",border:"1px solid rgba(79,70,229,0.4)",borderRadius:6,color:"var(--text-1)",padding:"4px 8px",fontSize:12}}/><button onClick={()=>etiketKaydet(foto.id)} style={{background:"#4F46E5",border:"none",color:"#fff",borderRadius:6,padding:"4px 8px",fontSize:11}}>✓</button></div>
-                      ):(
-                        <div style={{display:"flex",justifyContent:"space-between",alignItems:"flex-start",gap:6}}>
-                          <div style={{flex:1,minWidth:0}}><div style={{fontWeight:600,fontSize:12,whiteSpace:"nowrap",overflow:"hidden",textOverflow:"ellipsis"}}>{foto.etiket}</div><div style={{fontSize:10,color:"var(--text-2)",marginTop:2}}>{foto.tarih} · {foto.yukleyen}</div></div>
-                          <div style={{display:"flex",gap:4,flexShrink:0}}>
-                            <button onClick={()=>{setEtiketDuzenle(foto.id);setYeniEtiket(foto.etiket);}} style={{background:"var(--border)",border:"1px solid var(--border-md)",color:"var(--text-2)",borderRadius:5,width:26,height:26,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}>✏️</button>
-                            <button onClick={()=>setSilOnayi(foto.id)} style={{background:"rgba(239,68,68,0.1)",border:"1px solid rgba(239,68,68,0.2)",color:"#EF4444",borderRadius:5,width:26,height:26,fontSize:12,display:"flex",alignItems:"center",justifyContent:"center"}}>🗑️</button>
-                          </div>
-                        </div>
-                      )}
-                      <div style={{display:"flex",gap:4,marginTop:8,flexWrap:"wrap"}}>
-                        {KATEGORILER.filter(k=>k.id!=="tumu").map(k=><button key={k.id} onClick={()=>katDegistir(foto.id,k.id)} style={{padding:"2px 7px",borderRadius:4,border:"none",background:foto.kategori===k.id?"rgba(59,130,246,0.2)":"var(--border)",color:foto.kategori===k.id?"#60A5FA":"var(--text-3)",fontSize:9,fontWeight:600}}>{k.ikon}</button>)}
-                      </div>
-                    </div>
-                    {silOnayi===foto.id&&<div style={{position:"absolute",inset:0,background:"rgba(0,0,0,0.85)",display:"flex",flexDirection:"column",alignItems:"center",justifyContent:"center",gap:12,zIndex:20,borderRadius:12}}><div style={{fontSize:13,fontWeight:700,color:"#EF4444"}}>Fotoğrafı sil?</div><div style={{display:"flex",gap:8}}><button onClick={()=>silFoto(foto.id)} style={{background:"#EF4444",border:"none",color:"#fff",borderRadius:7,padding:"7px 16px",fontSize:12,fontWeight:700}}>Sil</button><button onClick={()=>setSilOnayi(null)} style={{background:"var(--border-md)",border:"1px solid var(--border-hi)",color:"var(--text-2)",borderRadius:7,padding:"7px 16px",fontSize:12}}>İptal</button></div></div>}
-                  </div>
-                );})}
-              </div>
-            )}
-          </div>
-        )}
+        {tab==="evrak"&&<EvrakListesi dosyaId={dosyaId} rol="admin" onListe={setEvrak}/>}
+        {tab==="fotolar"&&<FotoGaleri dosyaId={dosyaId} rol="admin" onListe={setPhotos}/>}
 
         {tab==="muhasebe"&&(
           <div style={{display:"flex",flexDirection:"column",gap:14}}>
@@ -3748,6 +4338,8 @@ function AdminPanel({dosyaId,onCikis}){
               exportCSV={exportCSV}
               exportPDF={exportPDF}
               api={islemApi}
+              onFaturaOzet={setFaturaVeri}
+              isEmirleri={isEmirleri}
             />
             {/* eski export satırı kaldırıldı */}
             <div style={{display:"none"}}>
@@ -3762,9 +4354,9 @@ function AdminPanel({dosyaId,onCikis}){
             <div style={{display:"grid",gridTemplateColumns:isMobile?"1fr 1fr":"repeat(4,1fr)",gap:10}}>
               {[
                 {l:"Muallak Hasar",v:dosya.muallakHasar,c:"#F59E0B",sub:"Eksper tahmini"},
-                {l:"Servis Faturası",v:muhasebe.servisFatura||"—",c:"#EF4444",sub:"Servis talebi"},
+                {l:"Servis Faturası",v:servisFaturaMetin||"—",c:"#EF4444",sub:"KDV hariç, tüm alıcılar"},
                 {l:"Sigorta Ödemesi",v:muhasebe.sigortaOdeme||"Bekleniyor",c:muhasebe.sigortaOdeme?"#10B981":"var(--text-3)",sub:"Alınan ödeme"},
-                {l:"Fark",v:muhasebe.sigortaOdeme&&muhasebe.servisFatura?`${fark>=0?"+":""}${fark.toLocaleString("tr-TR")} ₺`:"—",c:fark>=0?"#10B981":"#EF4444",sub:fark>=0?"Fazla ödeme":"Eksik"},
+                {l:"Fark",v:muhasebe.sigortaOdeme&&servisFaturaMetin?`${fark>=0?"+":""}${fark.toLocaleString("tr-TR")} ₺`:"—",c:fark>=0?"#10B981":"#EF4444",sub:fark>=0?"Fazla ödeme":"Eksik"},
               ].map(k=>(
                 <Card key={k.l} style={{border:k.l==="Fark"?`1px solid ${fark>=0?"rgba(16,185,129,0.25)":"rgba(239,68,68,0.25)"}`:undefined}}>
                   <div style={{fontSize:9,color:"var(--text-2)",fontWeight:700,marginBottom:6}}>{k.l.toUpperCase()}</div>
@@ -3776,9 +4368,8 @@ function AdminPanel({dosyaId,onCikis}){
 
             {/* Fatura & Ödeme */}
             <Card>
-              <CardHeader title="💰 Fatura & Ödeme Bilgileri" editMode={muhasebeEdit} onToggle={()=>muhasebeEdit?kaydet("muhasebe"):setMuhasebeEdit(true)} saving={saving==="muhasebe"}/>
+              <CardHeader title="💰 Sigorta Onay & Ödeme" editMode={muhasebeEdit} onToggle={()=>muhasebeEdit?kaydet("muhasebe"):setMuhasebeEdit(true)} saving={saving==="muhasebe"}/>
               {[
-                {l:"Servis Fatura No",k:"servisFaturaNo",mono:true},{l:"Servis Fatura Tarihi",k:"servisFaturaTarihi"},{l:"Servis Fatura Tutarı",k:"servisFatura"},
                 {l:"Onaylanan Tutar (Sigorta)",k:"onaylananTutar",ro:true},{l:"Sigorta Ödeme Tarihi",k:"sigortaOdemeTarihi"},{l:"Sigorta Ödeme Tutarı",k:"sigortaOdeme"},
               ].map(r=>(
                 <div key={r.k} style={{padding:"8px 0",borderBottom:"1px solid rgba(255,255,255,0.04)",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:4}}>
@@ -3806,7 +4397,7 @@ function AdminPanel({dosyaId,onCikis}){
               <ST>📊 Dosya Muhasebe Özeti</ST>
               {[
                 {l:"Muallak Hasar Tutarı",v:dosya.muallakHasar,c:"#F59E0B"},
-                {l:"Servis Fatura Tutarı",v:muhasebe.servisFatura||"Girilmedi",c:"#EF4444"},
+                {l:"Servis Faturaları (KDV hariç)",v:servisFaturaMetin||"Girilmedi",c:"#EF4444"},
                 {l:"Sigorta Onaylanan Tutar",v:muhasebe.onaylananTutar||"Bekleniyor",c:"#3B82F6"},
                 {l:"Sigorta Ödemesi",v:muhasebe.sigortaOdeme||"Bekleniyor",c:"#10B981"},
                 {l:"Müşteri Muafiyeti",v:dosya.sigortaSirketi.muafiyet,c:"#F59E0B"},
@@ -3816,7 +4407,7 @@ function AdminPanel({dosyaId,onCikis}){
                   <span style={{fontSize:13,fontWeight:700,color:r.c}}>{r.v}</span>
                 </div>
               ))}
-              {muhasebe.sigortaOdeme&&muhasebe.servisFatura&&(
+              {muhasebe.sigortaOdeme&&servisFaturaMetin&&(
                 <div style={{display:"flex",justifyContent:"space-between",alignItems:"center",padding:"11px 14px",marginTop:8,background:fark>=0?"rgba(16,185,129,0.1)":"rgba(239,68,68,0.1)",borderRadius:9,border:`1px solid ${fark>=0?"rgba(16,185,129,0.25)":"rgba(239,68,68,0.25)"}`}}>
                   <span style={{fontSize:13,fontWeight:700}}>Net Fark</span>
                   <span style={{fontSize:16,fontWeight:800,color:fark>=0?"#10B981":"#EF4444"}}>{fark>=0?"+":""}{fark.toLocaleString("tr-TR")} ₺</span>
@@ -4012,24 +4603,6 @@ function AdminPanel({dosyaId,onCikis}){
               {t.badge&&eksikEvrak.length>0&&<div style={{position:"absolute",top:5,right:"calc(50% - 14px)",background:"#EF4444",color:"#fff",borderRadius:"50%",width:12,height:12,fontSize:7,fontWeight:800,display:"flex",alignItems:"center",justifyContent:"center"}}>{eksikEvrak.length}</div>}
             </button>
           ))}
-        </div>
-      )}
-
-      {/* LIGHTBOX */}
-      {lightboxFoto&&(
-        <div onClick={()=>setLightboxFoto(null)} style={{position:"fixed",inset:0,background:"rgba(0,0,0,0.92)",zIndex:1000,display:"flex",alignItems:"center",justifyContent:"center",padding:16}}>
-          <div onClick={e=>e.stopPropagation()} style={{position:"relative",maxWidth:900,width:"100%",display:"flex",flexDirection:"column",gap:12}}>
-            <button onClick={()=>setLightboxFoto(null)} style={{position:"absolute",top:-44,right:0,background:"var(--border-md)",border:"1px solid rgba(255,255,255,0.15)",color:"#fff",borderRadius:"50%",width:34,height:34,fontSize:20,display:"flex",alignItems:"center",justifyContent:"center"}}>×</button>
-            <div style={{position:"relative",borderRadius:12,overflow:"hidden",background:"var(--bg)"}}>
-              <img src={lightboxFoto.url} alt={lightboxFoto.etiket} style={{width:"100%",maxHeight:"70vh",objectFit:"contain",display:"block"}}/>
-              {lbIdx>0&&<button onClick={()=>setLightboxFoto(filtrePhotos[lbIdx-1])} style={{position:"absolute",left:12,top:"50%",transform:"translateY(-50%)",background:"rgba(0,0,0,0.6)",border:"1px solid rgba(255,255,255,0.15)",color:"#fff",borderRadius:"50%",width:40,height:40,fontSize:22,display:"flex",alignItems:"center",justifyContent:"center"}}>‹</button>}
-              {lbIdx<filtrePhotos.length-1&&<button onClick={()=>setLightboxFoto(filtrePhotos[lbIdx+1])} style={{position:"absolute",right:12,top:"50%",transform:"translateY(-50%)",background:"rgba(0,0,0,0.6)",border:"1px solid rgba(255,255,255,0.15)",color:"#fff",borderRadius:"50%",width:40,height:40,fontSize:22,display:"flex",alignItems:"center",justifyContent:"center"}}>›</button>}
-            </div>
-            <div style={{background:"var(--surface-2)",border:"1px solid var(--border-md)",borderRadius:10,padding:"12px 16px",display:"flex",justifyContent:"space-between",alignItems:"center",flexWrap:"wrap",gap:8}}>
-              <div><div style={{fontWeight:700,fontSize:14}}>{lightboxFoto.etiket}</div><div style={{fontSize:12,color:"var(--text-2)",marginTop:2}}>{lightboxFoto.tarih} · {lightboxFoto.yukleyen} · {lightboxFoto.boyut}</div></div>
-              <a href={lightboxFoto.url} download={`${lightboxFoto.etiket}.jpg`} style={{background:"rgba(79,70,229,0.15)",border:"1px solid rgba(79,70,229,0.3)",color:"#818CF8",borderRadius:6,padding:"5px 13px",fontSize:11,fontWeight:700,textDecoration:"none"}}>⬇ İndir</a>
-            </div>
-          </div>
         </div>
       )}
 
