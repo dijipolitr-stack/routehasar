@@ -291,6 +291,46 @@ input:checked+.slider:before{transform:translateX(20px)}
   .gk-sol p,.gk-surec,.gk-liste{display:none}
   .gk-sag{align-items:flex-start;padding:22px 16px 40px}
 }
+
+/* ── Grafikler (dataviz: tek eksen, ince çubuk, silik ızgara, değerler yazı renginde) ── */
+.gr-lejant{display:flex;gap:16px;flex-wrap:wrap;margin-bottom:10px;font-size:11px;color:#556370}
+.gr-lejant i{display:inline-block;width:10px;height:10px;border-radius:3px;margin-right:6px;vertical-align:-1px}
+.gr-alan{position:relative;margin-left:34px}
+.gr-izgara div{position:absolute;left:0;right:0;border-top:1px solid #edf0f2}
+.gr-izgara span{position:absolute;left:-34px;top:-7px;width:28px;text-align:right;font-size:10px;color:#94a3b8}
+.gr-gruplar{position:absolute;inset:0;display:flex;align-items:stretch}
+.gr-grup{flex:1;display:flex;flex-direction:column;justify-content:flex-end;align-items:center;cursor:default;position:relative}
+.gr-grup:hover{background:#f4f6f8}
+.gr-cubuklar{flex:1;display:flex;align-items:flex-end;gap:2px;width:100%;justify-content:center;padding-top:6px}
+.gr-cubuk{width:min(18px,40%);border-radius:4px 4px 0 0;min-height:2px}
+.gr-etiket{position:absolute;bottom:-20px;font-size:10px;color:#7a8792;white-space:nowrap}
+.gr-ipucu{display:none;position:absolute;bottom:calc(100% - 4px);left:50%;transform:translateX(-50%);background:#15232e;color:#fff;font-size:11px;padding:6px 9px;border-radius:7px;white-space:nowrap;z-index:5;pointer-events:none}
+.gr-grup:hover .gr-ipucu{display:block}
+.gr-yatay{display:grid;grid-template-columns:minmax(110px,180px) 1fr auto;gap:8px 12px;align-items:center}
+.gr-yatay .ad{font-size:12px;color:#253440;font-weight:600;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gr-yatay .iz{height:10px;background:#f1f4f6;border-radius:5px;overflow:hidden}
+.gr-yatay .iz div{height:100%;border-radius:0 4px 4px 0;min-width:2px}
+.gr-yatay .dg{font-size:12px;color:#253440;font-variant-numeric:tabular-nums;text-align:right}
+/* ── Gantt ── */
+.gt{overflow-x:auto}
+.gt-ic{min-width:820px}
+.gt-satir{display:grid;grid-template-columns:190px 1fr;align-items:center;border-bottom:1px solid #eef1f3}
+.gt-satir.alt{background:#fafbfc}
+.gt-ad{padding:9px 10px;font-size:12px;min-width:0}
+.gt-ad b{display:block;color:#17212b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gt-ad span{display:block;font-size:10px;color:#7a8792;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gt-iz{position:relative;height:40px}
+.gt-satir.alt .gt-iz{height:28px}
+.gt-gun{position:absolute;top:0;bottom:0;border-left:1px solid #f1f4f6}
+.gt-gun.hafta{border-left-color:#e3e8ec}
+.gt-bugun{position:absolute;top:0;bottom:0;border-left:2px solid #1769e0;z-index:2}
+.gt-bar{position:absolute;top:9px;height:22px;border-radius:6px;overflow:hidden;cursor:pointer;font-size:10px;font-weight:700;color:#17212b;display:flex;align-items:center;padding:0 7px;white-space:nowrap}
+.gt-bar .dolgu{position:absolute;left:0;top:0;bottom:0;opacity:.35}
+.gt-bar em{position:relative;font-style:normal}
+.gt-satir.alt .gt-bar{top:7px;height:14px;font-size:9px;font-weight:600;border-radius:4px}
+.gt-baslik{display:grid;grid-template-columns:190px 1fr;border-bottom:1px solid #e3e8ec;font-size:10px;color:#7a8792}
+.gt-baslik .gt-iz{height:26px}
+.gt-baslik .gt-gun span{position:absolute;top:6px;left:4px;white-space:nowrap}
 </style>
 </head>
 <body>
@@ -2967,11 +3007,12 @@ function ServisPanel({servisBilgi,onCikis}){
   const SERVIS_MENU=[
     {grup:"Genel",g:"var(--ak-c-system)",ogeler:[{id:"araclar",ico:"▦",ad:"Araçlarım"}]},
     {grup:"Kabul",g:"var(--ak-c-intake)",ogeler:[{id:"kabul",ico:"↦",ad:"Araç Kabul & Teslim"}]},
-    {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"pano",ico:"⌘",ad:"Atölye Panosu"},{id:"kaporta",ico:"▧",ad:"Kaporta"},{id:"boya",ico:"◩",ad:"Boya"},{id:"mekanik",ico:"⚙",ad:"Mekanik"}]},
-    {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Depo & Parça"}]},
+    {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"pano",ico:"⌘",ad:"Atölye Panosu"},{id:"kaporta",ico:"▧",ad:"Kaporta"},{id:"boya",ico:"◩",ad:"Boya"},{id:"mekanik",ico:"⚙",ad:"Mekanik"},{id:"gantt",ico:"≋",ad:"Gantt Planlama"},{id:"operasyon",ico:"✦",ad:"Gecikmeler"}]},
+    {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Depo & Parça"},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Karnesi"}]},
+    {grup:"Finans",g:"var(--ak-c-finance)",ogeler:[{id:"finans",ico:"₺",ad:"Faturalar"}]},
     {grup:"Müşteri & Dosya",g:"var(--ak-c-portal)",ogeler:[{id:"medya",ico:"▥",ad:"Fotoğraf & Evrak"},{id:"portal",ico:"◉",ad:"Müşteri Takibi"}]},
   ];
-  const sayfaBaslik={kabul:["Araç Kabul & Teslim","Kabul ve teslim tutanakları"],kaporta:["Kaporta","Kaporta bölümü görevleri"],boya:["Boya","Boya bölümü görevleri"],mekanik:["Mekanik","Mekanik bölümü görevleri"],medya:["Fotoğraf & Evrak","Evrak tamamlanma durumu"],portal:["Müşteri Takibi","Müşteri takip linkleri"],araclar:["Araçlarım","Servise atanan araçlar, canlı veri"],pano:["Atölye Panosu","Hangi araç hangi bölümde"],stok:["Depo & Parça","Stok, parça siparişleri ve tedarikçiler"]}[tab]||["Araçlarım",""];
+  const sayfaBaslik={gantt:["Gantt Planlama","Araçların servis takvimi"],operasyon:["Gecikmeler","Darboğazlar ve gecikme nedenleri"],tedarikci:["Tedarikçi Karnesi","Teslim süresi ve zamanında gelme oranı"],finans:["Faturalar","Kesilen faturalar ve tahsilat"],kabul:["Araç Kabul & Teslim","Kabul ve teslim tutanakları"],kaporta:["Kaporta","Kaporta bölümü görevleri"],boya:["Boya","Boya bölümü görevleri"],mekanik:["Mekanik","Mekanik bölümü görevleri"],medya:["Fotoğraf & Evrak","Evrak tamamlanma durumu"],portal:["Müşteri Takibi","Müşteri takip linkleri"],araclar:["Araçlarım","Servise atanan araçlar, canlı veri"],pano:["Atölye Panosu","Hangi araç hangi bölümde"],stok:["Depo & Parça","Stok, parça siparişleri ve tedarikçiler"]}[tab]||["Araçlarım",""];
   const git=(id)=>{setTab(id);window.scrollTo(0,0);};
   const d=detay;
 
@@ -3084,6 +3125,10 @@ function ServisPanel({servisBilgi,onCikis}){
         {["kaporta","boya","mekanik"].includes(tab)&&<BolumSayfasi key={tab} bolum={tab} onDosyaSec={dosyaSec}/>}
         {tab==="medya"&&<MedyaSayfasi onDosyaSec={dosyaSec}/>}
         {tab==="portal"&&<PortalSayfasi onDosyaSec={dosyaSec}/>}
+        {tab==="gantt"&&<GanttSayfasi onDosyaSec={dosyaSec}/>}
+        {tab==="operasyon"&&<OperasyonSayfasi onDosyaSec={dosyaSec}/>}
+        {tab==="tedarikci"&&<TedarikciSayfasi/>}
+        {tab==="finans"&&<FinansSayfasi onDosyaSec={dosyaSec}/>}
         {tab==="fotolar"&&(!seciliId
           ?<div style={{textAlign:"center",padding:"40px 20px",color:"var(--text-2)",fontSize:13}}>Önce Araçlar sekmesinden bir araç seçin.</div>
           :<FotoGaleri dosyaId={seciliId} rol="servis"/>)}
@@ -3672,6 +3717,331 @@ function StokSayfasiAdmin(){
   );
 }
 
+// ─── PANEL MODÜLLERİ (Paket 2): finans, plan, satın alma, tedarikçi, operasyon, BI ──
+// Grafik renkleri: tek seri mavi; iki seri mavi + turuncu (validate_palette ile doğrulandı).
+// Durum renkleri (Gantt) her zaman etiket/lejantla birlikte.
+const GR_MAVI="#2a78d6", GR_TURUNCU="#eb6834";
+const DURUM_RENK={iyi:"#0ca30c",uyari:"#fab219",kritik:"#d03b3b"};
+// Eksen üst sınırı: yarısı da tam sayı olan yuvarlak değer (4, 10, 20, 40, 100...)
+const yuvarlakMaks=(m)=>{if(m<=4)return 4;const us=Math.pow(10,Math.floor(Math.log10(m)));return [1,2,4,5,10].map(k=>k*us).find(v=>v>=m&&(v/2)%1===0)||10*us;};
+const AYLAR=["Oca","Şub","Mar","Nis","May","Haz","Tem","Ağu","Eyl","Eki","Kas","Ara"];
+const ayEtiket=(ym)=>{const [y,a]=ym.split("-");return `${AYLAR[Number(a)-1]} ${y.slice(2)}`;};
+
+// Dikey çubuk grafiği: tek eksen, aynı birim; ipucu tüm grubu kapsar (geniş hedef)
+function CubukGrafik({etiketler,seriler,yukseklik=170,birim=""}){
+  const maks=yuvarlakMaks(Math.max(1,...seriler.flatMap(s=>s.degerler)));
+  return(
+    <div>
+      {seriler.length>1&&<div className="gr-lejant">{seriler.map(s=><span key={s.ad}><i style={{background:s.renk}}/>{s.ad}</span>)}</div>}
+      <div className="gr-alan" style={{height:yukseklik,marginBottom:26}}>
+        <div className="gr-izgara">{[1,0.5,0].map(o=><div key={o} style={{bottom:`${o*100}%`}}><span>{Math.round(maks*o)}</span></div>)}</div>
+        <div className="gr-gruplar">
+          {etiketler.map((e,i)=>(
+            <div key={e} className="gr-grup">
+              <div className="gr-ipucu">{e}{seriler.map(s=><div key={s.ad}>{s.ad}: <b>{s.degerler[i]}{birim}</b></div>)}</div>
+              <div className="gr-cubuklar">{seriler.map(s=><div key={s.ad} className="gr-cubuk" style={{height:`${s.degerler[i]/maks*100}%`,background:s.renk}}/>)}</div>
+              <div className="gr-etiket">{e}</div>
+            </div>
+          ))}
+        </div>
+      </div>
+    </div>
+  );
+}
+// Yatay çubuk listesi: ad, çubuk, değer (değer yazı renginde)
+function YatayCubuklar({satirlar,renk=GR_MAVI,bicim=(v)=>v}){
+  const maks=Math.max(1e-9,...satirlar.map(x=>x.deger));
+  return <div className="gr-yatay">{satirlar.map(x=>(
+    <React.Fragment key={x.ad}><span className="ad" title={x.ad}>{x.ad}</span><div className="iz" title={`${x.ad}: ${bicim(x.deger)}`}><div style={{width:`${x.deger/maks*100}%`,background:x.renk||renk}}/></div><span className="dg">{bicim(x.deger)}</span></React.Fragment>
+  ))}</div>;
+}
+
+// Muhasebe / Finans
+const ALICI_AD={sigorta:"Sigorta",musteri:"Müşteri",acente:"Acente",diger:"Diğer"};
+function FinansSayfasi({onDosyaSec}){
+  const [veri,hata,yukle]=useApiVeri("/moduller/finans");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const fs=veri.faturalar, dis=veri.dis_faturalar;
+  const top=(l,k)=>l.reduce((s,x)=>s+Number(x[k]||0),0);
+  const acik=fs.filter(x=>Number(x.kalan)>0.005);
+  const kova=[["0–30 gün",0,30],["31–60 gün",31,60],["61–90 gün",61,90],["90+ gün",91,1e9]].map(([ad,a,b])=>({ad,deger:acik.filter(x=>x.yas_gun>=a&&x.yas_gun<=b).reduce((s,x)=>s+Number(x.kalan),0)}));
+  const alici=Object.keys(ALICI_AD).map(k=>{const l=fs.filter(x=>x.alici_tipi===k);return {k,ad:ALICI_AD[k],fatura:top(l,"toplam"),odenen:top(l,"odenen_tutar"),kalan:top(l,"kalan"),adet:l.length};}).filter(x=>x.adet);
+  const durum=(x)=>Number(x.kalan)<=0.005?<span className="ak-cip ak-ok">Ödendi</span>:Number(x.odenen_tutar)>0?<span className="ak-cip ak-uyari">Kısmi</span>:<span className="ak-cip ak-gri">Bekliyor</span>;
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Faturalanan",v:tlBicim(top(fs,"toplam"))||"0 ₺",s:`${fs.length} servis faturası, KDV dahil`,k:"var(--ak-c-intake)"},
+        {l:"Tahsil edilen",v:tlBicim(top(fs,"odenen_tutar"))||"0 ₺",s:`${fs.filter(x=>Number(x.kalan)<=0.005).length} fatura kapandı`,k:"var(--ak-c-portal)"},
+        {l:"Açık alacak",v:tlBicim(top(acik,"kalan"))||"0 ₺",s:`${acik.length} faturada`,k:acik.length?"var(--ak-c-supply)":"var(--ak-c-portal)"},
+        {l:"Dış hizmet gideri",v:tlBicim(top(dis,"toplam"))||"0 ₺",s:`${dis.filter(x=>!x.yansitildi).length} fatura servis faturasına yansımadı`,k:"var(--ak-c-finance)"}]}/>
+      <div className="ak-iki">
+        <section className="ak-kart" style={{overflowX:"auto"}}>
+          <div className="ak-baslik"><h3>Alıcıya göre</h3><span>KDV dahil</span></div>
+          {alici.length===0?<div className="ak-bos">Henüz servis faturası yok.</div>:(
+            <table className="ak-tablo"><thead><tr><th>Alıcı</th><th>Fatura</th><th>Faturalanan</th><th className="gizle">Ödenen</th><th>Kalan</th></tr></thead>
+              <tbody>{alici.map(x=><tr key={x.k}><td className="no">{x.ad}</td><td>{x.adet}</td><td>{tlBicim(x.fatura)}</td><td className="gizle">{tlBicim(x.odenen)||"0 ₺"}</td><td style={{fontWeight:600}}>{tlBicim(x.kalan)||"0 ₺"}</td></tr>)}</tbody></table>
+          )}
+        </section>
+        <section className="ak-kart">
+          <div className="ak-baslik"><h3>Açık alacak yaşı</h3><span>Fatura tarihinden bugüne</span></div>
+          <YatayCubuklar satirlar={kova} bicim={(v)=>tlBicim(v)||"0 ₺"}/>
+        </section>
+      </div>
+      <section className="ak-kart" style={{marginTop:14,overflowX:"auto"}}>
+        <div className="ak-baslik"><h3>Servis faturaları</h3><span>{fs.length}</span></div>
+        {fs.length===0?<div className="ak-bos">Fatura yok.</div>:(
+          <table className="ak-tablo"><thead><tr><th>Dosya</th><th>Alıcı</th><th className="gizle">Fatura</th><th>Toplam</th><th className="gizle">Ödenen</th><th>Durum</th></tr></thead>
+            <tbody>{fs.map(x=><tr key={x.id} className="satir" onClick={()=>onDosyaSec(x.dosya_id)}>
+              <td><span className="no">{x.plaka||x.dosya_no}</span><span className="alt">{x.dosya_no}</span></td>
+              <td>{x.alici_ad}<span className="alt">{ALICI_AD[x.alici_tipi]}</span></td>
+              <td className="gizle">{x.fatura_no||"No yok"}<span className="alt">{trTarih(x.fatura_trh)||"Tarih yok"}</span></td>
+              <td style={{fontWeight:600}}>{tlBicim(x.toplam)}</td>
+              <td className="gizle">{tlBicim(x.odenen_tutar)||"0 ₺"}<span className="alt">{x.odeme_trh?trTarih(x.odeme_trh):""}</span></td>
+              <td>{durum(x)}{Number(x.kalan)>0.005&&<span className="alt">{tlBicim(x.kalan)} · {x.yas_gun} gün</span>}</td>
+            </tr>)}</tbody></table>
+        )}
+      </section>
+      <section className="ak-kart" style={{marginTop:14,overflowX:"auto"}}>
+        <div className="ak-baslik"><h3>Dış hizmet faturaları</h3><span>{dis.length}</span></div>
+        {dis.length===0?<div className="ak-bos">Dış hizmet faturası yok.</div>:(
+          <table className="ak-tablo"><thead><tr><th>Dosya</th><th>Firma / hizmet</th><th className="gizle">Fatura</th><th>Toplam</th><th>Yansıtma</th></tr></thead>
+            <tbody>{dis.map(x=><tr key={x.id} className="satir" onClick={()=>onDosyaSec(x.dosya_id)}>
+              <td><span className="no">{x.plaka||x.dosya_no}</span><span className="alt">{x.dosya_no}</span></td>
+              <td>{x.firma}<span className="alt">{x.hizmet}</span></td>
+              <td className="gizle">{x.fatura_no||"—"}<span className="alt">{trTarih(x.fatura_trh)}</span></td>
+              <td style={{fontWeight:600}}>{tlBicim(x.toplam)}</td>
+              <td>{x.yansitildi?<span className="ak-cip ak-ok">Yansıtıldı</span>:<span className="ak-cip ak-uyari">Yansıtılmadı</span>}</td>
+            </tr>)}</tbody></table>
+        )}
+      </section>
+    </>
+  );
+}
+
+// Gantt Planlama: dosya çubuğu (servise giriş → tahmini teslim) ve altında bölüm görevleri
+const BOLUM_AD={sokum:"Söküm",kaporta:"Kaporta",boya:"Boya",mekanik:"Mekanik",elektrik:"Elektrik",montaj:"Montaj",dis_hizmet:"Dış hizmet"};
+function GanttSayfasi({onDosyaSec}){
+  const [veri,hata,yukle]=useApiVeri("/moduller/plan");
+  const [gorevler,setGorevler]=useState(true);
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const gun0=new Date();gun0.setHours(0,0,0,0);
+  const bas=new Date(gun0.getTime()-14*864e5), GUN=42, bit=new Date(bas.getTime()+GUN*864e5);
+  const yuzde=(t)=>Math.max(0,Math.min(100,(t-bas)/(bit-bas)*100));
+  const tarih=(v)=>v?new Date(String(v).length<=10?`${v}T00:00:00`:v):null;
+  const gunler=Array.from({length:GUN},(_,i)=>new Date(bas.getTime()+i*864e5));
+  const ds=veri.dosyalar;
+  const durumu=(x)=>{const g=gunFarki(x.tahmini_teslimat);return g===null?"plan":g<0?"kritik":g<=2?"uyari":"iyi";};
+  const sayi={iyi:ds.filter(x=>durumu(x)==="iyi").length,uyari:ds.filter(x=>durumu(x)==="uyari").length,kritik:ds.filter(x=>durumu(x)==="kritik").length};
+  const izgara=(<>{gunler.map((g,i)=><div key={i} className={`gt-gun${g.getDay()===1?" hafta":""}`} style={{left:`${i/GUN*100}%`}}/>)}<div className="gt-bugun" style={{left:`${yuzde(gun0.getTime()+12*36e5)}%`}} title="Bugün"/></>);
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Planlanan araç",v:ds.length,s:"Aktif dosya",k:"var(--ak-c-intake)"},
+        {l:"Zamanında",v:sayi.iyi,s:"Teslime 3 günden fazla var",k:DURUM_RENK.iyi},
+        {l:"Riskli",v:sayi.uyari,s:"Teslime 2 gün veya daha az",k:DURUM_RENK.uyari},
+        {l:"Gecikmiş",v:sayi.kritik,s:"Tahmini teslim geçti",k:DURUM_RENK.kritik}]}/>
+      <section className="ak-kart">
+        <div className="ak-baslik">
+          <h3>Atölye planı · {gunler[0].toLocaleDateString("tr-TR",{day:"numeric",month:"short"})} – {gunler[GUN-1].toLocaleDateString("tr-TR",{day:"numeric",month:"short"})}</h3>
+          <div className="ak-filtre"><button className={gorevler?"sec":""} onClick={()=>setGorevler(v=>!v)}>Bölüm görevleri</button></div>
+        </div>
+        <div className="gr-lejant">
+          <span><i style={{background:DURUM_RENK.iyi}}/>✓ Zamanında</span><span><i style={{background:DURUM_RENK.uyari}}/>! Riskli</span><span><i style={{background:DURUM_RENK.kritik}}/>✕ Gecikmiş</span><span><i style={{background:"#cbd5e1"}}/>Teslim tarihi yok</span>
+          <span><i style={{background:"#1769e0",width:3}}/>Bugün</span><span>Koyu kısım: tamamlanan adım oranı</span>
+        </div>
+        {ds.length===0?<div className="ak-bos">Aktif dosya yok.</div>:(
+          <div className="gt"><div className="gt-ic">
+            <div className="gt-baslik"><div className="gt-ad">Araç</div><div className="gt-iz">{gunler.map((g,i)=>(g.getDay()===1||i===0)&&<div key={i} className="gt-gun hafta" style={{left:`${i/GUN*100}%`}}><span>{g.toLocaleDateString("tr-TR",{day:"numeric",month:"short"})}</span></div>)}</div></div>
+            {ds.map(x=>{
+              const d=durumu(x);const renk=d==="plan"?"#cbd5e1":DURUM_RENK[d];
+              const t0=(tarih(x.arac_giris_trh)||tarih(x.created_at)).getTime();
+              const tSon=tarih(x.tahmini_teslimat);const t1=Math.max(tSon?tSon.getTime()+864e5:gun0.getTime()+3*864e5,d==="kritik"?gun0.getTime()+864e5:0);
+              const sol=yuzde(t0),gen=Math.max(1.5,yuzde(t1)-sol);
+              const ipucu=`${x.dosya_no} · ${x.plaka}\nServise giriş: ${trTarih(x.arac_giris_trh)||"—"}\nTahmini teslim: ${trTarih(x.tahmini_teslimat)||"yok"}\nAşama: ${x.aktif_adim||"—"} · %${x.ilerleme||0}`;
+              return(
+                <React.Fragment key={x.dosya_id}>
+                  <div className="gt-satir">
+                    <div className="gt-ad"><b>{x.plaka||x.dosya_no}</b><span>{x.dosya_no} · {aracAd(x)}</span></div>
+                    <div className="gt-iz">{izgara}
+                      <div className="gt-bar" title={ipucu} onClick={()=>onDosyaSec(x.dosya_id)} style={{left:`${sol}%`,width:`${gen}%`,background:`color-mix(in srgb,${renk} 22%,white)`,border:`1px solid ${renk}`}}>
+                        <div className="dolgu" style={{width:`${x.ilerleme||0}%`,background:renk}}/>
+                        <em>{d==="kritik"?"✕ ":d==="uyari"?"! ":""}{x.aktif_adim||"Hazır"} · %{x.ilerleme||0}</em>
+                      </div>
+                    </div>
+                  </div>
+                  {gorevler&&x.gorevler.map(g=>{
+                    const g0=tarih(g.baslama_trh||g.created_at).getTime(),g1=g.bitis_trh?tarih(g.bitis_trh).getTime():gun0.getTime()+864e5;
+                    const s=yuzde(g0),w=Math.max(5,yuzde(g1)-s);const bitti=g.durum==="tamam";
+                    return(
+                      <div key={g.id} className="gt-satir alt">
+                        <div className="gt-ad" style={{paddingLeft:22}}><span>↳ {BOLUM_AD[g.bolum]||g.bolum} · {g.sorumlu_usta||"usta yok"}</span></div>
+                        <div className="gt-iz">{izgara}
+                          <div className="gt-bar" title={`${BOLUM_AD[g.bolum]} · ${g.aciklama||""}\n${g.durum==="tamam"?"Bitti":g.durum==="beklemede"?"Beklemede":g.durum==="devam"?"Devam ediyor":"Sırada"}`} onClick={()=>onDosyaSec(x.dosya_id)}
+                            style={{left:`${s}%`,width:`${w}%`,background:bitti?"#e2e8f0":"color-mix(in srgb,#8b5cf6 25%,white)",border:`1px solid ${bitti?"#cbd5e1":"#8b5cf6"}`,color:"#3b2a6d"}}>
+                            <em>{BOLUM_AD[g.bolum]}{bitti?" ✓":g.durum==="beklemede"?" ⏸":""}</em>
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+                </React.Fragment>
+              );
+            })}
+          </div></div>
+        )}
+      </section>
+    </>
+  );
+}
+
+// Satın Alma: tüm servislerin parça siparişleri
+const SIP_DURUM={siparis:["Sipariş verildi","ak-gri"],yolda:["Yolda","ak-bilgi"],kismi:["Kısmen geldi","ak-uyari"],geldi:["Geldi","ak-ok"],iptal:["İptal","ak-gri"]};
+function SatinAlmaSayfasi({onDosyaSec}){
+  const [veri,hata,yukle]=useApiVeri("/moduller/siparisler");
+  const [filtre,setFiltre]=useState("acik");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const ss=veri.siparisler;
+  const acik=ss.filter(x=>["siparis","yolda","kismi"].includes(x.durum));
+  const buAy=ss.filter(x=>String(x.siparis_trh).slice(0,7)===new Date().toISOString().slice(0,7)&&x.durum!=="iptal");
+  const liste=filtre==="acik"?acik:filtre==="geciken"?ss.filter(x=>x.geciken):ss;
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Açık sipariş",v:acik.length,s:tlBicim(acik.reduce((s,x)=>s+Number(x.toplam),0))||"0 ₺",k:"var(--ak-c-supply)"},
+        {l:"Geciken",v:ss.filter(x=>x.geciken).length,s:"Tahmini geliş tarihi geçti",k:ss.some(x=>x.geciken)?"#ef4444":"var(--ak-c-portal)"},
+        {l:"Bu ay sipariş",v:buAy.length,s:tlBicim(buAy.reduce((s,x)=>s+Number(x.toplam),0))||"0 ₺",k:"var(--ak-c-intake)"},
+        {l:"Teslim alınan",v:ss.filter(x=>x.durum==="geldi").length,s:`${ss.length} siparişin`,k:"var(--ak-c-portal)"}]}/>
+      <section className="ak-kart" style={{overflowX:"auto"}}>
+        <div className="ak-baslik"><h3>Parça siparişleri</h3>
+          <div className="ak-filtre">{[["acik","Açık"],["geciken","Geciken"],["tumu","Tümü"]].map(([k,l])=><button key={k} className={filtre===k?"sec":""} onClick={()=>setFiltre(k)}>{l}</button>)}</div></div>
+        {liste.length===0?<div className="ak-bos">Bu filtrede sipariş yok.</div>:(
+          <table className="ak-tablo"><thead><tr><th>Sipariş</th><th className="gizle">Servis</th><th>Tedarikçi</th><th className="gizle">Parçalar</th><th className="gizle">Araç</th><th>Geliş</th><th>Durum</th><th className="gizle">Tutar</th></tr></thead>
+            <tbody>{liste.map(x=><tr key={x.id} className={x.dosya_id?"satir":""} onClick={()=>x.dosya_id&&onDosyaSec(x.dosya_id)}>
+              <td><span className="no">{x.siparis_no||"No yok"}</span><span className="alt">{trTarih(x.siparis_trh)}</span></td>
+              <td className="gizle">{x.servis_ad}</td>
+              <td>{x.tedarikci_ad||"—"}</td>
+              <td className="gizle" style={{maxWidth:260}}>{x.parcalar||"—"}<span className="alt">{x.kalem_sayisi} kalem</span></td>
+              <td className="gizle">{x.plaka||"Depo"}<span className="alt">{x.dosya_no||""}</span></td>
+              <td>{x.gelis_trh?trTarih(x.gelis_trh):x.tahmini_gelis?<span className={`ak-cip ${x.geciken?"ak-tehlike":"ak-gri"}`}>{trTarih(x.tahmini_gelis)}</span>:"—"}</td>
+              <td><span className={`ak-cip ${SIP_DURUM[x.durum]?.[1]||"ak-gri"}`}>{SIP_DURUM[x.durum]?.[0]||x.durum}</span></td>
+              <td className="gizle" style={{fontWeight:600}}>{tlBicim(x.toplam)||"—"}</td>
+            </tr>)}</tbody></table>
+        )}
+      </section>
+    </>
+  );
+}
+
+// Tedarikçi Zekâsı: teslim süresi ve zamanında gelme oranı
+function TedarikciSayfasi(){
+  const [veri,hata,yukle]=useApiVeri("/moduller/tedarikciler");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const ts=veri.tedarikciler;
+  const zamanindaOran=(x)=>x.gelen?Math.round((x.gelen-x.gec_gelen)/x.gelen*100):null;
+  const sureli=ts.filter(x=>x.ort_teslim_gun!==null);
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Tedarikçi",v:ts.length,s:`${ts.filter(x=>x.siparis_sayisi>0).length} tanesinden sipariş var`,k:"var(--ak-c-supply)"},
+        {l:"Toplam sipariş",v:ts.reduce((s,x)=>s+x.siparis_sayisi,0),s:tlBicim(ts.reduce((s,x)=>s+Number(x.toplam_tutar),0))||"0 ₺",k:"var(--ak-c-intake)"},
+        {l:"Geciken açık sipariş",v:ts.reduce((s,x)=>s+x.geciken_acik,0),s:"Tahmini geliş geçti",k:"#ef4444"},
+        {l:"Ortalama teslim",v:sureli.length?`${(sureli.reduce((s,x)=>s+Number(x.ort_teslim_gun),0)/sureli.length).toFixed(1)} gün`:"—",s:"Siparişten gelişe",k:"var(--ak-c-portal)"}]}/>
+      {sureli.length>0&&(
+        <section className="ak-kart" style={{marginBottom:14}}>
+          <div className="ak-baslik"><h3>Ortalama teslim süresi</h3><span>Gün, siparişten gelişe</span></div>
+          <YatayCubuklar satirlar={sureli.map(x=>({ad:x.ad,deger:Number(x.ort_teslim_gun)}))} bicim={(v)=>`${v.toFixed(1)} gün`}/>
+        </section>
+      )}
+      <section className="ak-kart" style={{overflowX:"auto"}}>
+        <div className="ak-baslik"><h3>Tedarikçi karnesi</h3><span>İptal edilen siparişler hariç</span></div>
+        {ts.length===0?<div className="ak-bos">Tedarikçi kaydı yok. Servisler Depo & Parça ekranından ekler.</div>:(
+          <table className="ak-tablo"><thead><tr><th>Tedarikçi</th><th className="gizle">Servis</th><th>Sipariş</th><th>Açık</th><th className="gizle">Ort. teslim</th><th>Zamanında</th><th className="gizle">Tutar</th></tr></thead>
+            <tbody>{ts.map(x=>{const o=zamanindaOran(x);return(
+              <tr key={x.id}>
+                <td><span className="no">{x.ad}</span><span className="alt">{x.telefon||""}{!x.aktif?" · pasif":""}</span></td>
+                <td className="gizle">{x.servis_ad}</td>
+                <td>{x.siparis_sayisi}</td>
+                <td>{x.acik_siparis}{x.geciken_acik>0&&<span className="ak-cip ak-tehlike" style={{marginLeft:6}}>{x.geciken_acik} gecikti</span>}</td>
+                <td className="gizle">{x.ort_teslim_gun!==null?`${x.ort_teslim_gun} gün`:"—"}</td>
+                <td>{o===null?<span className="alt">Henüz gelen yok</span>:<span className={`ak-cip ${o>=90?"ak-ok":o>=70?"ak-uyari":"ak-tehlike"}`}>%{o}</span>}</td>
+                <td className="gizle">{tlBicim(x.toplam_tutar)||"—"}</td>
+              </tr>);})}</tbody></table>
+        )}
+      </section>
+    </>
+  );
+}
+
+// Operasyon Zekâsı: "neden gecikti?"
+function OperasyonSayfasi({onDosyaSec}){
+  const [veri,hata,yukle]=useApiVeri("/moduller/operasyon");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const {adim_sureleri:as,bekleyen_onaylar:bo,beklemedeki_gorevler:bg,geciken_siparisler:gs,geciken_teslimler:gt}=veri;
+  const enUzun=as.length?as.reduce((m,x)=>Number(x.ort_gun)>Number(m.ort_gun)?x:m):null;
+  const liste=(baslik,ogeler,bos,renk,satir)=>(
+    <section className="ak-kart" style={{alignSelf:"start"}}>
+      <div className="ak-baslik"><h3>{baslik}</h3><span>{ogeler.length}</span></div>
+      {ogeler.length===0?<div className="ak-bos">{bos}</div>:ogeler.map((x,i)=><button key={x.id||x.dosya_id||i} className="ak-ajanda" style={{"--g":renk}} onClick={()=>x.dosya_id&&onDosyaSec(x.dosya_id)}>{satir(x)}</button>)}
+    </section>
+  );
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Geciken teslim",v:gt.length,s:gt.length?`En fazla ${Math.max(...gt.map(x=>x.gecikme_gun))} gün`:"Yok",k:"#ef4444"},
+        {l:"Bekleyen onay",v:bo.length,s:bo.length?`En eski ${Math.max(...bo.map(x=>x.gun))} gündür`:"Yok",k:"var(--ak-c-supply)"},
+        {l:"Beklemedeki görev",v:bg.length,s:"Parça veya karar bekliyor",k:"var(--ak-c-repair)"},
+        {l:"Geciken parça",v:gs.length,s:"Tahmini geliş geçti",k:"var(--ak-c-finance)"}]}/>
+      <section className="ak-kart" style={{marginBottom:14}}>
+        <div className="ak-baslik"><h3>Adımların ortalama süresi</h3><span>{enUzun?`En uzun: ${enUzun.ad} (${enUzun.ort_gun} gün)`:"Tamamlanan adım yok"}</span></div>
+        {as.length===0?<div className="ak-bos">Süre hesaplamak için tamamlanmış adım gerekiyor.</div>:
+          <YatayCubuklar satirlar={as.map(x=>({ad:x.ad,deger:Number(x.ort_gun),renk:enUzun&&x.ad===enUzun.ad?GR_TURUNCU:GR_MAVI}))} bicim={(v)=>`${v.toFixed(1)} gün`}/>}
+        <div style={{fontSize:11,color:"#7a8792",marginTop:10}}>Bir adımın süresi, önceki adımın tamamlanmasından o adımın tamamlanmasına kadar geçen zamandır. Turuncu çubuk en uzun süren adımı gösterir.</div>
+      </section>
+      <div className="ak-iki" style={{gridTemplateColumns:"1fr 1fr"}}>
+        {liste("Geciken teslimler",gt,"Tahmini teslimi geçen araç yok.","#ef4444",x=><><b>{x.plaka} · {x.gecikme_gun} gün gecikti</b><span>{x.dosya_no} · {x.aktif_adim||"—"} · {x.servis_ad||"servis yok"}</span></>)}
+        {liste("Bekleyen onaylar",bo,"Onay bekleyen iş emri yok.","#f59e0b",x=><><b>{x.plaka} · {x.gun} gündür bekliyor</b><span>{x.dosya_no} · {x.tur==="ek_hasar"?"Ek hasar":"Ana iş emri"} · {x.servis_ad||"—"}</span></>)}
+        {liste("Beklemedeki görevler",bg,"Beklemede görev yok.","#8b5cf6",x=><><b>{x.plaka} · {BOLUM_AD[x.bolum]||x.bolum}</b><span>{x.bekleme_nedeni||"Neden yazılmadı"} · {x.gun} gündür</span></>)}
+        {liste("Geciken parça siparişleri",gs,"Geciken sipariş yok.","#ec4899",x=><><b>{x.tedarikci_ad||"Tedarikçi yok"} · {trTarih(x.tahmini_gelis)}</b><span>{x.parcalar||"—"} · {x.plaka||"Depo"} · {x.servis_ad}</span></>)}
+      </div>
+    </>
+  );
+}
+
+// Yönetim BI
+function BiSayfasi(){
+  const [veri,hata,yukle]=useApiVeri("/moduller/bi");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const {genel:g,aylik,sigorta,servis}=veri;
+  const oran=Number(g.teklif)?Math.round(Number(g.onaylanan)/Number(g.teklif)*100):null;
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Toplam dosya",v:g.dosya,s:`${g.aktif} aktif · ${g.teslim} teslim edildi`,k:"var(--ak-c-intake)"},
+        {l:"Ortalama onarım süresi",v:g.ort_sure_gun!==null?`${g.ort_sure_gun} gün`:"—",s:"Kabulden teslim tutanağına",k:"var(--ak-c-repair)"},
+        {l:"Ortalama onay süresi",v:g.ort_onay_gun===null?"—":Number(g.ort_onay_gun)<0.1?"Aynı gün":`${g.ort_onay_gun} gün`,s:"İş emri gönderiminden karara",k:"var(--ak-c-supply)"},
+        {l:"Onay oranı",v:oran===null?"—":`%${oran}`,s:`${tlBicim(g.onaylanan)||"0 ₺"} / ${tlBicim(g.teklif)||"0 ₺"}`,k:"var(--ak-c-portal)"}]}/>
+      <section className="ak-kart" style={{marginBottom:14}}>
+        <div className="ak-baslik"><h3>Aylık dosya hareketi</h3><span>Son 12 ay</span></div>
+        <CubukGrafik etiketler={aylik.map(x=>ayEtiket(x.ay))} seriler={[{ad:"Açılan dosya",renk:GR_MAVI,degerler:aylik.map(x=>x.acilan)},{ad:"Teslim edilen",renk:GR_TURUNCU,degerler:aylik.map(x=>x.teslim)}]}/>
+      </section>
+      <div className="ak-iki" style={{gridTemplateColumns:"1fr 1fr"}}>
+        <section className="ak-kart" style={{overflowX:"auto"}}>
+          <div className="ak-baslik"><h3>Sigorta şirketine göre onaylanan</h3><span>KDV hariç</span></div>
+          <YatayCubuklar satirlar={sigorta.map(x=>({ad:x.ad,deger:Number(x.onaylanan)}))} bicim={(v)=>tlBicim(v)||"0 ₺"}/>
+          <table className="ak-tablo" style={{marginTop:14}}><thead><tr><th>Şirket</th><th>Dosya</th><th className="gizle">Muallak</th><th>Teklif</th><th className="gizle">Ort. süre</th></tr></thead>
+            <tbody>{sigorta.map(x=><tr key={x.ad}><td className="no">{x.ad}</td><td>{x.dosya}</td><td className="gizle">{tlBicim(x.muallak)||"—"}</td><td>{tlBicim(x.teklif)||"—"}</td><td className="gizle">{x.ort_sure_gun!==null?`${x.ort_sure_gun} gün`:"—"}</td></tr>)}</tbody></table>
+        </section>
+        <section className="ak-kart" style={{overflowX:"auto"}}>
+          <div className="ak-baslik"><h3>Servislere göre</h3><span>Aktif ve tamamlanan dosya</span></div>
+          <YatayCubuklar satirlar={servis.map(x=>({ad:x.ad,deger:x.aktif+x.tamamlanan}))} bicim={(v)=>`${v} dosya`}/>
+          <table className="ak-tablo" style={{marginTop:14}}><thead><tr><th>Servis</th><th>Aktif</th><th>Tamamlanan</th><th className="gizle">Onaylanan</th><th className="gizle">Ort. süre</th></tr></thead>
+            <tbody>{servis.map(x=><tr key={x.ad}><td className="no">{x.ad}</td><td>{x.aktif}</td><td>{x.tamamlanan}</td><td className="gizle">{tlBicim(x.onaylanan)||"—"}</td><td className="gizle">{x.ort_sure_gun!==null?`${x.ort_sure_gun} gün`:"—"}</td></tr>)}</tbody></table>
+        </section>
+      </div>
+    </>
+  );
+}
+
 // ─── ADMIN KABUĞU: yan menü + üst bar + sayfalar ─────────────────────────
 // Görsel dil "Hasar Merkezi V30" maketinden alındı; içerik canlı API'den gelir.
 // Arka ucu olmayan modüller menüde "yakında" ile durur, sahte veri göstermez.
@@ -3688,10 +4058,10 @@ const AK_SUREC=[
 const AK_MENU=[
   {grup:"Genel",g:"var(--ak-c-system)",ogeler:[{id:"kokpit",ico:"▦",ad:"Kokpit"}]},
   {grup:"Kabul & Ekspertiz",g:"var(--ak-c-intake)",ogeler:[{id:"kabul",ico:"↦",ad:"Araç Kabul & Teslim"},{id:"dosyalar",ico:"▤",ad:"Hasar Dosyaları"},{id:"ekspertiz",ico:"⌕",ad:"Ekspertiz & Sigorta"},{id:"onaylar",ico:"✓",ad:"Bekleyen Onaylar",rozet:"onay"}]},
-  {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"atolye",ico:"⌘",ad:"Atölye / Kanban"},{id:"kaporta",ico:"▧",ad:"Kaporta Operasyonu"},{id:"boya",ico:"◩",ad:"Boya Operasyonu"},{id:"mekanik",ico:"⚙",ad:"Mekanik Onarım"},{id:"y-gantt",ico:"≋",ad:"Gantt Planlama",yakinda:true},{id:"y-dvi",ico:"◈",ad:"DVI / Hasar Haritası",yakinda:true}]},
-  {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Yedek Parça & Stok"},{id:"y-satinalma",ico:"⇄",ad:"Satın Alma",yakinda:true},{id:"y-protokol",ico:"▣",ad:"Sigorta Protokolleri",yakinda:true},{id:"y-tedarikci",ico:"◎",ad:"Tedarikçi Zekâsı",yakinda:true}]},
+  {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"atolye",ico:"⌘",ad:"Atölye / Kanban"},{id:"kaporta",ico:"▧",ad:"Kaporta Operasyonu"},{id:"boya",ico:"◩",ad:"Boya Operasyonu"},{id:"mekanik",ico:"⚙",ad:"Mekanik Onarım"},{id:"gantt",ico:"≋",ad:"Gantt Planlama"},{id:"y-dvi",ico:"◈",ad:"DVI / Hasar Haritası",yakinda:true}]},
+  {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Yedek Parça & Stok"},{id:"satinalma",ico:"⇄",ad:"Satın Alma"},{id:"y-protokol",ico:"▣",ad:"Sigorta Protokolleri",yakinda:true},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Zekâsı"}]},
   {grup:"Müşteri & Dosya",g:"var(--ak-c-portal)",ogeler:[{id:"medya",ico:"▥",ad:"Fotoğraf & Evrak"},{id:"portal",ico:"◉",ad:"Müşteri Portalı"},{id:"y-ikame",ico:"◇",ad:"İkame Araç",yakinda:true}]},
-  {grup:"Finans & Yönetim",g:"var(--ak-c-finance)",ogeler:[{id:"y-finans",ico:"₺",ad:"Muhasebe / Finans",yakinda:true},{id:"y-opsintel",ico:"✦",ad:"Operasyon Zekâsı",yakinda:true},{id:"y-bi",ico:"◫",ad:"Yönetim BI",yakinda:true}]},
+  {grup:"Finans & Yönetim",g:"var(--ak-c-finance)",ogeler:[{id:"finans",ico:"₺",ad:"Muhasebe / Finans"},{id:"operasyon",ico:"✦",ad:"Operasyon Zekâsı"},{id:"bi",ico:"◫",ad:"Yönetim BI"}]},
   {grup:"Sistem",g:"var(--ak-c-system)",ogeler:[{id:"servisler",ico:"⚑",ad:"Servisler"},{id:"y-sistem",ico:"⚙",ad:"Sistem",yakinda:true}]},
 ];
 const AK_YAKINDA={
@@ -3723,7 +4093,7 @@ function AdminUygulama({onCikis}){
   const aktifMenu=dosyaId?"dosyalar":servisId?"servisler":sayfa;
   const tumOgeler=AK_MENU.flatMap(m=>m.ogeler);
   const baslik=tumOgeler.find(o=>o.id===sayfa)?.ad||"Kokpit";
-  const altBaslik={kabul:"Kabul ve teslim tutanakları",ekspertiz:"Eksper kararları, teklif ve onaylanan tutarlar",kaporta:"Kaporta bölümü görevleri",boya:"Boya bölümü görevleri",mekanik:"Mekanik bölümü görevleri",stok:"Servis depoları ve parça siparişleri",medya:"Fotoğraf ve evrak tamamlanma durumu",portal:"Müşteri takip linkleri",kokpit:"Günün operasyonu, canlı veri",dosyalar:"Arama, filtre ve dosya listesi",onaylar:"Admin kararı bekleyen iş emirleri",atolye:"Hangi araç hangi bölümde",servisler:"Anlaşmalı servisler ve yükleri"}[sayfa]||"Yol haritasındaki modül";
+  const altBaslik={gantt:"Servise giriş ve tahmini teslim arası, bölüm görevleri",satinalma:"Tüm servislerin parça siparişleri",tedarikci:"Teslim süresi ve zamanında gelme oranı",finans:"Servis faturaları, tahsilat ve açık alacak",operasyon:"Darboğazlar ve gecikme nedenleri",bi:"Yönetim özeti, son 12 ay",kabul:"Kabul ve teslim tutanakları",ekspertiz:"Eksper kararları, teklif ve onaylanan tutarlar",kaporta:"Kaporta bölümü görevleri",boya:"Boya bölümü görevleri",mekanik:"Mekanik bölümü görevleri",stok:"Servis depoları ve parça siparişleri",medya:"Fotoğraf ve evrak tamamlanma durumu",portal:"Müşteri takip linkleri",kokpit:"Günün operasyonu, canlı veri",dosyalar:"Arama, filtre ve dosya listesi",onaylar:"Admin kararı bekleyen iş emirleri",atolye:"Hangi araç hangi bölümde",servisler:"Anlaşmalı servisler ve yükleri"}[sayfa]||"Yol haritasındaki modül";
   return(
     <>
       <aside className="ak-side">
@@ -3770,6 +4140,12 @@ function AdminUygulama({onCikis}){
               {sayfa==="stok"&&<StokSayfasiAdmin/>}
               {sayfa==="medya"&&<MedyaSayfasi onDosyaSec={dosyaAc}/>}
               {sayfa==="portal"&&<PortalSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="gantt"&&<GanttSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="satinalma"&&<SatinAlmaSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="tedarikci"&&<TedarikciSayfasi/>}
+              {sayfa==="finans"&&<FinansSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="operasyon"&&<OperasyonSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="bi"&&<BiSayfasi/>}
               {AK_YAKINDA[sayfa]&&<YakindaSayfasi modul={AK_YAKINDA[sayfa]} onGit={git}/>}
             </div>
           </>
