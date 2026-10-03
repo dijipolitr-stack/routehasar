@@ -4,6 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover"/>
 <meta name="referrer" content="no-referrer"/>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns=%27http://www.w3.org/2000/svg%27 viewBox=%270 0 64 64%27%3E%3Crect width=%2764%27 height=%2764%27 rx=%2716%27 fill=%27%23142636%27/%3E%3Ctext x=%2732%27 y=%2744%27 font-family=%27Arial%27 font-size=%2734%27 font-weight=%27800%27 fill=%27%2306b6d4%27 text-anchor=%27middle%27%3EH%3C/text%3E%3C/svg%3E"/>
 <title>HasarTrack</title>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500;600&display=swap" rel="stylesheet"/>
 <style>
@@ -248,6 +249,48 @@ input:checked+.slider:before{transform:translateX(20px)}
 @media(max-width:800px){.ak-akis{grid-template-columns:1fr}}
 .ak-brand.kucuk{font-size:16px}@media(max-width:950px){.ak-brand.kucuk{font-size:0}}
 @media(max-width:620px){.ak-kutular{grid-template-columns:1fr 1fr;gap:8px}.ak-kutular div{padding:8px 9px}.ak-dosya-baslik{white-space:normal}}
+
+/* ── Giriş ekranları ── */
+.gk{min-height:100vh;display:grid;grid-template-columns:minmax(380px,44%) 1fr;background:#f4f6f8}
+.gk-sol{position:relative;overflow:hidden;background:linear-gradient(160deg,#0c1720 0%,#142636 45%,#203b4e 100%);color:#fff;padding:44px 52px;display:flex;flex-direction:column;justify-content:space-between;gap:32px}
+.gk-sol:before{content:"";position:absolute;width:420px;height:420px;right:-160px;top:-140px;border-radius:50%;background:radial-gradient(circle,#06b6d433,transparent 70%);pointer-events:none}
+.gk-sol:after{content:"";position:absolute;width:360px;height:360px;left:-140px;bottom:-160px;border-radius:50%;background:radial-gradient(circle,#8b5cf62e,transparent 70%);pointer-events:none}
+.gk-sol>*{position:relative;z-index:1}
+.gk-marka{display:flex;align-items:center;gap:10px;font-weight:800;font-size:19px;letter-spacing:-.3px;margin-bottom:44px}
+.gk-marka span{width:34px;height:34px;border-radius:10px;background:linear-gradient(135deg,#1769e0,#06b6d4);display:inline-flex;align-items:center;justify-content:center;font-size:16px;box-shadow:0 6px 18px #1769e055}
+.gk-ust{font-size:10px;letter-spacing:1.2px;text-transform:uppercase;color:#8fc9e9;font-weight:800}
+.gk-sol h1{font-size:30px;line-height:1.2;font-weight:800;letter-spacing:-.6px;margin:10px 0 12px;max-width:440px}
+.gk-sol p{color:#b9c9d5;font-size:13px;line-height:1.7;max-width:420px}
+.gk-surec{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px}
+.gk-surec span{font-size:11px;font-weight:700;padding:6px 11px;border-radius:999px;background:color-mix(in srgb,var(--g) 16%,transparent);color:color-mix(in srgb,var(--g) 70%,white);border:1px solid color-mix(in srgb,var(--g) 35%,transparent)}
+.gk-liste{list-style:none;display:grid;gap:14px}
+.gk-liste li{font-size:12px;color:#9fb2c0;line-height:1.5;padding-left:16px;border-left:2px solid #ffffff22}
+.gk-liste b{display:block;color:#fff;font-size:13px;margin-bottom:2px}
+.gk-sag{display:flex;align-items:center;justify-content:center;padding:40px 24px}
+.gk-kutu{width:100%;max-width:440px;animation:popIn .3s ease}
+.gk-kutu h2{font-size:24px;font-weight:800;letter-spacing:-.5px;color:#17212b}
+.gk-alt{font-size:13px;color:#71808c;margin:6px 0 22px}
+.gk-rol{width:100%;display:flex;align-items:center;gap:14px;text-align:left;background:#fff;border:1px solid #e5e9ed;border-left:3px solid var(--g);border-radius:14px;padding:14px 16px;margin-bottom:10px;box-shadow:0 1px 2px #00000008}
+.gk-rol:hover{transform:translateY(-1px);box-shadow:0 6px 18px #1d2d3b14;border-color:color-mix(in srgb,var(--g) 45%,#e5e9ed)}
+.gk-rol .ak-ico{width:40px;height:40px;border-radius:11px;display:inline-flex;align-items:center;justify-content:center;font-size:17px;font-style:normal;flex-shrink:0;color:var(--g);background:color-mix(in srgb,var(--g) 13%,white)}
+.gk-rol-metin{flex:1;min-width:0}.gk-rol-metin b{display:flex;align-items:center;gap:8px;font-size:14px;color:#17212b}
+.gk-rol-metin small{display:block;font-size:12px;color:#7a8792;margin-top:3px}
+.gk-rol-metin em{font-style:normal;font-size:9px;font-weight:800;padding:2px 7px;border-radius:999px;background:#fff6df;color:#a16207}
+.gk-ok{font-size:20px;color:var(--g)}
+.gk-not{text-align:center;font-size:11px;color:#94a3b8;margin-top:18px}
+.gk-kart{background:#fff;border:1px solid #e5e9ed;border-radius:16px;padding:22px;box-shadow:0 10px 30px #1325360f;margin-top:10px}
+.gk-baslik{display:flex;gap:14px;align-items:center;margin-bottom:18px}
+.gk-baslik h2{font-size:20px}
+.gk-ikon{width:46px;height:46px;border-radius:13px;display:flex;align-items:center;justify-content:center;font-size:21px;flex-shrink:0;background:color-mix(in srgb,var(--g) 13%,white);border:1px solid color-mix(in srgb,var(--g) 30%,white)}
+.gk-demo{margin-top:16px;padding:10px 14px;border-radius:10px;font-size:11px;color:color-mix(in srgb,var(--g) 80%,black);background:color-mix(in srgb,var(--g) 8%,white);border:1px solid color-mix(in srgb,var(--g) 25%,white)}
+@media(max-width:900px){
+  .gk{grid-template-columns:1fr}
+  .gk-sol{padding:22px 20px;gap:0}
+  .gk-marka{margin-bottom:14px}
+  .gk-sol h1{font-size:20px;margin:6px 0 0}
+  .gk-sol p,.gk-surec,.gk-liste{display:none}
+  .gk-sag{align-items:flex-start;padding:22px 16px 40px}
+}
 </style>
 </head>
 <body>
@@ -2213,61 +2256,69 @@ function MuhasebeGorunum({islemler:tumIslemler,setIslemler,onayDurumu:onayProp,s
 }
 
 // ─── GİRİŞ EKRANLARI ──────────────────────────────────────────────────────
+// ─── GİRİŞ EKRANLARI (maketin koyu tanıtım alanı + açık form alanı) ────────
+const GK_ROLLER=[
+  {rol:"admin",  ico:"▦",baslik:"Hasar Admin",           aciklama:"Dosya yönetimi, servis ataması, onay ve muhasebe",g:"var(--ak-c-intake)"},
+  {rol:"servis", ico:"⌘",baslik:"Servis",                aciklama:"Atanan araçlar, iş emirleri, tutanak ve parça",g:"var(--ak-c-repair)"},
+  {rol:"acente", ico:"▣",baslik:"Sigorta Acentesi",      aciklama:"Süreç takibi ve evrak durumu",g:"var(--ak-c-supply)",demo:true},
+  {rol:"musteri",ico:"◉",baslik:"Sigortalı / Araç Sahibi",aciklama:"Takip linkiyle aracınızın onarım durumu",g:"var(--ak-c-portal)"},
+];
+function GirisTanitim(){
+  return(
+    <aside className="gk-sol">
+      <div>
+        <div className="gk-marka"><span>H</span>HasarTrack</div>
+        <div className="gk-ust">Hasar yönetim platformu</div>
+        <h1>Kabulden teslime tüm hasar süreci tek panelde</h1>
+        <p>Sigorta dosyası, servis atölyesi ve araç sahibi aynı kayıt üzerinde çalışır. Her adım tarihiyle tutulur.</p>
+        <div className="gk-surec">{["Kabul","Ekspertiz","Onay","Onarım","Teslim"].map((x,i)=><span key={x} style={{"--g":["#06b6d4","#06b6d4","#f59e0b","#8b5cf6","#10b981"][i]}}>{x}</span>)}</div>
+      </div>
+      <ul className="gk-liste">
+        <li><b>Servis ve admin aynı dosyada</b>İş emri, ek hasar onayı, bölüm görevleri ve faturalar</li>
+        <li><b>Kabul ve teslim tutanağı</b>Kilometre, yakıt, aksesuar ve imzalı çıktı</li>
+        <li><b>Müşteriye şifresiz takip linki</b>Araç sahibi onarımı telefonundan izler</li>
+      </ul>
+    </aside>
+  );
+}
 function RolSecim({onRol}){
   return(
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,background:"var(--bg)",position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",top:"15%",left:"10%",width:320,height:320,borderRadius:"50%",background:"radial-gradient(circle,rgba(37,99,235,0.07),transparent 70%)",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",bottom:"20%",right:"8%",width:260,height:260,borderRadius:"50%",background:"radial-gradient(circle,rgba(124,58,237,0.06),transparent 70%)",pointerEvents:"none"}}/>
-      <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(15,23,42,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,0.05) 1px,transparent 1px)",backgroundSize:"52px 52px",pointerEvents:"none",opacity:.4}}/>
-      <div style={{width:"100%",maxWidth:460,animation:"popIn .35s ease",position:"relative"}}>
-        <div style={{textAlign:"center",marginBottom:40}}>
-          <div style={{width:64,height:64,borderRadius:18,background:"linear-gradient(135deg,#1D4ED8,#2563EB)",display:"flex",alignItems:"center",justifyContent:"center",fontSize:28,margin:"0 auto 18px",boxShadow:"0 0 0 1px rgba(79,70,229,0.4),0 8px 32px rgba(79,70,229,0.3)"}}>🛡️</div>
-          <div style={{fontWeight:800,fontSize:28,letterSpacing:"-0.8px",color:"var(--text-1)"}}>HasarTrack</div>
-          <div style={{fontSize:13,color:"var(--text-2)",marginTop:6,letterSpacing:".1px"}}>Hasar Takip & Yönetim Platformu</div>
-        </div>
-        <div style={{display:"flex",flexDirection:"column",gap:8}}>
-          {[
-            {rol:"admin",   ikon:"🛡️",baslik:"Hasar Admin",           aciklama:"Dosya yönetimi, servis ataması, muhasebe",  renk:"#3B82F6"},
-            {rol:"servis",  ikon:"🔧",baslik:"Servis",                 aciklama:"Atanan araçlar, işlem kalemleri, fotoğraf", renk:"#8B5CF6"},
-            {rol:"acente",  ikon:"🏢",baslik:"Sigorta Acentesi",       aciklama:"Süreç takibi, evrak durumu",               renk:"#06B6D4"},
-            {rol:"musteri", ikon:"👤",baslik:"Sigortalı / Araç Sahibi",aciklama:"Aracınızın anlık onarım durumu",           renk:"#F59E0B"},
-          ].map(r=>(
-            <button key={r.rol} onClick={()=>onRol(r.rol)}
-              style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:14,padding:"15px 18px",display:"flex",alignItems:"center",gap:14,textAlign:"left",transition:"all .2s"}}
-              onMouseEnter={e=>{e.currentTarget.style.borderColor=`${r.renk}50`;e.currentTarget.style.background="var(--surface-3)";e.currentTarget.style.transform="translateX(3px)";}}
-              onMouseLeave={e=>{e.currentTarget.style.borderColor="var(--border)";e.currentTarget.style.background="var(--surface-2)";e.currentTarget.style.transform="none";}}>
-              <div style={{width:42,height:42,borderRadius:11,background:`${r.renk}15`,border:`1px solid ${r.renk}25`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:20,flexShrink:0}}>{r.ikon}</div>
-              <div style={{flex:1}}>
-                <div style={{fontWeight:700,fontSize:14,color:"var(--text-1)",marginBottom:2}}>{r.baslik}</div>
-                <div style={{fontSize:11,color:"var(--text-2)"}}>{r.aciklama}</div>
-              </div>
-              <div style={{width:28,height:28,borderRadius:"50%",background:`${r.renk}12`,display:"flex",alignItems:"center",justifyContent:"center",color:r.renk,fontSize:16,flexShrink:0}}>›</div>
+    <div className="gk">
+      <GirisTanitim/>
+      <main className="gk-sag">
+        <div className="gk-kutu">
+          <h2>Giriş yapın</h2>
+          <p className="gk-alt">Panelinize girmek için rolünüzü seçin.</p>
+          {GK_ROLLER.map(r=>(
+            <button key={r.rol} className="gk-rol" style={{"--g":r.g}} onClick={()=>onRol(r.rol)}>
+              <i className="ak-ico">{r.ico}</i>
+              <span className="gk-rol-metin"><b>{r.baslik}{r.demo&&<em>Demo</em>}</b><small>{r.aciklama}</small></span>
+              <span className="gk-ok">›</span>
             </button>
           ))}
+          <div className="gk-not">Demo ortamı · Kayıtlar örnek veridir</div>
         </div>
-        <div style={{textAlign:"center",marginTop:28,fontSize:10,color:"var(--text-2)",letterSpacing:".3px"}}>DEMO SİSTEM · GERÇEK VERİ KULLANILMAZ</div>
-      </div>
+      </main>
     </div>
   );
 }
-
 function GirisKabuk({ikon,baslik,renk,aciklama,onGeri,demo,children}){
   return(
-    <div style={{minHeight:"100vh",display:"flex",alignItems:"center",justifyContent:"center",padding:24,background:"var(--bg)",position:"relative",overflow:"hidden"}}>
-      <div style={{position:"absolute",top:"20%",right:"15%",width:240,height:240,borderRadius:"50%",background:`radial-gradient(circle,${renk}15,transparent 70%)`,pointerEvents:"none"}}/>
-      <div style={{position:"absolute",inset:0,backgroundImage:"linear-gradient(rgba(15,23,42,0.05) 1px,transparent 1px),linear-gradient(90deg,rgba(15,23,42,0.05) 1px,transparent 1px)",backgroundSize:"52px 52px",pointerEvents:"none",opacity:.3}}/>
-      <div style={{width:"100%",maxWidth:400,position:"relative",animation:"popIn .3s ease"}}>
-        <button onClick={onGeri} style={{background:"none",border:"none",color:"var(--text-2)",fontSize:12,marginBottom:28,display:"flex",alignItems:"center",gap:6,fontFamily:"var(--font-body)",padding:0}}>
-          <span style={{fontSize:16}}>←</span> Geri Dön
-        </button>
-        <div style={{textAlign:"center",marginBottom:32}}>
-          <div style={{width:56,height:56,borderRadius:16,background:`${renk}15`,border:`1px solid ${renk}30`,display:"flex",alignItems:"center",justifyContent:"center",fontSize:24,margin:"0 auto 16px",boxShadow:`0 0 24px ${renk}20`}}>{ikon}</div>
-          <div style={{fontWeight:800,fontSize:22,letterSpacing:"-0.5px"}}>{baslik}</div>
-          {aciklama&&<div style={{fontSize:12,color:"var(--text-2)",marginTop:5}}>{aciklama}</div>}
+    <div className="gk">
+      <GirisTanitim/>
+      <main className="gk-sag">
+        <div className="gk-kutu">
+          <button className="ak-geri" onClick={onGeri}>← Rol seçimine dön</button>
+          <div className="gk-kart">
+            <div className="gk-baslik">
+              <div className="gk-ikon" style={{"--g":renk}}>{ikon}</div>
+              <div><h2>{baslik}</h2>{aciklama&&<p className="gk-alt" style={{margin:0}}>{aciklama}</p>}</div>
+            </div>
+            {children}
+            {demo&&<div className="gk-demo" style={{"--g":renk}}>💡 {demo}</div>}
+          </div>
         </div>
-        {children}
-        {demo&&<div style={{marginTop:16,padding:"10px 14px",background:`${renk}08`,border:`1px solid ${renk}20`,borderRadius:10,fontSize:11,color:renk}}>💡 {demo}</div>}
-      </div>
+      </main>
     </div>
   );
 }
@@ -2290,7 +2341,7 @@ function AdminGiris({onGiris,onGeri}){
     } finally { setLoading(false); }
   };
   return(
-    <GirisKabuk ikon="🛡️" baslik="Hasar Admin" renk="#3B82F6" aciklama="Tam erişim — veri girişi, muhasebe, servis yönetimi" onGeri={onGeri}>
+    <GirisKabuk ikon="🛡️" baslik="Hasar Admin" renk="#3B82F6" aciklama="Tam erişim: veri girişi, muhasebe, servis yönetimi" onGeri={onGeri}>
       <div style={{background:"var(--surface-2)",border:"1px solid var(--border)",borderRadius:12,padding:18,marginBottom:18}}>
         {["Hasar dosyası oluşturma ve düzenleme","Servise araç atama","Muhasebe ve onay yönetimi","SMS bildirimleri ve iletişim"].map(y=>(
           <div key={y} style={{display:"flex",alignItems:"center",gap:10,fontSize:12,color:"var(--text-2)",marginBottom:8}}>
