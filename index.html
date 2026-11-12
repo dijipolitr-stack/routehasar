@@ -3012,11 +3012,11 @@ function ServisPanel({servisBilgi,onCikis}){
     {grup:"Genel",g:"var(--ak-c-system)",ogeler:[{id:"araclar",ico:"▦",ad:"Araçlarım"}]},
     {grup:"Kabul & Onay",g:"var(--ak-c-intake)",ogeler:[{id:"kabul",ico:"↦",ad:"Araç Kabul & Teslim"},{id:"onaylar",ico:"✓",ad:"Bekleyen Onaylar"}]},
     {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"pano",ico:"⌘",ad:"Atölye Panosu"},{id:"kaporta",ico:"▧",ad:"Kaporta"},{id:"boya",ico:"◩",ad:"Boya"},{id:"mekanik",ico:"⚙",ad:"Mekanik"},{id:"gantt",ico:"≋",ad:"Gantt Planlama"},{id:"dvi-liste",ico:"◈",ad:"Hasar Haritaları"},{id:"operasyon",ico:"✦",ad:"Gecikmeler"}]},
-    {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Depo & Parça"},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Karnesi"},{id:"protokol",ico:"▣",ad:"Sigorta Protokolleri"}]},
+    {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Depo & Parça"},{id:"lastik",ico:"◍",ad:"Lastik Talebi"},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Karnesi"},{id:"protokol",ico:"▣",ad:"Sigorta Protokolleri"}]},
     {grup:"Finans",g:"var(--ak-c-finance)",ogeler:[{id:"finans",ico:"₺",ad:"Faturalar"}]},
     {grup:"Müşteri & Dosya",g:"var(--ak-c-portal)",ogeler:[{id:"medya",ico:"▥",ad:"Fotoğraf & Evrak"},{id:"portal",ico:"◉",ad:"Müşteri Takibi"},{id:"ikame",ico:"◇",ad:"İkame Araç"}]},
   ];
-  const sayfaBaslik={"dvi-liste":["Hasar Haritaları","Araç şeması üzerinde hasar noktaları"],protokol:["Sigorta Protokolleri","Şirkete göre işçilik ücreti, iskonto ve muafiyet"],onaylar:["Bekleyen Onaylar","Karar bekleyen teklif ve ek hasar turları"],ikame:["İkame Araç","Filo, araç verme ve iade"],gantt:["Gantt Planlama","Araçların servis takvimi"],operasyon:["Gecikmeler","Darboğazlar ve gecikme nedenleri"],tedarikci:["Tedarikçi Karnesi","Teslim süresi ve zamanında gelme oranı"],finans:["Faturalar","Kesilen faturalar ve tahsilat"],kabul:["Araç Kabul & Teslim","Kabul ve teslim tutanakları"],kaporta:["Kaporta","Kaporta bölümü görevleri"],boya:["Boya","Boya bölümü görevleri"],mekanik:["Mekanik","Mekanik bölümü görevleri"],medya:["Fotoğraf & Evrak","Evrak tamamlanma durumu"],portal:["Müşteri Takibi","Müşteri takip linkleri"],araclar:["Araçlarım","Servise atanan araçlar, canlı veri"],pano:["Atölye Panosu","Hangi araç hangi bölümde"],stok:["Depo & Parça","Stok, parça siparişleri ve tedarikçiler"]}[tab]||["Araçlarım",""];
+  const sayfaBaslik={"dvi-liste":["Hasar Haritaları","Araç şeması üzerinde hasar noktaları"],protokol:["Sigorta Protokolleri","Şirkete göre işçilik ücreti, iskonto ve muafiyet"],onaylar:["Bekleyen Onaylar","Karar bekleyen teklif ve ek hasar turları"],ikame:["İkame Araç","Filo, araç verme ve iade"],gantt:["Gantt Planlama","Araçların servis takvimi"],operasyon:["Gecikmeler","Darboğazlar ve gecikme nedenleri"],tedarikci:["Tedarikçi Karnesi","Teslim süresi ve zamanında gelme oranı"],finans:["Faturalar","Kesilen faturalar ve tahsilat"],kabul:["Araç Kabul & Teslim","Kabul ve teslim tutanakları"],kaporta:["Kaporta","Kaporta bölümü görevleri"],boya:["Boya","Boya bölümü görevleri"],mekanik:["Mekanik","Mekanik bölümü görevleri"],medya:["Fotoğraf & Evrak","Evrak tamamlanma durumu"],portal:["Müşteri Takibi","Müşteri takip linkleri"],araclar:["Araçlarım","Servise atanan araçlar, canlı veri"],pano:["Atölye Panosu","Hangi araç hangi bölümde"],stok:["Depo & Parça","Stok, parça siparişleri ve tedarikçiler"],lastik:["Lastik Talebi","Lastik talepleriniz ve durumları"]}[tab]||["Araçlarım",""];
   const git=(id)=>{setTab(id);window.scrollTo(0,0);};
   const d=detay;
 
@@ -3130,6 +3130,7 @@ function ServisPanel({servisBilgi,onCikis}){
         {tab==="bilgi"&&seciliId&&(detay?<DosyaBilgileriFormu dosyaId={seciliId} dosya={detay} onKaydedildi={async()=>{await detayYukle(seciliId,true);listeYukle(true);}}/>:detayHata?<HataKutusu hata={detayHata} onTekrar={()=>detayYukle(seciliId)}/>:<div className="ak-bos">Yükleniyor...</div>)}
         {tab==="onaylar"&&<BekleyenOnaylar onDosyaAc={(id)=>dosyaSec(id,"muhasebe")}/>}
         {tab==="ikame"&&<IkameSayfasi onDosyaSec={dosyaSec}/>}
+        {tab==="lastik"&&<LastikTalepSayfasi/>}
         {tab==="dvi-liste"&&<DviSayfasi onDosyaSec={dosyaSec}/>}
         {tab==="protokol"&&<ProtokolSayfasi yazabilir/>}
         {["kaporta","boya","mekanik"].includes(tab)&&<BolumSayfasi key={tab} bolum={tab} onDosyaSec={dosyaSec}/>}
@@ -4247,6 +4248,87 @@ function ProtokolKontrol({dosyaId}){
   );
 }
 
+// Lastik talepleri: servis açar ve kendi taleplerini izler; admin tüm talepleri görür, durumu günceller.
+const LASTIK_MEVSIM={yaz:"Yaz",kis:"Kış",dort:"4 Mevsim"};
+const LASTIK_DURUM={bekliyor:["Bekliyor","ak-uyari"],islemde:["İşlemde","ak-bilgi"],tamamlandi:["Tamamlandı","ak-ok"],iptal:["İptal","ak-gri"]};
+function LastikTalepSayfasi({admin}){
+  const [veri,hata,yukle]=useApiVeri("/lastik-talepleri");
+  const [form,setForm]=useState(null);const [isHata,setIsHata]=useState("");const [kayit,setKayit]=useState(false);
+  const [filtre,setFiltre]=useState("acik");
+  if(!veri)return <ModulDurum hata={hata} yukle={yukle}/>;
+  const t=veri.talepler;
+  const acik=t.filter(x=>x.durum==="bekliyor"||x.durum==="islemde");
+  const liste=filtre==="acik"?acik:filtre==="hepsi"?t:t.filter(x=>x.durum===filtre);
+  const set=(k,v)=>setForm(x=>({...x,[k]:v}));
+  const gonder=async()=>{
+    setKayit(true);setIsHata("");
+    try{
+      await apiCall("/lastik-talepleri","POST",{plaka:form.plaka,marka:form.marka,model:form.model,ebat:form.ebat,mevsim:form.mevsim,adet:form.adet===""?undefined:Number(form.adet),notlar:form.notlar});
+      setForm(null);setFiltre("acik");yukle();
+    }catch(e){setIsHata(e.message);}finally{setKayit(false);}
+  };
+  const guncelle=async(x,govde)=>{setIsHata("");try{await apiCall(`/lastik-talepleri/${x.id}`,"PATCH",govde);yukle();}catch(e){setIsHata(e.message);}};
+  const notYaz=(x)=>{const n=window.prompt("Servise görünecek not",x.admin_notu||"");if(n!==null)guncelle(x,{admin_notu:n});};
+  const etiket=(l)=><span style={{display:"block",fontSize:10,color:"#6f7e89",fontWeight:700,margin:"8px 0 4px"}}>{l}</span>;
+  const alan=(k,l,tip="text",yer="")=><label style={{display:"block"}}>{etiket(l)}<input type={tip} value={form[k]??""} placeholder={yer} onChange={e=>set(k,e.target.value)} className="inp" style={{padding:"8px 10px"}}/></label>;
+  const say=(d)=>t.filter(x=>x.durum===d).length;
+  return(
+    <>
+      <KpiSatiri ogeler={[
+        {l:"Bekleyen",v:say("bekliyor"),s:"Henüz işleme alınmadı",k:"var(--ak-c-intake)"},
+        {l:"İşlemde",v:say("islemde"),s:"Tedarik ediliyor",k:"var(--ak-c-supply)"},
+        {l:"Tamamlanan",v:say("tamamlandi"),s:"Son 300 talepte",k:"#0ca30c"},
+        {l:"Açık lastik adedi",v:acik.reduce((s,x)=>s+Number(x.adet),0),s:"Bekleyen + işlemde",k:"var(--ak-c-portal)"}]}/>
+      {isHata&&<div style={{marginBottom:12}}><HataKutusu hata={isHata}/></div>}
+      {form&&(
+        <section className="ak-kart" style={{marginBottom:14,borderLeft:"3px solid var(--ak-c-supply)"}}>
+          <div className="ak-baslik"><h3>Yeni lastik talebi</h3><button className="ak-btn" onClick={()=>{setForm(null);setIsHata("");}}>Vazgeç</button></div>
+          <div style={{display:"grid",gridTemplateColumns:"repeat(auto-fill,minmax(170px,1fr))",gap:"0 12px"}}>
+            {alan("marka","Lastik markası *","text","Michelin")}
+            {alan("model","Lastik modeli","text","Primacy 4")}
+            {alan("ebat","Ebat *","text","205/55 R16 91V")}
+            <label style={{display:"block"}}>{etiket("Mevsim *")}
+              <select value={form.mevsim||""} onChange={e=>set("mevsim",e.target.value)} className="inp" style={{padding:"8px 10px"}}>
+                <option value="">Seçin</option>{Object.entries(LASTIK_MEVSIM).map(([k,v])=><option key={k} value={k}>{v}</option>)}
+              </select></label>
+            {alan("adet","Adet *","number","4")}
+            {alan("plaka","Araç plakası","text","34 ABC 123")}
+          </div>
+          <label style={{display:"block"}}>{etiket("Not")}<textarea value={form.notlar||""} onChange={e=>set("notlar",e.target.value)} className="inp" rows={2} style={{padding:"8px 10px",resize:"vertical"}} placeholder="Teslim tarihi, araç bilgisi vb."/></label>
+          <button className="ak-btn ana" style={{marginTop:12}} disabled={kayit} onClick={gonder}>{kayit?"Gönderiliyor...":"Talebi gönder"}</button>
+        </section>
+      )}
+      <section className="ak-kart" style={{overflowX:"auto"}}>
+        <div className="ak-baslik"><h3>{admin?"Servislerden gelen talepler":"Taleplerim"}</h3>
+          <div style={{display:"flex",gap:6,flexWrap:"wrap"}}>
+            <select value={filtre} onChange={e=>setFiltre(e.target.value)} className="inp" style={{padding:"6px 8px",width:"auto"}}>
+              <option value="acik">Açık talepler</option><option value="tamamlandi">Tamamlanan</option><option value="iptal">İptal</option><option value="hepsi">Hepsi</option>
+            </select>
+            {!admin&&!form&&<button className="ak-btn ana" onClick={()=>setForm({adet:"4"})}>+ Lastik talebi</button>}
+          </div>
+        </div>
+        {liste.length===0?<div className="ak-bos">{admin?"Bu filtrede talep yok.":"Bu filtrede talebiniz yok."}</div>:(
+          <table className="ak-tablo"><thead><tr><th>Lastik</th>{admin&&<th>Servis</th>}<th>Adet</th><th>Durum</th><th className="gizle">Not</th><th></th></tr></thead>
+            <tbody>{liste.map(x=><tr key={x.id}>
+              <td><span className="no">{x.ebat}</span><span className="alt">{[x.marka,x.model,LASTIK_MEVSIM[x.mevsim],x.plaka].filter(Boolean).join(" · ")}</span></td>
+              {admin&&<td>{x.servis_ad}<span className="alt">{trTarihZaman(x.created_at)}</span></td>}
+              <td>{x.adet}{!admin&&<span className="alt">{trTarihZaman(x.created_at)}</span>}</td>
+              <td><span className={`ak-cip ${LASTIK_DURUM[x.durum][1]}`}>{LASTIK_DURUM[x.durum][0]}</span></td>
+              <td className="gizle" style={{maxWidth:260}}>{x.notlar&&<span className="alt" style={{whiteSpace:"pre-wrap"}}>{x.notlar}</span>}{x.admin_notu&&<span className="alt" style={{whiteSpace:"pre-wrap",color:"var(--ak-c-supply)"}}>FiloDesk: {x.admin_notu}</span>}</td>
+              <td style={{whiteSpace:"nowrap",textAlign:"right"}}>
+                {admin?<>
+                  <select value={x.durum} onChange={e=>guncelle(x,{durum:e.target.value})} className="inp" style={{padding:"5px 6px",width:"auto"}}>
+                    {Object.entries(LASTIK_DURUM).map(([k,v])=><option key={k} value={k}>{v[0]}</option>)}
+                  </select> <button className="ak-btn" onClick={()=>notYaz(x)}>Not</button></>
+                :x.durum==="bekliyor"&&<button className="ak-btn" onClick={()=>window.confirm("Talep iptal edilsin mi?")&&guncelle(x,{durum:"iptal"})}>İptal et</button>}
+              </td>
+            </tr>)}</tbody></table>
+        )}
+      </section>
+    </>
+  );
+}
+
 // İkame araç (admin)
 function IkameSayfasi({onDosyaSec}){
   const [veri,hata,yukle]=useApiVeri("/ikame");
@@ -4456,7 +4538,7 @@ const AK_MENU=[
   {grup:"Genel",g:"var(--ak-c-system)",ogeler:[{id:"kokpit",ico:"▦",ad:"Kokpit"}]},
   {grup:"Kabul & Ekspertiz",g:"var(--ak-c-intake)",ogeler:[{id:"kabul",ico:"↦",ad:"Araç Kabul & Teslim"},{id:"dosyalar",ico:"▤",ad:"Hasar Dosyaları"},{id:"ekspertiz",ico:"⌕",ad:"Ekspertiz & Sigorta"},{id:"onaylar",ico:"✓",ad:"Bekleyen Onaylar",rozet:"onay"}]},
   {grup:"Onarım Operasyonları",g:"var(--ak-c-repair)",ogeler:[{id:"atolye",ico:"⌘",ad:"Atölye / Kanban"},{id:"kaporta",ico:"▧",ad:"Kaporta Operasyonu"},{id:"boya",ico:"◩",ad:"Boya Operasyonu"},{id:"mekanik",ico:"⚙",ad:"Mekanik Onarım"},{id:"gantt",ico:"≋",ad:"Gantt Planlama"},{id:"dvi",ico:"◈",ad:"DVI / Hasar Haritası"}]},
-  {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Yedek Parça & Stok"},{id:"satinalma",ico:"⇄",ad:"Satın Alma"},{id:"protokol",ico:"▣",ad:"Sigorta Protokolleri"},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Zekâsı"}]},
+  {grup:"Parça & Tedarik",g:"var(--ak-c-supply)",ogeler:[{id:"stok",ico:"⬡",ad:"Yedek Parça & Stok"},{id:"lastik",ico:"◍",ad:"Lastik Talepleri"},{id:"satinalma",ico:"⇄",ad:"Satın Alma"},{id:"protokol",ico:"▣",ad:"Sigorta Protokolleri"},{id:"tedarikci",ico:"◎",ad:"Tedarikçi Zekâsı"}]},
   {grup:"Müşteri & Dosya",g:"var(--ak-c-portal)",ogeler:[{id:"medya",ico:"▥",ad:"Fotoğraf & Evrak"},{id:"portal",ico:"◉",ad:"Müşteri Portalı"},{id:"ikame",ico:"◇",ad:"İkame Araç"}]},
   {grup:"Finans & Yönetim",g:"var(--ak-c-finance)",ogeler:[{id:"finans",ico:"₺",ad:"Muhasebe / Finans"},{id:"operasyon",ico:"✦",ad:"Operasyon Zekâsı"},{id:"bi",ico:"◫",ad:"Yönetim BI"}]},
   {grup:"Sistem",g:"var(--ak-c-system)",ogeler:[{id:"servisler",ico:"⚑",ad:"Servisler"},{id:"sistem",ico:"⚙",ad:"Sistem"}]},
@@ -4491,7 +4573,7 @@ function AdminUygulama({onCikis}){
   const aktifMenu=dosyaId?"dosyalar":servisId?"servisler":sayfa;
   const tumOgeler=AK_MENU.flatMap(m=>m.ogeler);
   const baslik=tumOgeler.find(o=>o.id===sayfa)?.ad||"Kokpit";
-  const altBaslik={dvi:"Araç şeması üzerinde hasar noktaları",protokol:"Şirkete göre işçilik ücreti, iskonto ve muafiyet",ikame:"İkame araç filosu, verme ve iade",sistem:"Hesaplar, veritabanı ve API durumu",gantt:"Servise giriş ve tahmini teslim arası, bölüm görevleri",satinalma:"Tüm servislerin parça siparişleri",tedarikci:"Teslim süresi ve zamanında gelme oranı",finans:"Servis faturaları, tahsilat ve açık alacak",operasyon:"Darboğazlar ve gecikme nedenleri",bi:"Yönetim özeti, son 12 ay",kabul:"Kabul ve teslim tutanakları",ekspertiz:"Eksper kararları, teklif ve onaylanan tutarlar",kaporta:"Kaporta bölümü görevleri",boya:"Boya bölümü görevleri",mekanik:"Mekanik bölümü görevleri",stok:"Servis depoları ve parça siparişleri",medya:"Fotoğraf ve evrak tamamlanma durumu",portal:"Müşteri takip linkleri",kokpit:"Günün operasyonu, canlı veri",dosyalar:"Arama, filtre ve dosya listesi",onaylar:"Admin kararı bekleyen iş emirleri",atolye:"Hangi araç hangi bölümde",servisler:"Anlaşmalı servisler ve yükleri"}[sayfa]||"Yol haritasındaki modül";
+  const altBaslik={dvi:"Araç şeması üzerinde hasar noktaları",protokol:"Şirkete göre işçilik ücreti, iskonto ve muafiyet",ikame:"İkame araç filosu, verme ve iade",sistem:"Hesaplar, veritabanı ve API durumu",gantt:"Servise giriş ve tahmini teslim arası, bölüm görevleri",satinalma:"Tüm servislerin parça siparişleri",tedarikci:"Teslim süresi ve zamanında gelme oranı",finans:"Servis faturaları, tahsilat ve açık alacak",operasyon:"Darboğazlar ve gecikme nedenleri",bi:"Yönetim özeti, son 12 ay",kabul:"Kabul ve teslim tutanakları",ekspertiz:"Eksper kararları, teklif ve onaylanan tutarlar",kaporta:"Kaporta bölümü görevleri",boya:"Boya bölümü görevleri",mekanik:"Mekanik bölümü görevleri",stok:"Servis depoları ve parça siparişleri",lastik:"Servislerden gelen lastik talepleri",medya:"Fotoğraf ve evrak tamamlanma durumu",portal:"Müşteri takip linkleri",kokpit:"Günün operasyonu, canlı veri",dosyalar:"Arama, filtre ve dosya listesi",onaylar:"Admin kararı bekleyen iş emirleri",atolye:"Hangi araç hangi bölümde",servisler:"Anlaşmalı servisler ve yükleri"}[sayfa]||"Yol haritasındaki modül";
   return(
     <>
       <aside className="ak-side">
@@ -4547,6 +4629,7 @@ function AdminUygulama({onCikis}){
               {sayfa==="dvi"&&<DviSayfasi onDosyaSec={dosyaAc}/>}
               {sayfa==="protokol"&&<ProtokolSayfasi yazabilir/>}
               {sayfa==="ikame"&&<IkameSayfasi onDosyaSec={dosyaAc}/>}
+              {sayfa==="lastik"&&<LastikTalepSayfasi admin/>}
               {sayfa==="sistem"&&<SistemSayfasi/>}
               {AK_YAKINDA[sayfa]&&<YakindaSayfasi modul={AK_YAKINDA[sayfa]} onGit={git}/>}
             </div>
